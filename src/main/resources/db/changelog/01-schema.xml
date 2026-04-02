@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="01" author="kc1vmz">
+    <createTable tableName="section">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="active" type="BOOLEAN">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="recurring_event">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="description" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="location" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="net_control_callsign" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="schedule" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="section_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="type" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="active_section" type="BOOLEAN">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+    <createTable tableName="participant">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="backup_power" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="end_time" type="NUMERIC">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="event_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="operator_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="primary_power" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="start_time" type="NUMERIC">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="transmit_power" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="operator_section">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="membership_type" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="operator_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="section_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="operator">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="callsign" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="is_nts" type="BOOLEAN">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="is_skywarn" type="BOOLEAN">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="event">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="description" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="end_time" type="NUMERIC">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="location" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="net_control_callsign" type="VARCHAR(255)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="recurring_event_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="section_id" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="secure" type="BOOLEAN">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="start_time" type="NUMERIC">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="type" type="VARCHAR(255)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="active_section" type="BOOLEAN">
+        <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

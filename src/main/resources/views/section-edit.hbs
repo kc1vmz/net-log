@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Update Section Details - {{section.name}}</title>
+</head>
+<body>
+<style>
+
+body {
+    margin: 0px;
+    background: #2559a7;
+    color: #ddd;
+  }
+
+.navbar {
+  overflow: hidden;
+  background-color: #2559a7;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+  background-color: #2559a7;
+  color: #ddd;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Change background on mouse-over */
+.navbar a:hover {
+  background: #ddd;
+  color: black;
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.grid-item {
+}
+
+.line {
+  margin : 20px;
+}
+
+    .main a {
+        color: #ddd;
+    }
+
+
+.grid-membership-container {
+  display: grid;
+  grid-template-columns: 30% 30% 40%;
+  margin: 0px;
+  gap: 20px;
+}
+.grid-membership-item {
+}
+
+
+
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    thead, tbody {
+    }
+    thead {
+    }
+    tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        color: #ddd;
+        background-color: #2559a7
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        background-color: #ddd;
+        color: #2559a7
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+    background: #033684;
+    color: white;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .block:hover {
+    background: #ddd;
+    color: black;
+  }
+</style>
+
+<script>
+
+  var callsignMembers =  '{{{sectionOperatorsString}}}';
+
+  function addMember(id, callsign, membershipType) {
+    moveMember(id, callsign, 'assigned', membershipType)
+  }
+  function removeMember(id, callsign) {
+    moveMember(id, callsign, 'available', "0")
+  }
+
+  function addId(id, membershipType) {
+    callsignMembers += (id+membershipType);
+    setIds();
+  }
+
+  function setIds() {
+    tempString = document.querySelector('#callsignMemberIds');
+    tempString.value = callsignMembers;
+  }
+
+  function removeId(id) {
+    if ((callsignMembers === null) || (callsignMembers === '')) {
+      setIds();
+      return;
+    }
+    let newIds = '';
+    for (let i = 0; i < callsignMembers.length; i+=37) {
+      let idList = callsignMembers.substring(i, i+36);
+      let idEntry = callsignMembers.substring(i, i+37);
+      if (idList != id) {
+        newIds += idEntry;
+      }
+    }
+    callsignMembers = newIds;
+    setIds();
+  }
+
+  function moveMember(rowId, callsign, target, membershipType) {
+
+    const row = document.getElementById(rowId);
+    if (!row) return;
+
+    let targetTableBody;
+    let newButtonAction;
+    let newButtonText;
+    let newButtonAction2;
+    let newButtonText2;
+    let membershipTypeValue;
+
+    if (target === 'assigned') {
+        targetTableBody = document.querySelector('#section-operator-list tbody');
+        newButtonAction = 'removeMember(\'' + rowId + '\', \''+callsign+'\')';
+        newButtonText = 'Remove';
+        newButtonAction2 = null;
+        newButtonText2 = null;
+        membershipTypeValue = '';
+        if (membershipType == '2') {
+            membershipTypeValue = 'MEMBER';
+        } else if (membershipType == '3') {
+            membershipTypeValue = 'LEADERSHIP';
+        }
+        addId(rowId, membershipType);
+    } else if (target === 'available') {
+        targetTableBody = document.querySelector('#operator-list tbody');
+        newButtonAction = 'addMember(\'' + rowId + '\', \''+callsign+'\', \'2\')';
+        newButtonText = 'Add as member';
+        newButtonAction2 = 'addMember(\'' + rowId + '\', \''+callsign+'\', \'3\')';
+        newButtonText2 = 'Add as leadership';
+        membershipTypeValue = 'NON MEMBER';
+        removeId(rowId);
+    }
+
+    if (targetTableBody) {
+        // Find the button cell (the second cell) and update its action and text
+        const buttonCell = row.cells[row.cells.length-1];
+        const membershipTypeCell = row.cells[row.cells.length-2];
+        if (buttonCell) {
+            buttonCell.innerHTML = ''; // Clear existing button
+            membershipTypeCell.innerText = membershipTypeValue;
+            const newButton = document.createElement('button');
+            newButton.onclick = new Function(newButtonAction);
+            newButton.textContent = newButtonText;
+            newButton.classList.add('move-btn');
+            buttonCell.appendChild(newButton);
+            if (newButtonAction2 != null) {
+              const newButton2 = document.createElement('button');
+              newButton2.onclick = new Function(newButtonAction2);
+              newButton2.textContent = newButtonText2;
+              newButton2.classList.add('move-btn');
+              buttonCell.appendChild(newButton2);
+            }
+        }
+        
+        // Move the row to the new table
+        targetTableBody.appendChild(row);
+    }
+  }
+
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents">Active Events</a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections"><b>Sections</b></a>
+    <a href="/operators">Operators</a>
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div style="margin:20px;">
+    <h1>Update Section Details - {{section.name}}</h1>
+    <p>Update the properties of a section.
+    <div class="line" style="margin:0px"><hr/></div>
+    </div>
+
+    <div style="margin:20px;">
+      <form action="/section-edit-action/{{section.id}}" method="post">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" name="name" value="{{section.name}}" id="name" min="1" maxlength="30" class="form-control" required="required"/>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <input type="text" name="description" value="{{section.description}}" id="description"  maxlength="30" class="form-control" required="required"/>
+        </div>
+        <input type="hidden" name="callsignMemberIds" value="{{sectionOperatorString}}" id="callsignMemberIds" class="form-control"/>
+
+        <div class="grid-membership-container">
+          <div class="grid-membership-item">
+            <div class="table-container" >
+              <h3>Members</h3>
+              <table id="section-operator-list">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Name</th>
+                    <th>Membership</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each sectionOperators}}
+                    <tr id="{{id}}">
+                      <td>{{callsign}}</td>
+                      <td>{{name}}</td>
+                      <td>{{membershipType}}</td>
+                      <td><button onclick='removeMember("{{id}}", "{{callsign}}")'>Remove</button></td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid-membership-item">
+            <div class="table-container" >
+              <h3>Potential members</h3>
+              <table id="operator-list">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Name</th>
+                    <th>Membership</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each operators}}
+                    <tr id="{{id}}">
+                      <td>{{callsign}}</td>
+                      <td>{{name}}</td>
+                      <td>NON MEMBER</td>
+                      <td><button onclick='addMember("{{id}}", "{{callsign}}", "2")'>Add as member</button>&nbsp;<button onclick='addMember("{{id}}", "{{callsign}}", "3")'>Add as leadership</button></td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <!-- end grid -->
+        </div>
+
+
+        <div class="line" style="margin:0px"><hr/></div>
+        <div>
+          <input type="submit" value="Update" class="btn btn-primary block"/>
+          <a class="block" href="/section/{{section.id}}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+</div>
+
+</body>
+</html>
