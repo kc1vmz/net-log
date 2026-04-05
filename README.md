@@ -51,4 +51,5 @@ java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog
 ## Versions
 
 1.0.2 - Added a list of previous event operators to make check-in easier
+
 1.0.1 - Initial release
