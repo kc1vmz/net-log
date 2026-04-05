@@ -86,7 +86,7 @@ body {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 50%  50%;
+  grid-template-columns: 25% 25% 25% 25%;
   margin: 20px;
   gap: 20px;
 }
@@ -284,7 +284,7 @@ body {
       <form action="/activeEvent-checkin-action/{{event.id}}" method="post">
         <input type="hidden" name="participantIds" id="participantIds" class="form-control"/>
 
-        <div class="grid-membership-container">
+        <div class="grid-membership-container"  style="margin:20px;">
           <div class="grid-membership-item">
             <div class="table-container" >
               <h3>Participants to check-in</h3>
@@ -304,6 +304,31 @@ body {
                       <td>{{operator.name}}</td>
                       <td><input type="text" id="checkInTimeStr" class="form-control"/></td>
                       <td><button onclick='removeMember("{{operator.id}}")'>Check-out</button></td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid-membership-item">
+            <div class="table-container" >
+              <h3>Previous participants</h3>
+              <table id="previous-list">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Name</th>
+                    <th>Check-in time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each previousOperators}}
+                    <tr id="{{id}}">
+                      <td>{{callsign}}</td>
+                      <td>{{name}}</td>
+                      <td><input type="text" id="checkInTimeStr" value="{{checkInTimeStr}}" class="form-control"/></td>
+                      <td><button onclick='addMember("{{id}}")'>Check-in</button></td>
                     </tr>
                   {{/each}}
                 </tbody>

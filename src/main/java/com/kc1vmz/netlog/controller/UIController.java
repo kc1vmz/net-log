@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -929,6 +930,7 @@ public class UIController {
         List<Operator> operators = operatorAccessor.list();
         List<Participant> participants = participantAccessor.listParticipants(event, true);
         removeMemberParticipants(operators, participants);
+        List<Operator> previousOperators = determinePreviousParticipants(event, operators);
 
         Collections.sort(participants, new Comparator<Participant>() {
             @Override
@@ -937,7 +939,14 @@ public class UIController {
             }
         });
 
-        return CollectionUtils.mapOf("event", event, "checkInTimeStr", event.getStartTime().toString(), "operators", operators,
+        Collections.sort(previousOperators, new Comparator<Operator>() {
+            @Override
+            public int compare(Operator obj1, Operator obj2) {
+                return obj1.getCallsign().compareTo(obj2.getCallsign());
+            }
+        });
+
+        return CollectionUtils.mapOf("event", event, "checkInTimeStr", event.getStartTime().toString(), "operators", operators, "previousOperators", previousOperators,
                                         "form", formGenerator.generate("/activeEvent-checkin-action/"+id, ActiveEventCheckInOutRequest.class));
     }
 
@@ -1411,6 +1420,39 @@ public class UIController {
             }
         }
         return eventParticipants;
+    }
+
+    private List<Operator> determinePreviousParticipants(Event event, List<Operator> operators) {
+         List<Operator> ret = new ArrayList<>();
+
+        // get all past events
+        RecurringEvent recurringEvent = event.getRecurringEvent();
+        List<Event> pastEvents = eventAccessor.listByRecurringEvent(recurringEvent, false, false);
+
+        // get a unique set of the last operator objects for each participant in all events
+        Map<String, Operator> mapUniqueOperators = new HashMap<>();
+        for (Event pastEvent : pastEvents) {
+            List<Participant> eventParticipants = participantAccessor.listParticipants(pastEvent, false);
+            for (Participant eventParticipant : eventParticipants) {
+                mapUniqueOperators.put(eventParticipant.getOperator().getCallsign(), eventParticipant.getOperator());
+            }
+        }
+
+        // put in a list
+        for (Map.Entry<String,Operator> mapEntry : mapUniqueOperators.entrySet()) {
+            ret.add(mapEntry.getValue());
+        }
+
+        // filter past participants out of the complete list
+        for (Operator previousOperator : ret) {
+            for (Operator operator : operators) {
+                if (operator.getCallsign().equalsIgnoreCase(previousOperator.getCallsign())) {
+                    operators.remove(operator);
+                    break;
+                }
+            }
+        }
+        return ret;
     }
 
 

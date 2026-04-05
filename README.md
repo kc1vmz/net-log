@@ -15,5 +15,5 @@ mvn clean install
 ### Run 
 
 ```sh
-java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.1.jar
+java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.2.jar
 ```
