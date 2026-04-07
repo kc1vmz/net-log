@@ -16,7 +16,7 @@ This can be done in real time when a net is started, or after the fact.
 
 ## Download 
 
-You can either use the pre-built Java JAR file for version 1.0.2 of the application, or download / clone source code from Github.
+You can either use the pre-built Java JAR file for version 1.0.3 of the application, or download / clone source code from Github.
 
 ## Prerequisites 
 
@@ -44,11 +44,13 @@ mvn clean install
 
 
 ```sh
-java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.2.jar
+java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.3.jar
 ```
 
 
 ## Versions
+
+1.0.3 - Added monthly and quarterly non-participation reports
 
 1.0.2 - Added a list of previous event operators to make check-in easier
 

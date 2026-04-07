@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netlog.accessor.EventAccessor;
+import com.kc1vmz.netlog.accessor.NonParticipationReportAccessor;
 import com.kc1vmz.netlog.accessor.OperatorAccessor;
 import com.kc1vmz.netlog.accessor.ParticipantAccessor;
 import com.kc1vmz.netlog.accessor.ParticipationReportAccessor;
@@ -102,6 +103,8 @@ public class UIController {
     private ParticipationReportAccessor participationReportAccessor;
     @Inject
     private RecurringEventReportAccessor recurringEventReportAccessor;
+    @Inject
+    private NonParticipationReportAccessor nonParticipationReportAccessor;
 
     private static final Logger logger = LogManager.getLogger(UIController.class);
 
@@ -136,7 +139,7 @@ public class UIController {
             }
         });
 
-        return HttpResponse.ok(CollectionUtils.mapOf("event", event, "participants", participants));
+        return HttpResponse.ok(CollectionUtils.mapOf("event", event, "participants", participants, "participantCount", participants.size()));
     }
 
 
@@ -187,6 +190,16 @@ public class UIController {
         return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-monthlyreport-action", MonthlyReportRequest.class));
     }
 
+    @SuppressWarnings("unchecked")
+    @View("archivedEvents-monthlyreport")
+    @Get("/section-monthlyreport/{id}")
+    public Map<String, Object> sectionMonthlyReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        List<Section> sections = new ArrayList<>();
+        sections.add(section);
+        return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-monthlyreport-action", MonthlyReportRequest.class));
+    }
+
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/archivedEvents-monthlyreport-action")
@@ -224,6 +237,16 @@ public class UIController {
     @Get("/archivedEvents-monthlyparticipationreport")
     public Map<String, Object> archivedEventsMonthlyParticipationReport(HttpRequest<?> request) {
         List<Section> sections = sectionAccessor.list();
+        return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-monthlyparticipationreport-action", MonthlyReportRequest.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("archivedEvents-monthlyparticipationreport")
+    @Get("/section-monthlyparticipationreport/{id}")
+    public Map<String, Object> sectionMonthlyParticipationReport(HttpRequest<?> request,  @PathVariable String id) {
+        List<Section> sections = new ArrayList<>();
+        Section section = sectionAccessor.get(id);
+        sections.add(section);
         return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-monthlyparticipationreport-action", MonthlyReportRequest.class));
     }
 
@@ -267,6 +290,16 @@ public class UIController {
         return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-quarterlyreport-action", QuarterlyReportRequest.class));
     }
 
+    @SuppressWarnings("unchecked")
+    @View("archivedEvents-quarterlyreport")
+    @Get("/section-quarterlyreport/{id}")
+    public Map<String, Object> sectionQuarterlyReport(HttpRequest<?> request,  @PathVariable String id) {
+        List<Section> sections = new ArrayList<>();
+        Section section = sectionAccessor.get(id);
+        sections.add(section);
+        return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-quarterlyreport-action", QuarterlyReportRequest.class));
+    }
+
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/archivedEvents-quarterlyreport-action")
@@ -304,6 +337,16 @@ public class UIController {
     @Get("/archivedEvents-quarterlyparticipationreport")
     public Map<String, Object> archivedEventsQuarterlyParticipationReport(HttpRequest<?> request) {
         List<Section> sections = sectionAccessor.list();
+        return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-quarterlyparticipationreport-action", QuarterlyReportRequest.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("archivedEvents-quarterlyparticipationreport")
+    @Get("/section-quarterlyparticipationreport/{id}")
+    public Map<String, Object> sectionQuarterlyParticipationReport(HttpRequest<?> request, @PathVariable String id) {
+        List<Section> sections = new ArrayList<>();
+        Section section = sectionAccessor.get(id);
+        sections.add(section);
         return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-quarterlyparticipationreport-action", QuarterlyReportRequest.class));
     }
 
@@ -410,7 +453,7 @@ public class UIController {
     public HttpResponse<?> sectionDetails(HttpRequest<?> request, @PathVariable String id) {
         Section section = sectionAccessor.get(id);
         List<SectionOperator> operators = operatorAccessor.listOperators(section);
-        return HttpResponse.ok(CollectionUtils.mapOf("section", section, "operators", operators));
+        return HttpResponse.ok(CollectionUtils.mapOf("section", section, "operators", operators, "operatorCount", operators.size()));
     }
 
     @SuppressWarnings("unchecked")
@@ -514,6 +557,87 @@ public class UIController {
         return HttpResponse.seeOther(UriBuilder.of("/").path("/sections").build());
     } 
 
+
+    @SuppressWarnings("unchecked")
+    @View("section-monthlynonparticipationreport")
+    @Get("/section-monthlynonparticipationreport/{id}")
+    public Map<String, Object> sectionMonthlyNonParticipationReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-monthlynonparticipationreport-action", MonthlyReportRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-monthlynonparticipationreport-action")
+    HttpResponse<?> sectionMonthlyNonParticipationReportAction(HttpRequest<?> request, @Valid @Body MonthlyReportRequest actionData) {
+
+        Section section = sectionAccessor.get(actionData.sectionId());
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
+        String dateStr = actionData.month()+"-"+actionData.year();
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+
+        String filename = nonParticipationReportAccessor.generateReport(section, members, eventParticipants, dateStr, "MONTHLY NON-PARTICIPATION");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-monthlynonparticipationreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-monthlynonparticipationreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionMonthlyNonParticipationReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = nonParticipationReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-MonthlyNonParticipationReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("section-quarterlynonparticipationreport")
+    @Get("/section-quarterlynonparticipationreport/{id}")
+    public Map<String, Object> sectionQuarterlyNonParticipationReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-quarterlynonparticipationreport-action", QuarterlyReportRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-quarterlynonparticipationreport-action")
+    HttpResponse<?> sectionQuarterlyNonParticipationReportAction(HttpRequest<?> request, @Valid @Body QuarterlyReportRequest actionData) {
+        Section section = sectionAccessor.get(actionData.sectionId());
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year());
+        String dateStr = actionData.quarter()+"-"+actionData.year();
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+
+        String filename = nonParticipationReportAccessor.generateReport(section, members, eventParticipants, dateStr, "MONTHLY NON-PARTICIPATION");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-quarterlynonparticipationreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-quarterlynonparticipationreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionQuarterlyNonParticipationReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = nonParticipationReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-QuarterlyNonParticipationReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
     @View("operators")
     @Get("/operators")
     public HttpResponse<?> operators(HttpRequest<?> request) {
@@ -545,6 +669,7 @@ public class UIController {
     HttpResponse<?> operatorEditAction(HttpRequest<?> request, @Valid @Body OperatorCreateRequest actionData,  @PathVariable String id) {
         Operator operator = operatorAccessor.get(id);
         operator.setName(actionData.name());
+        operator.setCallsign(actionData.callsign());
 
         boolean isNTS = false;
         if (actionData.isNTS() != null) {
@@ -636,7 +761,12 @@ public class UIController {
                     operator.setCallsign(callsign);
                     operator.setName(name);
                 }
-                operatorAccessor.create(operator);
+                Operator newOperator = operatorAccessor.create(operator);
+                if ((newOperator != null) && (!newOperator.getName().equalsIgnoreCase(operator.getName()))) {
+                    // this was previously created without a name  - set the name
+                    newOperator.setName(operator.getName());
+                    operatorAccessor.update(newOperator.getId(), newOperator);
+                }
             } catch (Exception e) {
             }
         }
@@ -1454,6 +1584,4 @@ public class UIController {
         }
         return ret;
     }
-
-
 }
