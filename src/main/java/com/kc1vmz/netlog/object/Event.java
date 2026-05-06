@@ -22,6 +22,7 @@
 
 import java.time.LocalDateTime;
 
+import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
 import com.kc1vmz.netlog.utils.PrettyZonedDateTimeFormatter;
 
@@ -39,12 +40,12 @@ public class Event implements Comparable<Event> {
     private LocalDateTime endTime;
     private RecurringEvent recurringEvent;
     private Section section;
-    private boolean secure;
     private String location;
     private String netControlCallsign;
     private String prettyStartTime;
     private String prettyEndTime;
     private boolean sectionActive;
+    private EventState state;
 
     public String getId() {
         return id;
@@ -96,12 +97,6 @@ public class Event implements Comparable<Event> {
     public void setSection(Section section) {
         this.section = section;
     }
-    public boolean isSecure() {
-        return secure;
-    }
-    public void setSecure(boolean secure) {
-        this.secure = secure;
-    }
     public String getLocation() {
         return location;
     }
@@ -137,5 +132,11 @@ public class Event implements Comparable<Event> {
     }
     public void setSectionActive(boolean sectionActive) {
         this.sectionActive = sectionActive;
+    }
+    public EventState getState() {
+        return state;
+    }
+    public void setState(EventState state) {
+        this.state = state;
     }
 }

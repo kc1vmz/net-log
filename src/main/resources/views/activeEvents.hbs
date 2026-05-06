@@ -86,7 +86,7 @@ body {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 50%  50%;
+  grid-template-columns: 70%  30%;
   margin: 20px;
   gap: 20px;
 }
@@ -102,7 +102,7 @@ body {
     }
 
     .table-container {
-        max-height: 500px;
+        max-height: 700px;
         overflow-y: auto;
     }
     table {
@@ -182,6 +182,7 @@ body {
               <th>Name</th>
               <th>Description</th>
               <th>Type</th>
+              <th>State</th>
               <th>Start time</th>
               <th>Actions</th>
             </tr>
@@ -193,8 +194,9 @@ body {
                 <td>{{name}}</td>
                 <td>{{description}}</td>
                 <td>{{type}}</td>
+                <td>{{state}}</td>
                 <td>{{prettyStartTime}}</td>
-                <td><a href="/activeEvent/{{id}}">Details</a>&nbsp;<a href="/activeEvent-secure/{{id}}">Secure</a></td>
+                <td><a href="/activeEvent/{{id}}">Details</a></td>
               </tr>
             {{/each}}
           </tbody>

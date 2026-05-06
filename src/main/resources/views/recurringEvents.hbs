@@ -86,7 +86,7 @@ body {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 50%  50%;
+  grid-template-columns: 90%  10%;
   margin: 20px;
   gap: 20px;
 }
@@ -199,6 +199,8 @@ body {
               <th>Name</th>
               <th>Description</th>
               <th>Type</th>
+              <th>Location</th>
+              <th>Schedule</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -209,7 +211,12 @@ body {
                 <td>{{name}}</td>
                 <td>{{description}}</td>
                 <td>{{type}}</td>
-                <td><a href="/recurringEvent/{{id}}">Details</a>&nbsp;<a href="/recurringEvent-start/{{id}}">Start</a>&nbsp;<a href="/recurringEvent-delete/{{id}}">Delete</a></td>
+                <td>{{location}}</td>
+                <td>{{schedule}}</td>
+                <td><a href="/recurringEvent/{{id}}">Details</a>
+                &nbsp;<a href="/recurringEvent-start/{{id}}">Start</a>
+                &nbsp;<a href="/recurringEvent-schedule/{{id}}">Schedule</a>
+                &nbsp;<a href="/recurringEvent-delete/{{id}}">Delete</a></td>
               </tr>
             {{/each}}
           </tbody>

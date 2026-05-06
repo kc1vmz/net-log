@@ -30,6 +30,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.object.Event;
 import com.kc1vmz.netlog.object.RecurringEvent;
 import com.kc1vmz.netlog.object.Section;
@@ -62,6 +63,7 @@ public class EventAccessor {
                 ret.setLocation(record.location());
                 ret.setNetControlCallsign(record.netControlCallsign());
                 ret.setSectionActive(record.activeSection());
+                ret.setState(EventState.values()[record.state()]);
 
                 RecurringEvent recurringEvent = new RecurringEvent();
                 recurringEvent.setId(record.recurringEventId());
@@ -92,7 +94,9 @@ public class EventAccessor {
             EventRecord rec = recordOpt.get();
             EventRecord recNew = new EventRecord(rec.id(), obj.getName(), obj.getDescription(),
                                                     rec.recurringEventId(),  rec.sectionId(), rec.type(), obj.getLocation(), obj.getStartTime(), 
-                                                    obj.getEndTime(), obj.isSecure(), obj.getNetControlCallsign(), obj.isSectionActive());
+                                                    obj.getEndTime(),
+                                                    (obj.getState().equals(EventState.SECURE) || obj.getState().equals(EventState.NOT_HELD)) ? true : false, 
+                                                    obj.getNetControlCallsign(), obj.isSectionActive(), obj.getState().ordinal());
                                                     eventRepository.update(recNew);
             obj.setId(recNew.id());
             return obj;
@@ -117,7 +121,7 @@ public class EventAccessor {
                     if (sectionActiveOnly && !record.activeSection()) {
                         continue;
                     }
-                    if (activeOnly && record.secure()) {
+                    if (activeOnly && ((record.state() == EventState.SECURE.ordinal()) || (record.state() == EventState.NOT_HELD.ordinal()))) {
                         continue;
                     }
                     Event event = new Event();
@@ -128,7 +132,7 @@ public class EventAccessor {
                     event.setStartTime(record.startTime());
                     event.setEndTime(record.endTime());
                     event.setLocation(record.location());
-                    event.setSecure(record.secure());
+                    event.setState(EventState.values()[record.state()]);
                     event.setNetControlCallsign(record.netControlCallsign());
                     event.setSectionActive(record.activeSection());
 
@@ -172,7 +176,7 @@ public class EventAccessor {
                     if (sectionActiveOnly && !record.activeSection()) {
                         continue;
                     }
-                    if (activeOnly && record.secure()) {
+                    if (activeOnly && ((record.state() == EventState.SECURE.ordinal()) || (record.state() == EventState.NOT_HELD.ordinal()))) {
                         continue;
                     }
                     Event event = new Event();
@@ -183,7 +187,7 @@ public class EventAccessor {
                     event.setStartTime(record.startTime());
                     event.setEndTime(record.endTime());
                     event.setLocation(record.location());
-                    event.setSecure(record.secure());
+                    event.setState(EventState.values()[record.state()]);
                     event.setNetControlCallsign(record.netControlCallsign());
                     event.setSectionActive(record.activeSection());
 
@@ -223,7 +227,7 @@ public class EventAccessor {
                     if (sectionActiveOnly && !record.activeSection()) {
                         continue;
                     }
-                    if (activeOnly && record.secure()) {
+                    if (activeOnly && ((record.state() == EventState.SECURE.ordinal()) || (record.state() == EventState.NOT_HELD.ordinal()))) {
                         continue;
                     }
                     Event event = new Event();
@@ -234,7 +238,7 @@ public class EventAccessor {
                     event.setStartTime(record.startTime());
                     event.setEndTime(record.endTime());
                     event.setLocation(record.location());
-                    event.setSecure(record.secure());
+                    event.setState(EventState.values()[record.state()]);
                     event.setNetControlCallsign(record.netControlCallsign());
                     event.setSectionActive(record.activeSection());
 
@@ -279,7 +283,7 @@ public class EventAccessor {
 
             if (records != null) {
                 for (EventRecord record : records) {
-                    if (!record.secure()) {
+                    if (!(record.state() == EventState.SECURE.ordinal()) && !(record.state() == EventState.NOT_HELD.ordinal())) {
                         continue;
                     }
                     Event event = new Event();
@@ -290,7 +294,7 @@ public class EventAccessor {
                     event.setStartTime(record.startTime());
                     event.setEndTime(record.endTime());
                     event.setLocation(record.location());
-                    event.setSecure(record.secure());
+                    event.setState(EventState.values()[record.state()]);
                     event.setNetControlCallsign(record.netControlCallsign());
                     event.setSectionActive(record.activeSection());
 
@@ -335,7 +339,7 @@ public class EventAccessor {
         try {
             EventRecord rec = new EventRecord(UUID.randomUUID().toString(), event.getName(), event.getDescription(), recurringEvent.getId(), section.getId(),
                                         event.getType(), event.getLocation(), event.getStartTime(), event.getEndTime(), false, event.getNetControlCallsign(), 
-                                        event.isSectionActive());
+                                        event.isSectionActive(), event.getState().ordinal());
             EventRecord recNew = eventRepository.save(rec);
             event.setId(recNew.id());
             event.setSection(section);

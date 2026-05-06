@@ -23,7 +23,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
   <meta name="robots" content="noindex, nofollow">
-  <title>NetLog - Archived Event - {{event.name}} @ {{event.prettyStartTime}} </title>
+  <title>NetLog - Cancel Active Event - {{event.name}}</title>
 </head>
 <body>
 <style>
@@ -101,10 +101,6 @@ body {
         color: #ddd;
     }
 
-
-
-
-
     .table-container {
         max-height: 500px;
         overflow-y: auto;
@@ -171,7 +167,6 @@ body {
     background: #ddd;
     color: black;
   }
-
 </style>
 
 <script>
@@ -180,91 +175,32 @@ body {
 <div>
   <div class="navbar">
     <a href="/">Welcome</a>
-    <a href="/activeEvents">Active Events</a>
+    <a href="/activeEvents"><b>Active Events</b></a>
     <a href="/recurringEvents">Recurring Events</a>
-    <a href="/archives"><b>Archives</b></a>
+    <a href="/archives">Archives</a>
     <a href="/sections">Sections</a>
     <a href="/operators">Operators</a>
   </div>
   <div class="main">
-    <div><hr/></div>
+    <div class="line"><hr/></div>
     <div style="margin:20px;">
-    <h1>Archived Event Details - {{event.name}} @ {{event.prettyStartTime}} </h1>
-    <p>View properties of an archived event, including its location, start and end times and participants.
-    <div class="line" style="margin:0px"><hr/></div>
+      <h1>Cancel active event {{event.name}}</h1>
     </div>
+    <div class="line"><hr/></div>
+
     <div style="margin:20px;">
-      <div>
-        <p><b>Name</b>:
-        {{event.name}}
-      </div>
-      <div>
-        <p><b>Description</b>:
-        {{event.description}}
-      </div>
-      <div>
-        <p><b>Type</b>:
-        {{event.type}}
-      </div>
-      <div>
-        <p><b>State</b>:
-        {{event.state}}
-      </div>
-      <div>
-        <p><b>Location</b>:
-        {{event.location}}
-      </div>
-      <div>
-        <p><b>Start time</b>:
-        {{event.prettyStartTime}}
-      </div>
-      <div>
-        <p><b>End time</b>:
-        {{event.endTime}}
-      </div>
-      <div>
-        <p><b>Section</b>:
-        {{event.section.name}}
-      </div>
-      <div>
-        <p><b>Net Control callsign</b>:
-        {{event.netControlCallsign}}
-      </div>
-      <div class="table-container">
-        <b>Participants ({{participantCount}} total)</b>
-        <table id="members-list">
-          <thead>
-            <tr>
-              <th>Callsign</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>NTS?</th>
-              <th>Skywarn?</th>
-              <th>Check-in Time</th>
-              <th>Check-out Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each participants}}
-              <tr id="{{id}}">
-                <td>{{operator.callsign}}</td>
-                <td>{{operator.name}}</td>
-                <td>{{membershipType}}</td>
-                <td>{{operator.isNTS}}</td>
-                <td>{{operator.isSkywarn}}</td>
-                <td>{{prettyStartTime}}</td>
-                <td>{{prettyEndTime}}</td>
-                <td><a href="/participant-edittimes/{{id}}">Update times</a></td>
-              </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-      <div class="line" style="margin:0px"><hr/></div>
-      <a class="block" href="/archivedEvent-report/{{event.id}}">Generate report</a>
-      &nbsp;<a class="block" href="/archives">Back to archived events</a>
+      <form action="/activeEvent-cancel-action/{{event.id}}" method="post">
+        <div>
+          <p>Do you really want to cancel event '{{event.name}}' at {{event.prettyStartTime}} ?</p>
+        </div>
+        <div class="line" style="margin:0px"><hr/></div>
+        <div>
+          <input type="submit" value="Cancel Event" class="btn btn-primary block"/>
+          <a class="block" href="/activeEvents">Cancel</a>
+        </div>
+      </form>
     </div>
+
   </div>
   </div>
 </div>

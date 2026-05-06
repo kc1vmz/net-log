@@ -24,6 +24,7 @@ import com.kc1vmz.netlog.accessor.RecurringEventReportAccessor;
 import com.kc1vmz.netlog.accessor.ReportAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.accessor.SummaryReportAccessor;
+import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
 import com.kc1vmz.netlog.enums.MembershipType;
 import com.kc1vmz.netlog.object.Event;
@@ -34,6 +35,7 @@ import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.object.SectionOperator;
 import com.kc1vmz.netlog.request.ActiveEventCheckInOutRequest;
 import com.kc1vmz.netlog.request.ActiveEventEditRequest;
+import com.kc1vmz.netlog.request.ActiveEventScheduleRequest;
 import com.kc1vmz.netlog.request.ActiveEventStartEndRequest;
 import com.kc1vmz.netlog.request.BlankRequest;
 import com.kc1vmz.netlog.request.MonthlyReportRequest;
@@ -420,6 +422,8 @@ public class UIController {
         int operatorCount = 0;
         int activeEventsCount = 0;
         int recurringEventsCount = 0;
+        int pendingEventsCount = 0;
+
         if (sections != null) {
             sectionCount = sections.size();
         }
@@ -428,11 +432,17 @@ public class UIController {
         }
         if (activeEvents != null) {
             activeEventsCount = activeEvents.size();
+            for (Event event : activeEvents) {
+                if (event.getState().equals(EventState.PENDING)) {
+                    pendingEventsCount++;
+                }
+            }
         }
         if (recurringEvents != null) {
             recurringEventsCount = recurringEvents.size();
         }
-        return HttpResponse.ok(CollectionUtils.mapOf("sectionCount", sectionCount, "operatorCount", operatorCount, "activeEventsCount", activeEventsCount, "recurringEventsCount", recurringEventsCount));
+        return HttpResponse.ok(CollectionUtils.mapOf("sectionCount", sectionCount, "operatorCount", operatorCount, "activeEventsCount", activeEventsCount, 
+                                                        "pendingEventsCount", pendingEventsCount, "recurringEventsCount", recurringEventsCount));
     }
 
     @View("license")
@@ -963,25 +973,75 @@ public class UIController {
     HttpResponse<?> recurringEventStartAction(HttpRequest<?> request, @Valid @Body ActiveEventStartEndRequest actionData, @PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
 
-        Event event = new Event();
-        event.setDescription(recurringEvent.getDescription());
-        event.setLocation(recurringEvent.getLocation());
-        event.setName(recurringEvent.getName());
-        event.setRecurringEvent(recurringEvent);
-        event.setSection(recurringEvent.getSection());
-        event.setSecure(false);
-        event.setStartTime(LocalDateTime.parse(actionData.startTimeStr()));
-        event.setType(recurringEvent.getType());
-        event.setNetControlCallsign(recurringEvent.getNetControlCallsign());
-        event.setSectionActive(true);
-
-        Event eventNew = eventAccessor.create(recurringEvent.getSection(), recurringEvent, event);
+        Event eventNew = createEvent(recurringEvent, actionData, EventState.STARTED);
         if (eventNew != null) {
             return HttpResponse.seeOther(UriBuilder.of("/").path("/activeEvent/"+eventNew.getId()).build());
         }
 
         return HttpResponse.seeOther(UriBuilder.of("/").path("/recurringEvents").build());
     } 
+
+    @SuppressWarnings("unchecked")
+    @View("recurringEvent-schedule")
+    @Get("/recurringEvent-schedule/{id}")
+    public Map<String, Object> recurringEventSchedule(HttpRequest<?> request,  @PathVariable String id) {
+        RecurringEvent recurringEvent = recurringEventAccessor.get(id);
+        return CollectionUtils.mapOf("recurringEvent", recurringEvent, "startTimeStr", LocalDateTime.now(), "weeks", 1,
+                                     "form", formGenerator.generate("/recurringEvent-schedule-action/"+id, ActiveEventScheduleRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/recurringEvent-schedule-action/{id}")
+    HttpResponse<?> recurringEventScheduleAction(HttpRequest<?> request, @Valid @Body ActiveEventScheduleRequest actionData, @PathVariable String id) {
+        RecurringEvent recurringEvent = recurringEventAccessor.get(id);
+
+        createEvents(recurringEvent, actionData, EventState.PENDING);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/activeEvents").build());
+    } 
+
+    private Event createEvent(RecurringEvent recurringEvent, ActiveEventStartEndRequest actionData, EventState state) {
+        Event event = new Event();
+        event.setDescription(recurringEvent.getDescription());
+        event.setLocation(recurringEvent.getLocation());
+        event.setName(recurringEvent.getName());
+        event.setRecurringEvent(recurringEvent);
+        event.setSection(recurringEvent.getSection());
+        event.setState(state);
+        event.setStartTime(LocalDateTime.parse(actionData.startTimeStr()));
+        event.setType(recurringEvent.getType());
+        event.setNetControlCallsign(recurringEvent.getNetControlCallsign());
+        event.setSectionActive(true);
+
+        Event eventNew = eventAccessor.create(recurringEvent.getSection(), recurringEvent, event);
+        return eventNew;
+    }
+
+    private List<Event> createEvents(RecurringEvent recurringEvent, ActiveEventScheduleRequest actionData, EventState state) {
+        List<Event> ret = new ArrayList<>();
+        LocalDateTime startTime = LocalDateTime.parse(actionData.startTimeStr());
+
+        for (int i = 0; i < actionData.weeks(); i++) {
+            Event event = new Event();
+            event.setDescription(recurringEvent.getDescription());
+            event.setLocation(recurringEvent.getLocation());
+            event.setName(recurringEvent.getName());
+            event.setRecurringEvent(recurringEvent);
+            event.setSection(recurringEvent.getSection());
+            event.setState(state);
+            event.setStartTime(startTime);
+            event.setType(recurringEvent.getType());
+            event.setNetControlCallsign(recurringEvent.getNetControlCallsign());
+            event.setSectionActive(true);
+
+            Event eventNew = eventAccessor.create(recurringEvent.getSection(), recurringEvent, event);
+            ret.add(eventNew);
+
+            startTime = startTime.plusDays(7);
+        }
+        return ret;
+    }
 
     @View("activeEvents")
     @Get("/activeEvents")
@@ -1008,7 +1068,10 @@ public class UIController {
             }
         });
 
-        return HttpResponse.ok(CollectionUtils.mapOf("event", event, "participants", participants, "participantCount", participants.size()));
+        boolean isScheduled = event.getState().equals(EventState.PENDING);
+        boolean isStarted = event.getState().equals(EventState.STARTED);
+        return HttpResponse.ok(CollectionUtils.mapOf("event", event, "participants", participants, "participantCount", participants.size(),
+                                                            "isScheduled", isScheduled, "isStarted", isStarted));
     }
 
     @SuppressWarnings("unchecked")
@@ -1038,7 +1101,7 @@ public class UIController {
     HttpResponse<?> activeEventEditAction(HttpRequest<?> request, @Valid @Body ActiveEventEditRequest actionData,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
         event.setName(actionData.name());
-        event.setDescription(actionData.name());
+        event.setDescription(actionData.description());
         event.setLocation(actionData.location());
         event.setStartTime(LocalDateTime.parse(actionData.startTimeStr()));
         // no setting secure here
@@ -1122,6 +1185,30 @@ public class UIController {
     } 
 
     @SuppressWarnings("unchecked")
+    @View("activeEvent-start")
+    @Get("/activeEvent-start/{id}")
+    public Map<String, Object> eventStart(HttpRequest<?> request,  @PathVariable String id) {
+        Event event = eventAccessor.get(id);
+        return CollectionUtils.mapOf("event", event, "startTimeStr", LocalDateTime.now(),
+                                     "form", formGenerator.generate("/activeEvent-start-action/"+id, ActiveEventStartEndRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/activeEvent-start-action/{id}")
+    HttpResponse<?> eventStartAction(HttpRequest<?> request, @Valid @Body ActiveEventStartEndRequest actionData, @PathVariable String id) {
+        Event event = eventAccessor.get(id);
+        event.setStartTime(LocalDateTime.parse(actionData.startTimeStr()));
+        event.setState(EventState.STARTED);
+        Event eventNew = eventAccessor.update(id, event);
+        if (eventNew != null) {
+            return HttpResponse.seeOther(UriBuilder.of("/").path("/activeEvent/"+eventNew.getId()).build());
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/recurringEvents").build());
+    } 
+
+    @SuppressWarnings("unchecked")
     @View("participant-edittimes")
     @Get("/participant-edittimes/{id}/")
     public Map<String, Object> participantEdit(HttpRequest<?> request,  @PathVariable String id) {
@@ -1189,8 +1276,36 @@ public class UIController {
             participantAccessor.checkOutParticipant(event, participant.getOperator(), LocalDateTime.parse(actionData.endTimeStr()));
         }
 
-        event.setSecure(true);
+        event.setState(EventState.SECURE);
         event.setEndTime(LocalDateTime.parse(actionData.endTimeStr()));
+        eventAccessor.update(id, event);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/activeEvents").build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("activeEvent-cancel")
+    @Get("/activeEvent-cancel/{id}")
+    public Map<String, Object> activeEventCancel(HttpRequest<?> request,  @PathVariable String id) {
+        Event event = eventAccessor.get(id);
+        return CollectionUtils.mapOf("event", event, "endTimeStr", LocalDateTime.now().toString(),
+                                     "form", formGenerator.generate("/activeEvent-cancel-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/activeEvent-cancel-action/{id}")
+    HttpResponse<?> activeEventCancelAction(HttpRequest<?> request, @PathVariable String id) {
+        Event event = eventAccessor.get(id);
+
+        // remove any participants if present
+        List<Participant> participants = participantAccessor.listParticipants(event, true);
+        for (Participant participant : participants) {
+            participantAccessor.delete(participant.getId());
+        }
+
+        event.setState(EventState.NOT_HELD);
+        event.setEndTime(LocalDateTime.now());
         eventAccessor.update(id, event);
 
         return HttpResponse.seeOther(UriBuilder.of("/").path("/activeEvents").build());

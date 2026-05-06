@@ -207,6 +207,10 @@ body {
         {{event.type}}
       </div>
       <div>
+        <p><b>State</b>:
+        {{event.state}}
+      </div>
+      <div>
         <p><b>Location</b>:
         {{event.location}}
       </div>
@@ -255,9 +259,17 @@ body {
       </div>
       <div class="line" style="margin:0px"><hr/></div>
       <a class="block" href="/activeEvent-edit/{{event.id}}">Edit details</a>
-      &nbsp;<a class="block" href="/activeEvent-secure/{{event.id}}">Secure</a>
-      &nbsp;<a class="block" href="/activeEvent-checkin/{{event.id}}">Check-in operators</a>
-      &nbsp;<a class="block" href="/activeEvent-checkout/{{event.id}}">Check-out operators</a>
+
+      {{#if isStarted}}
+        &nbsp;<a class="block" href="/activeEvent-secure/{{event.id}}">Secure</a>
+        &nbsp;<a class="block" href="/activeEvent-checkin/{{event.id}}">Check-in operators</a>
+        &nbsp;<a class="block" href="/activeEvent-checkout/{{event.id}}">Check-out operators</a>
+      {{/if}}
+      {{#if isScheduled}}
+        &nbsp;<a class="block" href="/activeEvent-start/{{event.id}}">Start</a>
+      {{/if}}
+
+      &nbsp;<a class="block" href="/activeEvent-cancel/{{event.id}}">Cancel Event</a>
       &nbsp;<a class="block" href="/activeEvent-delete/{{event.id}}">Delete</a>
       &nbsp;<a class="block" href="/activeEvents">Back to active events</a>
     </div>
