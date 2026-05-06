@@ -23,5 +23,5 @@ package com.kc1vmz.netlog.request;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
-public record ActiveEventStartEndRequest(String startTimeStr, String endTimeStr) {
+public record ParticipantStartEndRequest(String startTimeStr, String endTimeStr, int transmitPower, int primaryPowerSource, int secondaryPowerSource) {
 }

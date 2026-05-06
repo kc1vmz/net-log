@@ -24,6 +24,7 @@ import com.kc1vmz.netlog.accessor.RecurringEventReportAccessor;
 import com.kc1vmz.netlog.accessor.ReportAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.accessor.SummaryReportAccessor;
+import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
 import com.kc1vmz.netlog.enums.MembershipType;
@@ -36,7 +37,7 @@ import com.kc1vmz.netlog.object.SectionOperator;
 import com.kc1vmz.netlog.request.ActiveEventCheckInOutRequest;
 import com.kc1vmz.netlog.request.ActiveEventEditRequest;
 import com.kc1vmz.netlog.request.ActiveEventScheduleRequest;
-import com.kc1vmz.netlog.request.ActiveEventStartEndRequest;
+import com.kc1vmz.netlog.request.ParticipantStartEndRequest;
 import com.kc1vmz.netlog.request.BlankRequest;
 import com.kc1vmz.netlog.request.MonthlyReportRequest;
 import com.kc1vmz.netlog.request.OperatorBulkCreateRequest;
@@ -964,13 +965,13 @@ public class UIController {
     public Map<String, Object> recurringEventStart(HttpRequest<?> request,  @PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
         return CollectionUtils.mapOf("recurringEvent", recurringEvent, "startTimeStr", LocalDateTime.now(),
-                                     "form", formGenerator.generate("/recurringEvent-start-action/"+id, ActiveEventStartEndRequest.class));
+                                     "form", formGenerator.generate("/recurringEvent-start-action/"+id, ParticipantStartEndRequest.class));
     }
 
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/recurringEvent-start-action/{id}")
-    HttpResponse<?> recurringEventStartAction(HttpRequest<?> request, @Valid @Body ActiveEventStartEndRequest actionData, @PathVariable String id) {
+    HttpResponse<?> recurringEventStartAction(HttpRequest<?> request, @Valid @Body ParticipantStartEndRequest actionData, @PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
 
         Event eventNew = createEvent(recurringEvent, actionData, EventState.STARTED);
@@ -1001,7 +1002,7 @@ public class UIController {
         return HttpResponse.seeOther(UriBuilder.of("/").path("/activeEvents").build());
     } 
 
-    private Event createEvent(RecurringEvent recurringEvent, ActiveEventStartEndRequest actionData, EventState state) {
+    private Event createEvent(RecurringEvent recurringEvent, ParticipantStartEndRequest actionData, EventState state) {
         Event event = new Event();
         event.setDescription(recurringEvent.getDescription());
         event.setLocation(recurringEvent.getLocation());
@@ -1190,13 +1191,13 @@ public class UIController {
     public Map<String, Object> eventStart(HttpRequest<?> request,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
         return CollectionUtils.mapOf("event", event, "startTimeStr", LocalDateTime.now(),
-                                     "form", formGenerator.generate("/activeEvent-start-action/"+id, ActiveEventStartEndRequest.class));
+                                     "form", formGenerator.generate("/activeEvent-start-action/"+id, ParticipantStartEndRequest.class));
     }
 
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/activeEvent-start-action/{id}")
-    HttpResponse<?> eventStartAction(HttpRequest<?> request, @Valid @Body ActiveEventStartEndRequest actionData, @PathVariable String id) {
+    HttpResponse<?> eventStartAction(HttpRequest<?> request, @Valid @Body ParticipantStartEndRequest actionData, @PathVariable String id) {
         Event event = eventAccessor.get(id);
         event.setStartTime(LocalDateTime.parse(actionData.startTimeStr()));
         event.setState(EventState.STARTED);
@@ -1215,18 +1216,23 @@ public class UIController {
         Participant participant = participantAccessor.get(id);
 
         return CollectionUtils.mapOf("participant", participant, "showEndTime" , (participant.getEndTime() == null) ? null : "true",
-                                        "form", formGenerator.generate("/participant-edittimes-action/"+id, ActiveEventStartEndRequest.class));
+                                        "primaryPowerSource"+participant.getPrimaryPower().ordinal(), "yes",
+                                        "secondaryPowerSource"+participant.getBackupPower().ordinal(), "yes",
+                                        "form", formGenerator.generate("/participant-edittimes-action/"+id, ParticipantStartEndRequest.class));
     }
 
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/participant-edittimes-action/{id}")
-    HttpResponse<?> participantEditAction(HttpRequest<?> request, @Valid @Body ActiveEventStartEndRequest actionData,  @PathVariable String id) {
+    HttpResponse<?> participantEditAction(HttpRequest<?> request, @Valid @Body ParticipantStartEndRequest actionData,  @PathVariable String id) {
         Participant participant = participantAccessor.get(id);
         participant.setStartTime(LocalDateTime.parse(actionData.startTimeStr()));
         if (participant.getEndTime() != null) {
             participant.setEndTime(LocalDateTime.parse(actionData.endTimeStr()));
         }
+        participant.setPrimaryPower(ElectricalPowerType.values()[actionData.primaryPowerSource()]);
+        participant.setBackupPower(ElectricalPowerType.values()[actionData.secondaryPowerSource()]);
+        participant.setTransmitPower(actionData.transmitPower());
 
         participantAccessor.update(id, participant);
 
@@ -1261,13 +1267,13 @@ public class UIController {
     public Map<String, Object> activeEventSecure(HttpRequest<?> request,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
         return CollectionUtils.mapOf("event", event, "endTimeStr", LocalDateTime.now().toString(),
-                                     "form", formGenerator.generate("/activeEvent-secure-action/"+id, ActiveEventStartEndRequest.class));
+                                     "form", formGenerator.generate("/activeEvent-secure-action/"+id, ParticipantStartEndRequest.class));
     }
 
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/activeEvent-secure-action/{id}")
-    HttpResponse<?> activeEventSecureAction(HttpRequest<?> request, @Valid @Body ActiveEventStartEndRequest actionData, @PathVariable String id) {
+    HttpResponse<?> activeEventSecureAction(HttpRequest<?> request, @Valid @Body ParticipantStartEndRequest actionData, @PathVariable String id) {
         Event event = eventAccessor.get(id);
 
         // check out participants

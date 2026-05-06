@@ -23,7 +23,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
   <meta name="robots" content="noindex, nofollow">
-  <title>NetLog - Update Participant Times - {{participant.operator.callsign}}</title>
+  <title>NetLog - Update Participant - {{participant.operator.callsign}}</title>
 </head>
 <body>
 <style>
@@ -194,7 +194,7 @@ body {
     <div><hr/></div>
     <div style="margin:20px;">
     <h1>Update Participant Details - {{participant.operator.callsign}}</h1>
-    <p>Update the check-in and check-out times, if set.
+    <p>Update details such as power sources, transmit power, check-in and check-out times.
     <div class="line" style="margin:0px"><hr/></div>
     </div>
 
@@ -210,7 +210,90 @@ body {
             <input type="text" name="endTimeStr" id="endTimeStr" value="{{participant.endTime}}" class="form-control"/>
         </div>
         {{/if}}
-
+        <div class="mb-3">
+            <label for="transmitPower" class="form-label">Transmit power:</label>
+            <input type="number" name="transmitPower" id="transmitPower" value="{{participant.transmitPower}}" class="form-control" min="0"/>
+        </div>
+        <div>
+            <label for="primaryPowerSource" class="form-label">Primary power source:</label>
+            <select name="primaryPowerSource" id="primaryPowerSource">
+              {{#if primaryPowerSource0}}
+              <option value="0" selected>Unknown</option>
+              {{else}}
+              <option value="0">Unknown</option>
+              {{/if}}
+              {{#if primaryPowerSource1}}
+              <option value="1" selected>Commercial</option>
+              {{else}}
+              <option value="1">Commercial</option>
+              {{/if}}
+              {{#if primaryPowerSource2}}
+              <option value="2" selected>Generator</option>
+              {{else}}
+              <option value="2">Generator</option>
+              {{/if}}
+              {{#if primaryPowerSource3}}
+              <option value="3" selected>Solar</option>
+              {{else}}
+              <option value="3">Solar</option>
+              {{/if}}
+              {{#if primaryPowerSource4}}
+              <option value="4" selected>Battery</option>
+              {{else}}
+              <option value="4">Battery</option>
+              {{/if}}
+              {{#if primaryPowerSource5}}
+              <option value="5" selected>Other</option>
+              {{else}}
+              <option value="5">Other</option>
+              {{/if}}
+              {{#if primaryPowerSource6}}
+              <option value="6" selected>None</option>
+              {{else}}
+              <option value="6">None</option>
+              {{/if}}
+            </select>
+        </div>
+        <div>
+            <label for="secondaryPowerSource" class="form-label">Secondary power source:</label>
+            <select name="secondaryPowerSource" id="secondaryPowerSource">
+              {{#if secondaryPowerSource0}}
+              <option value="0" selected>Unknown</option>
+              {{else}}
+              <option value="0">Unknown</option>
+              {{/if}}
+              {{#if secondaryPowerSource1}}
+              <option value="1" selected>Commercial</option>
+              {{else}}
+              <option value="1">Commercial</option>
+              {{/if}}
+              {{#if secondaryPowerSource2}}
+              <option value="2" selected>Generator</option>
+              {{else}}
+              <option value="2">Generator</option>
+              {{/if}}
+              {{#if secondaryPowerSource3}}
+              <option value="3" selected>Solar</option>
+              {{else}}
+              <option value="3">Solar</option>
+              {{/if}}
+              {{#if secondaryPowerSource4}}
+              <option value="4" selected>Battery</option>
+              {{else}}
+              <option value="4">Battery</option>
+              {{/if}}
+              {{#if secondaryPowerSource5}}
+              <option value="5" selected>Other</option>
+              {{else}}
+              <option value="5">Other</option>
+              {{/if}}
+              {{#if secondaryPowerSource6}}
+              <option value="6" selected>None</option>
+              {{else}}
+              <option value="6">None</option>
+              {{/if}}
+            </select>
+        </div>
         <div class="line" style="margin:0px"><hr/></div>
         <div>
           <input type="submit" value="Update" class="btn btn-primary block"/>

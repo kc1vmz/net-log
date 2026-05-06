@@ -242,6 +242,9 @@ body {
               <th>Skywarn?</th>
               <th>Check-in Time</th>
               <th>Check-out Time</th>
+              <th>Transmit Power</th>
+              <th>Primary Power Source</th>
+              <th>Secondary Power Source</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -255,7 +258,10 @@ body {
                 <td>{{operator.isSkywarn}}</td>
                 <td>{{prettyStartTime}}</td>
                 <td>{{prettyEndTime}}</td>
-                <td><a href="/participant-edittimes/{{id}}">Update times</a></td>
+                <td>{{transmitPower}}</td>
+                <td>{{primaryPower}}</td>
+                <td>{{backupPower}}</td>
+                <td><a href="/participant-edittimes/{{id}}">Update</a></td>
               </tr>
             {{/each}}
           </tbody>
