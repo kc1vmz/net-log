@@ -16,7 +16,7 @@ This can be done in real time when a net is started, or after the fact.
 
 ## Download 
 
-You can either use the pre-built Java JAR file for version 1.0.4 of the application, or download / clone source code from Github.
+You can either use the pre-built Java JAR file for version 1.0.5 of the application, or download / clone source code from Github.
 
 ## Prerequisites 
 
@@ -44,11 +44,13 @@ mvn clean install
 
 
 ```sh
-java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.4.jar
+java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.5.jar
 ```
 
 
 ## Versions
+
+1.0.5 - Added UI to set transmit power, primary and backup power sources during participation
 
 1.0.4 - Added scheduled events, cancelled events
 
