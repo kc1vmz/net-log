@@ -302,7 +302,7 @@ body {
                     <tr id="{{operator.id}}">
                       <td>{{operator.callsign}}</td>
                       <td>{{operator.name}}</td>
-                      <td><input type="text" id="checkInTimeStr" class="form-control"/></td>
+                      <td><input type="datetime-local" id="checkInTimeStr" class="form-control"/></td>
                       <td><button onclick='removeMember("{{operator.id}}")'>Check-out</button></td>
                     </tr>
                   {{/each}}
@@ -327,7 +327,7 @@ body {
                     <tr id="{{id}}">
                       <td>{{callsign}}</td>
                       <td>{{name}}</td>
-                      <td><input type="text" id="checkInTimeStr" value="{{checkInTimeStr}}" class="form-control"/></td>
+                      <td><input type="datetime-local" id="checkInTimeStr" value="{{checkInTimeStr}}" class="form-control"/></td>
                       <td><button onclick='addMember("{{id}}")'>Check-in</button></td>
                     </tr>
                   {{/each}}
@@ -352,7 +352,7 @@ body {
                     <tr id="{{id}}">
                       <td>{{callsign}}</td>
                       <td>{{name}}</td>
-                      <td><input type="text" id="checkInTimeStr" value="{{checkInTimeStr}}" class="form-control"/></td>
+                      <td><input type="datetime-local" id="checkInTimeStr" value="{{checkInTimeStr}}" class="form-control"/></td>
                       <td><button onclick='addMember("{{id}}")'>Check-in</button></td>
                     </tr>
                   {{/each}}

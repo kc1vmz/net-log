@@ -319,7 +319,7 @@ body {
                     <tr id="{{operator.id}}">
                       <td>{{operator.callsign}}</td>
                       <td>{{operator.name}}</td>
-                      <td><input type="text" id="checkOutTimeStr" value="{{checkOutTimeStr}}" class="form-control"/></td>
+                      <td><input type="datetime-local" id="checkOutTimeStr" value="{{checkOutTimeStr}}" class="form-control"/></td>
                       <td><button onclick='addMember("{{operator.id}}")'>Check-out</button></td>
                     </tr>
                   {{/each}}

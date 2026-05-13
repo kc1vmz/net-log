@@ -964,7 +964,7 @@ public class UIController {
     @Get("/recurringEvent-start/{id}")
     public Map<String, Object> recurringEventStart(HttpRequest<?> request,  @PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
-        return CollectionUtils.mapOf("recurringEvent", recurringEvent, "startTimeStr", LocalDateTime.now(),
+        return CollectionUtils.mapOf("recurringEvent", recurringEvent, "startTimeStr", LocalDateTime.now().toString().substring(0, 16),
                                      "form", formGenerator.generate("/recurringEvent-start-action/"+id, ParticipantStartEndRequest.class));
     }
 
@@ -987,7 +987,7 @@ public class UIController {
     @Get("/recurringEvent-schedule/{id}")
     public Map<String, Object> recurringEventSchedule(HttpRequest<?> request,  @PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
-        return CollectionUtils.mapOf("recurringEvent", recurringEvent, "startTimeStr", LocalDateTime.now(), "weeks", 1,
+        return CollectionUtils.mapOf("recurringEvent", recurringEvent, "startTimeStr", LocalDateTime.now().toString().substring(0, 16), "weeks", 1,
                                      "form", formGenerator.generate("/recurringEvent-schedule-action/"+id, ActiveEventScheduleRequest.class));
     }
 
@@ -1190,7 +1190,11 @@ public class UIController {
     @Get("/activeEvent-start/{id}")
     public Map<String, Object> eventStart(HttpRequest<?> request,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
-        return CollectionUtils.mapOf("event", event, "startTimeStr", LocalDateTime.now(),
+        LocalDateTime startTime = LocalDateTime.now();
+        if (event.getStartTime() != null) {
+            startTime = event.getStartTime();
+        }
+        return CollectionUtils.mapOf("event", event, "startTimeStr", startTime.toString().substring(0, 16),
                                      "form", formGenerator.generate("/activeEvent-start-action/"+id, ParticipantStartEndRequest.class));
     }
 
@@ -1266,7 +1270,7 @@ public class UIController {
     @Get("/activeEvent-secure/{id}")
     public Map<String, Object> activeEventSecure(HttpRequest<?> request,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
-        return CollectionUtils.mapOf("event", event, "endTimeStr", LocalDateTime.now().toString(),
+        return CollectionUtils.mapOf("event", event, "endTimeStr", LocalDateTime.now().toString().substring(0, 16),
                                      "form", formGenerator.generate("/activeEvent-secure-action/"+id, ParticipantStartEndRequest.class));
     }
 
@@ -1294,7 +1298,7 @@ public class UIController {
     @Get("/activeEvent-cancel/{id}")
     public Map<String, Object> activeEventCancel(HttpRequest<?> request,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
-        return CollectionUtils.mapOf("event", event, "endTimeStr", LocalDateTime.now().toString(),
+        return CollectionUtils.mapOf("event", event, "endTimeStr", LocalDateTime.now().toString().substring(0, 16),
                                      "form", formGenerator.generate("/activeEvent-cancel-action/"+id, BlankRequest.class));
     }
 

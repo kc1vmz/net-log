@@ -202,12 +202,12 @@ body {
       <form action="/participant-edittimes-action/{{participant.id}}" method="post">
         <div class="mb-3">
             <label for="startTimeStr" class="form-label">Start time:</label>
-            <input type="text" name="startTimeStr" id="startTimeStr" value="{{participant.startTime}}" class="form-control"/>
+            <input type="datetime-local" name="startTimeStr" id="startTimeStr" value="{{participant.startTime}}" class="form-control"/>
         </div>
         {{#if showEndTime}}
         <div class="mb-3">
             <label for="endTimeStr" class="form-label">End time:</label>
-            <input type="text" name="endTimeStr" id="endTimeStr" value="{{participant.endTime}}" class="form-control"/>
+            <input type="datetime-local" name="endTimeStr" id="endTimeStr" value="{{participant.endTime}}" class="form-control"/>
         </div>
         {{/if}}
         <div class="mb-3">
