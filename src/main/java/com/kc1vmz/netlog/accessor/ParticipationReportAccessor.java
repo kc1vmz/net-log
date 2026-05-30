@@ -37,6 +37,7 @@ import com.kc1vmz.netlog.object.Event;
 import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.object.ReportParticipantEntry;
 import com.kc1vmz.netlog.object.Section;
+import com.kc1vmz.netlog.object.SectionOperator;
 import com.kc1vmz.netlog.utils.DateStrUtils;
 import com.kc1vmz.netlog.utils.PdfUtils;
 import com.kc1vmz.netlog.utils.SoftwareIdentity;
@@ -61,9 +62,9 @@ public class ParticipationReportAccessor {
     private static final Logger logger = LogManager.getLogger(ParticipationReportAccessor.class);
 
 
-    public String generateReport(Section section, Map<Event,List<Participant>> eventParticipants, String dateStr, String title) {
+    public String generateReport(Section section, Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members, String dateStr, String title) {
         try {
-            return createReport(section, eventParticipants, dateStr, title);
+            return createReport(section, eventParticipants, members, dateStr, title);
         } catch (Exception e) {
             logger.error("Exception caught generating report", e);
         }
@@ -74,7 +75,7 @@ public class ParticipationReportAccessor {
         return System.getProperty("java.io.tmpdir");
     }
 
-    public String createReport(Section section, Map<Event,List<Participant>> eventParticipants, String dateStr, String title) throws FileNotFoundException {
+    public String createReport(Section section, Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members, String dateStr, String title) throws FileNotFoundException {
         String filename = getUniqueFileName(getTempReportDir(), "pdf");
         try {
             int eventPages = 1;
@@ -82,7 +83,7 @@ public class ParticipationReportAccessor {
             int pageTotal = 1;
             int totalEvents = eventParticipants.size();
 
-            Map<String, ReportParticipantEntry> participations = buildReportEntries(eventParticipants);
+            Map<String, ReportParticipantEntry> participations = buildReportEntries(eventParticipants, members);
             int participants = participations.size();
 
             if (!eventParticipants.isEmpty()) {
@@ -151,7 +152,7 @@ public class ParticipationReportAccessor {
 
     }
 
-    private Map<String, ReportParticipantEntry> buildReportEntries(Map<Event,List<Participant>> eventParticipants) {
+    private Map<String, ReportParticipantEntry> buildReportEntries(Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members) {
         int eventCount = eventParticipants.size();
         int eventIndex = 0;
         Map<String, ReportParticipantEntry> ret = new TreeMap<String, ReportParticipantEntry>();
@@ -164,7 +165,7 @@ public class ParticipationReportAccessor {
                 }
                 ReportParticipantEntry entry = ret.get(participant.getOperator().getCallsign());
                 if (entry == null) {
-                    entry = new ReportParticipantEntry(participant.getOperator().getCallsign(), eventCount);
+                    entry = new ReportParticipantEntry(participant.getOperator().getCallsign(), eventCount, determineMembership(members, participant.getOperator().getCallsign()));
                     ret.put(participant.getOperator().getCallsign(), entry);
                 }
                 boolean [] eventMask = entry.getEventMask();
@@ -176,6 +177,20 @@ public class ParticipationReportAccessor {
             eventIndex++;
         }
 
+        return ret;
+    }
+
+    private boolean determineMembership(List<SectionOperator> members, String callsign) {
+        boolean ret = false;
+        if ((members == null) || (members.isEmpty())) {
+            return ret;
+        }
+        for (SectionOperator member : members) {
+            if (member.getCallsign().equalsIgnoreCase(callsign)) {
+                ret = true;
+                break;
+            }
+        }
         return ret;
     }
 
@@ -394,7 +409,7 @@ public class ParticipationReportAccessor {
             String callsign = mapEntry.getKey();
             ReportParticipantEntry values = mapEntry.getValue();
 
-            String callsignCount = String.format("%s (%d)", callsign, values.getEventParticipationCount());
+            String callsignCount = String.format("%s (%d)%s", callsign, values.getEventParticipationCount(), ((values.isSectionMember() ? "" : " (non-member)")));
             Cell cellName = new Cell().add(new Paragraph(callsignCount));
             table.addCell(cellName);
 

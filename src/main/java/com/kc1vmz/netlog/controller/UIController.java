@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import com.kc1vmz.netlog.accessor.EventAccessor;
 import com.kc1vmz.netlog.accessor.NonParticipationReportAccessor;
 import com.kc1vmz.netlog.accessor.OperatorAccessor;
+import com.kc1vmz.netlog.accessor.OperatorAffiliationReportAccessor;
 import com.kc1vmz.netlog.accessor.ParticipantAccessor;
 import com.kc1vmz.netlog.accessor.ParticipationReportAccessor;
 import com.kc1vmz.netlog.accessor.RecurringEventAccessor;
@@ -28,6 +29,7 @@ import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
 import com.kc1vmz.netlog.enums.MembershipType;
+import com.kc1vmz.netlog.enums.OperatorAffiliationReportType;
 import com.kc1vmz.netlog.object.Event;
 import com.kc1vmz.netlog.object.Operator;
 import com.kc1vmz.netlog.object.Participant;
@@ -102,6 +104,8 @@ public class UIController {
     private ReportAccessor reportAccessor;
     @Inject
     private SummaryReportAccessor summaryReportAccessor;
+    @Inject
+    private OperatorAffiliationReportAccessor operatorAffiliationReportAccessor;
     @Inject
     private ParticipationReportAccessor participationReportAccessor;
     @Inject
@@ -259,10 +263,11 @@ public class UIController {
     HttpResponse<?> archivedEventsMonthlyParticipationReportAction(HttpRequest<?> request, @Valid @Body MonthlyReportRequest actionData) {
 
         Section section = sectionAccessor.get(actionData.sectionId());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
         Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
         String dateStr = actionData.month()+"-"+actionData.year();
 
-        String filename = participationReportAccessor.generateReport(section, eventParticipants, dateStr, "MONTHLY PARTICIPATION");
+        String filename = participationReportAccessor.generateReport(section, eventParticipants, members, dateStr, "MONTHLY PARTICIPATION");
         if (filename == null) {
             return HttpResponse.serverError("Could not create report");
         }
@@ -320,6 +325,206 @@ public class UIController {
         return HttpResponse.seeOther(UriBuilder.of("/").path("/archivedEvents-quarterlyreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
     } 
 
+    @SuppressWarnings("unchecked")
+    @View("section-memberreport")
+    @Get("/section-memberreport/{id}")
+    public Map<String, Object> sectionMemberReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-memberreport-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-memberreport-action/{id}")
+    HttpResponse<?> sectionMemberReportAction(HttpRequest<?> request, @PathVariable String id) {
+
+        Section section = sectionAccessor.get(id);
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        String dateStr = LocalDateTime.now().toString().substring(0, 16);
+
+        String filename = operatorAffiliationReportAccessor.generateReport(section, members, OperatorAffiliationReportType.MEMBERS,  "MEMBERS");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-memberreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-memberreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionMemberReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = summaryReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-SectionMemberReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("section-ntsreport")
+    @Get("/section-ntsreport/{id}")
+    public Map<String, Object> sectionMemberNTSReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-ntsreport-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-ntsreport-action/{id}")
+    HttpResponse<?> sectionMemberNTSReportAction(HttpRequest<?> request, @PathVariable String id) {
+
+        Section section = sectionAccessor.get(id);
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        String dateStr = LocalDateTime.now().toString().substring(0, 16);
+
+        String filename = operatorAffiliationReportAccessor.generateReport(section, members, OperatorAffiliationReportType.NTS, "NTS MEMBERS");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-ntsreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-ntsreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionMemberNTSReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = summaryReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-SectionMemberNTSReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("section-racesreport")
+    @Get("/section-racesreport/{id}")
+    public Map<String, Object> sectionMemberRACESReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-racesreport-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-racesreport-action/{id}")
+    HttpResponse<?> sectionMemberRACESReportAction(HttpRequest<?> request, @PathVariable String id) {
+
+        Section section = sectionAccessor.get(id);
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        String dateStr = LocalDateTime.now().toString().substring(0, 16);
+
+        String filename = operatorAffiliationReportAccessor.generateReport(section, members, OperatorAffiliationReportType.RACES, "RACES MEMBERS");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-racesreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-racesreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionMemberRACESReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = summaryReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-SectionMemberRACESReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("section-skywarnreport")
+    @Get("/section-skywarnreport/{id}")
+    public Map<String, Object> sectionMemberSkywarnReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-skywarnreport-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-skywarnreport-action/{id}")
+    HttpResponse<?> sectionMemberSkywarnReportAction(HttpRequest<?> request, @PathVariable String id) {
+
+        Section section = sectionAccessor.get(id);
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        String dateStr = LocalDateTime.now().toString().substring(0, 16);
+
+        String filename = operatorAffiliationReportAccessor.generateReport(section, members, OperatorAffiliationReportType.SKYWARN, "SKYWARN MEMBERS");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-skywarnreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-skywarnreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionMemberSkywarnReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = summaryReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-SectionMemberSkywarnReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("section-leadershipreport")
+    @Get("/section-leadershipreport/{id}")
+    public Map<String, Object> sectionMemberLeadershipReport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-leadershipreport-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-leadershipreport-action/{id}")
+    HttpResponse<?> sectionMemberLeadershipReportAction(HttpRequest<?> request, @PathVariable String id) {
+
+        Section section = sectionAccessor.get(id);
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        String dateStr = LocalDateTime.now().toString().substring(0, 16);
+
+        String filename = operatorAffiliationReportAccessor.generateReport(section, members, OperatorAffiliationReportType.LEADERSHIP, "LEADERSHIP");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-leadershipreport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-leadershipreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadSectionMemberLeadershipReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = summaryReportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-SectionMemberLeadershipReport-%s-%s.pdf", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
     @Get(uri = "/archivedEvents-quarterlyreport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.APPLICATION_PDF)
     public HttpResponse<byte[]> downloadArchivedEventQuarterlyReport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
 
@@ -359,10 +564,11 @@ public class UIController {
     HttpResponse<?> archivedEventsQuarterlyParticipationReportAction(HttpRequest<?> request, @Valid @Body QuarterlyReportRequest actionData) {
 
         Section section = sectionAccessor.get(actionData.sectionId());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
         Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year());
         String dateStr = actionData.quarter()+"-"+actionData.year();
 
-        String filename = participationReportAccessor.generateReport(section, eventParticipants, dateStr, "QUARTERLY PARTICIPATION");
+        String filename = participationReportAccessor.generateReport(section, eventParticipants, members, dateStr, "QUARTERLY PARTICIPATION");
         if (filename == null) {
             return HttpResponse.serverError("Could not create report");
         }
@@ -670,7 +876,10 @@ public class UIController {
     @Get("/operator-edit/{id}")
     public Map<String, Object> operatorEdit(HttpRequest<?> request,  @PathVariable String id) {
         Operator operator = operatorAccessor.get(id);
-        return CollectionUtils.mapOf("operator", operator, "isSkywarnChecked", operator.isSkywarn() ? "yes" : null,  "isNTSChecked", operator.isNTS() ? "yes" : null, 
+        return CollectionUtils.mapOf("operator", operator, 
+                                     "isSkywarnChecked", operator.isSkywarn() ? "yes" : null,  
+                                     "isNTSChecked", operator.isNTS() ? "yes" : null, 
+                                     "isRACESChecked", operator.isRACES() ? "yes" : null, 
                                      "form", formGenerator.generate("/operator-edit-action/"+id, OperatorCreateRequest.class));
     }
 
@@ -690,8 +899,13 @@ public class UIController {
         if (actionData.isSkywarn() != null) {
             isSkywarn = true;
         } 
+        boolean isRACES = false;
+        if (actionData.isRACES() != null) {
+            isRACES = true;
+        } 
         operator.setNTS(isNTS);
         operator.setSkywarn(isSkywarn);
+        operator.setRACES(isRACES);
 
         operatorAccessor.update(id, operator);
 
@@ -721,8 +935,13 @@ public class UIController {
         if (actionData.isSkywarn() != null) {
             isSkywarn = true;
         } 
+        boolean isRACES = false;
+        if (actionData.isRACES() != null) {
+            isRACES = true;
+        } 
         operator.setNTS(isNTS);
         operator.setSkywarn(isSkywarn);
+        operator.setRACES(isRACES);
 
         Operator operatorNew = operatorAccessor.create(operator);
         if (operatorNew != null) {

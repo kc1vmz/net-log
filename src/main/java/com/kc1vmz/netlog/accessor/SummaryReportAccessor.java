@@ -99,8 +99,9 @@ public class SummaryReportAccessor {
         ret.setSessionsHeld(eventParticipants.size());
         ret.setSessionsHeldWithNTS(countNTSParticipations(eventParticipants));
         ret.setUniqueParticipants(countUniqueParticipations(eventParticipants));
-        ret.setLeadershipCallsigns(determineLeaderhipCallsigns(eventParticipants, operators));
+        ret.setLeadershipCallsigns(determineLeadershipCallsigns(eventParticipants, operators));
         ret.setLeadershipMembers(ret.getLeadershipCallsigns().size());
+        ret.setRacesCallsigns(determineRacesCallsigns(eventParticipants));
         ret.setEventStatistics(determineEventStatistics(eventParticipants));
 
         rollupEventStatistics(ret.getEventStatistics(), ret);
@@ -205,7 +206,7 @@ public class SummaryReportAccessor {
         return (minutes / (60 * 60)); // convert to hours
     }
 
-    private List<String> determineLeaderhipCallsigns(Map<Event,List<Participant>> eventParticipants, List<SectionOperator> operators) {
+    private List<String> determineLeadershipCallsigns(Map<Event, List<Participant>> eventParticipants, List<SectionOperator> operators) {
         List<String> ret = new ArrayList<>();
         Set<String> uniqueCallsigns = new HashSet<>();
         for (Map.Entry<Event,List<Participant>> entry : eventParticipants.entrySet()) {
@@ -226,6 +227,26 @@ public class SummaryReportAccessor {
                 }
             }
         }
+        return ret;
+    }
+
+    private List<String> determineRacesCallsigns(Map<Event, List<Participant>> eventParticipants) {
+        List<String> ret = new ArrayList<>();
+        Set<String> uniqueCallsigns = new HashSet<>();
+        for (Map.Entry<Event,List<Participant>> entry : eventParticipants.entrySet()) {
+            List<Participant> participants = entry.getValue();
+            for (Participant participant : participants) {
+                if (participant.getOperator() != null) {
+                    if (participant.getOperator().isRACES()) {
+                        uniqueCallsigns.add(participant.getOperator().getCallsign());
+                    }
+                } else {
+                    continue;
+                }
+            }
+        }
+        // do not need to be members
+        ret.addAll(uniqueCallsigns);
         return ret;
     }
 
@@ -277,7 +298,10 @@ public class SummaryReportAccessor {
             document.add(addMonthlyReportParticipantStatistics(monthlyStatistics));
 
             document.add(addMonthlyReportBanner("LEADERSHIP PARTICIPATION"));
-            document.add(addMonthlyReportLeadshipshipInformation(monthlyStatistics));
+            document.add(addMonthlyReportLeadershipInformation(monthlyStatistics));
+
+            document.add(addMonthlyReportBanner("RACES PARTICIPATION"));
+            document.add(addMonthlyReportRACESInformation(monthlyStatistics));
 
             document.add(addMonthlyReportBanner("EVENT STATISTICS"));
             Table eventStatisticsHeader = addMonthlyReportEventStatisticsHeader();
@@ -425,7 +449,7 @@ public class SummaryReportAccessor {
         return dfDefault.format(value); 
     }
 
-    private Table addMonthlyReportLeadshipshipInformation(MonthlyReportStatistics monthlyStatistics) {
+    private Table addMonthlyReportLeadershipInformation(MonthlyReportStatistics monthlyStatistics) {
         String callsigns = "";
         Table table = new Table(2);
         table.useAllAvailableWidth();
@@ -435,6 +459,29 @@ public class SummaryReportAccessor {
         table.addCell(cellLeadershipCallsigns);
 
         for (String callsign : monthlyStatistics.getLeadershipCallsigns()) {
+            if (callsigns.length() != 0) {
+                callsigns += ", ";
+            }
+            callsigns += callsign;
+        }
+        
+        Cell cellLeadershipCallsignsValue = new Cell().add(new Paragraph(callsigns)).setBorder(new SolidBorder(0)).setVerticalAlignment(VerticalAlignment.MIDDLE);
+        PdfUtils.makeBold(cellLeadershipCallsignsValue);
+        table.addCell(cellLeadershipCallsignsValue);
+
+        return table;
+    }
+
+    private Table addMonthlyReportRACESInformation(MonthlyReportStatistics monthlyStatistics) {
+        String callsigns = "";
+        Table table = new Table(2);
+        table.useAllAvailableWidth();
+
+        Cell cellLeadershipCallsigns = new Cell().add(new Paragraph("RACES callsigns:")).setBorder(new SolidBorder(0)).setVerticalAlignment(VerticalAlignment.MIDDLE);
+        PdfUtils.makeBold(cellLeadershipCallsigns);
+        table.addCell(cellLeadershipCallsigns);
+
+        for (String callsign : monthlyStatistics.getRacesCallsigns()) {
             if (callsigns.length() != 0) {
                 callsigns += ", ";
             }

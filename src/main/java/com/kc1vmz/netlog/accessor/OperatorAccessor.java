@@ -63,6 +63,7 @@ public class OperatorAccessor {
                     operator.setCallsign(record.callsign());
                     operator.setNTS(record.isNTS());
                     operator.setSkywarn(record.isSkywarn());
+                    operator.setRACES(record.isRACES());
                     ret.add(operator);
                 }
             }
@@ -92,7 +93,7 @@ public class OperatorAccessor {
         }
 
         try {
-            OperatorRecord rec = new OperatorRecord(UUID.randomUUID().toString(), operator.getCallsign(), operator.getName(), operator.isNTS(), operator.isSkywarn());
+            OperatorRecord rec = new OperatorRecord(UUID.randomUUID().toString(), operator.getCallsign(), operator.getName(), operator.isNTS(), operator.isSkywarn(), operator.isRACES());
             OperatorRecord recNew = operatorRepository.save(rec);
             operator.setId(recNew.id());
             return operator;
@@ -115,6 +116,7 @@ public class OperatorAccessor {
                 ret.setCallsign(record.callsign());
                 ret.setNTS(record.isNTS());
                 ret.setSkywarn(record.isSkywarn());
+                ret.setRACES(record.isRACES());
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -134,6 +136,7 @@ public class OperatorAccessor {
                 ret.setCallsign(record.callsign());
                 ret.setNTS(record.isNTS());
                 ret.setSkywarn(record.isSkywarn());
+                ret.setRACES(record.isRACES());
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -153,7 +156,7 @@ public class OperatorAccessor {
             }
 
             OperatorRecord rec = recordOpt.get();
-            OperatorRecord recNew = new OperatorRecord(rec.id(), obj.getCallsign(), obj.getName(), obj.isNTS(), obj.isSkywarn());
+            OperatorRecord recNew = new OperatorRecord(rec.id(), obj.getCallsign(), obj.getName(), obj.isNTS(), obj.isSkywarn(), obj.isRACES());
             OperatorRecord recSaved = operatorRepository.update(recNew);
             obj.setId(recSaved.id());
             return obj;

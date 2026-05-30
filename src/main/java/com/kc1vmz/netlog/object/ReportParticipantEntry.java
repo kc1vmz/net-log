@@ -26,12 +26,14 @@ public class ReportParticipantEntry {
     private int eventCount; 
     private boolean [] eventMask;
     private int eventParticipationCount;
+    private boolean isSectionMember;
     
-    public ReportParticipantEntry(String callsign, int eventCount) {
+    public ReportParticipantEntry(String callsign, int eventCount, boolean isSectionMember) {
         this.callsign = callsign;
         this.eventCount = eventCount;
         this.eventMask = new boolean[eventCount];
         this.eventParticipationCount = 0;
+        this.isSectionMember = isSectionMember;
     }
 
     public String getCallsign() {
@@ -57,5 +59,11 @@ public class ReportParticipantEntry {
     }
     public void setEventParticipationCount(int eventParticipationCount) {
         this.eventParticipationCount = eventParticipationCount;
+    }
+    public boolean isSectionMember() {
+        return isSectionMember;
+    }
+    public void setSectionMember(boolean isSectionMember) {
+        this.isSectionMember = isSectionMember;
     }
 }

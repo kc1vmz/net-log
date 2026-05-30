@@ -36,6 +36,7 @@ public class MonthlyReportStatistics {
     private int participations;
     private int uniqueParticipants;
     List<String> leadershipCallsigns;
+    List<String> racesCallsigns;
     List<MonthlyReportEventStatistics> eventStatistics;
     int totalEvents;
     double totalEventsHours;
@@ -231,5 +232,11 @@ public class MonthlyReportStatistics {
     }
     public void setTotalNetEventsHours(double totalNetEventsHours) {
         this.totalNetEventsHours = totalNetEventsHours;
+    }
+    public List<String> getRacesCallsigns() {
+        return racesCallsigns;
+    }
+    public void setRacesCallsigns(List<String> racesCallsigns) {
+        this.racesCallsigns = racesCallsigns;
     }
 }

@@ -23,7 +23,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
   <meta name="robots" content="noindex, nofollow">
-  <title>NetLog - Update Operator Details - {{operator.callsign}}</title>
+  <title>NetLog - Generate Section Leadership Report</title>
 </head>
 <body>
 <style>
@@ -182,58 +182,29 @@ body {
     <a href="/activeEvents">Active Events</a>
     <a href="/recurringEvents">Recurring Events</a>
     <a href="/archives">Archives</a>
-    <a href="/sections">Sections</a>
-    <a href="/operators"><b>Operators</b></a>
+    <a href="/sections"><b></b>Sections</b></a>
+    <a href="/operators">Operators</a>
   </div>
   <div class="main">
-    <div><hr/></div>
+    <div class="line"><hr/></div>
     <div style="margin:20px;">
-    <h1>Update Operator Details - {{operator.callsign}}</h1>
-    <p>Update the properties of a operator, including their affiliations.
-    <div class="line" style="margin:0px"><hr/></div>
+      <h1>Confirm generating section leadership report</h1>
     </div>
+    <div class="line"><hr/></div>
 
     <div style="margin:20px;">
-      <form action="/operator-edit-action/{{operator.id}}" method="post">
-        <div class="mb-3">
-            <label for="callsign" class="form-label">Callsign:</label>
-            <input type="text" name="callsign" value="{{operator.callsign}}" id="callsign" min="1" maxlength="9" class="form-control" required="required"/>
-        </div>
-        <div class="mb-3">
-            <label for="name" class="form-label">Name:</label>
-            <input type="text" name="name" value="{{operator.name}}" id="name" min="1" maxlength="30" class="form-control"/>
-        </div>
+      <form action="/section-leadershipreport-action/{{section.id}}" method="post">
         <div>
-            <label for="isNTS">NTS affiliated?</label>
-            {{#if isNTSChecked}}
-            <input type="checkbox" id="isNTS" name="isNTS" value="{{operator.isNTS}}" checked>
-            {{else}}
-            <input type="checkbox" id="isNTS" name="isNTS" value="{{operator.isNTS}}">
-            {{/if}}
-        </div>
-        <div>
-            <label for="isSkywarn">SKYWARN affiliated?</label>
-            {{#if isSkywarnChecked}}
-            <input type="checkbox" id="isSkywarn" name="isSkywarn" value="{{operator.isSkywarn}}" checked>
-            {{else}}
-            <input type="checkbox" id="isSkywarn" name="isSkywarn" value="{{operator.isSkywarn}}">
-            {{/if}}
-        </div>
-        <div>
-            <label for="isRACES">RACES affiliated?</label>
-            {{#if isRACESChecked}}
-            <input type="checkbox" id="isRACES" name="isRACES" value="{{operator.isRACES}}" checked>
-            {{else}}
-            <input type="checkbox" id="isRACES" name="isRACES" value="{{operator.isRACES}}">
-            {{/if}}
+          <p>Do you wish to generate a report containing all members of section '{{section.name}}' who are in Leadership?</p>
         </div>
         <div class="line" style="margin:0px"><hr/></div>
         <div>
-          <input type="submit" value="Update" class="btn btn-primary block"/>
-          <a class="block" href="/operator/{{operator.id}}">Cancel</a>
+          <input type="submit" value="Generate Report" class="btn btn-primary block"/>
+          <a class="block" href="/section/{{section.id}}">Close</a>
         </div>
       </form>
     </div>
+
   </div>
   </div>
 </div>

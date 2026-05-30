@@ -33,6 +33,7 @@ public class SectionOperator {
     private String name;
     private boolean isNTS;
     private boolean isSkywarn;
+    private boolean isRACES;
     private MembershipType membershipType;
     private Section section;
 
@@ -45,6 +46,7 @@ public class SectionOperator {
         this.setNTS(operator.isNTS());
         this.setName(operator.getName());
         this.setSkywarn(operator.isSkywarn());
+        this.setRACES(operator.isRACES());
         this.setSection(section);
     }
     public String getId() {
@@ -88,5 +90,11 @@ public class SectionOperator {
     }
     public void setSection(Section section) {
         this.section = section;
+    }
+    public boolean isRACES() {
+        return isRACES;
+    }
+    public void setRACES(boolean isRACES) {
+        this.isRACES = isRACES;
     }
 }

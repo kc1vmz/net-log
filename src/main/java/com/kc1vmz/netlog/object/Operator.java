@@ -31,6 +31,7 @@ public class Operator {
     private String name;
     private boolean isNTS;
     private boolean isSkywarn;
+    private boolean isRACES;
 
     public String getId() {
         return id;
@@ -61,5 +62,11 @@ public class Operator {
     }
     public void setSkywarn(boolean isSkywarn) {
         this.isSkywarn = isSkywarn;
+    }
+    public boolean isRACES() {
+        return isRACES;
+    }
+    public void setRACES(boolean isRACES) {
+        this.isRACES = isRACES;
     }
 }

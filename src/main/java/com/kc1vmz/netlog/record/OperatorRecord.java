@@ -30,5 +30,5 @@ import jakarta.validation.constraints.NotEmpty;
 
 @Serdeable
 @MappedEntity("operator")
-public record OperatorRecord(@Id @NotBlank @NotEmpty String id, @NotBlank @NotEmpty String callsign, @Nullable String name, boolean isNTS, boolean isSkywarn) {
+public record OperatorRecord(@Id @NotBlank @NotEmpty String id, @NotBlank @NotEmpty String callsign, @Nullable String name, boolean isNTS, boolean isSkywarn, boolean isRACES) {
 }
