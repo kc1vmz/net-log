@@ -25,6 +25,7 @@ import com.kc1vmz.netlog.accessor.RecurringEventReportAccessor;
 import com.kc1vmz.netlog.accessor.ReportAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.accessor.SummaryReportAccessor;
+import com.kc1vmz.netlog.accessor.SummaryExportAccessor;
 import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
@@ -104,6 +105,8 @@ public class UIController {
     private ReportAccessor reportAccessor;
     @Inject
     private SummaryReportAccessor summaryReportAccessor;
+    @Inject
+    private SummaryExportAccessor summaryExportAccessor;
     @Inject
     private OperatorAffiliationReportAccessor operatorAffiliationReportAccessor;
     @Inject
@@ -1928,4 +1931,59 @@ public class UIController {
         }
         return ret;
     }
+
+
+
+
+    @SuppressWarnings("unchecked")
+    @View("archivedEvents-monthlyexport")
+    @Get("/archivedEvents-monthlyexport")
+    public Map<String, Object> archivedEventsMonthlyExport(HttpRequest<?> request) {
+        List<Section> sections = sectionAccessor.list();
+        return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-monthlyexport-action", MonthlyReportRequest.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("archivedEvents-monthlyexport")
+    @Get("/section-monthlyexport/{id}")
+    public Map<String, Object> sectionMonthlyExport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        List<Section> sections = new ArrayList<>();
+        sections.add(section);
+        return CollectionUtils.mapOf("sections", sections, "form", formGenerator.generate("/archivedEvent-monthlyexport-action", MonthlyReportRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_CSV)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/archivedEvents-monthlyexport-action")
+    public HttpResponse<?> archivedEventsMonthlyExportAction(HttpRequest<?> request, @Valid @Body MonthlyReportRequest actionData) {
+
+        Section section = sectionAccessor.get(actionData.sectionId());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
+        String dateStr = actionData.month()+"-"+actionData.year();
+
+        String filename = summaryExportAccessor.generateReport(section, eventParticipants, members, dateStr, "MONTHLY SUMMARY");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create export");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/archivedEvents-monthlyexport-csv/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/archivedEvents-monthlyexport-csv/{sectionId}/{dateStr}/{filename}", produces = MediaType.TEXT_CSV)
+    public HttpResponse<byte[]> downloadArchivedEventMonthlyExport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = summaryExportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-MonthlySummaryExport-%s-%s.csv", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
 }

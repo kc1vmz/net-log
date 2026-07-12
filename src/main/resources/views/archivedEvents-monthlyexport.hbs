@@ -23,7 +23,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
   <meta name="robots" content="noindex, nofollow">
-  <title>NetLog - Section - {{section.name}} </title>
+  <title>NetLog - Generate Monthly Summary Data Export</title>
 </head>
 <body>
 <style>
@@ -171,7 +171,6 @@ body {
     background: #ddd;
     color: black;
   }
-
 </style>
 
 <script>
@@ -182,73 +181,67 @@ body {
     <a href="/">Welcome</a>
     <a href="/activeEvents">Active Events</a>
     <a href="/recurringEvents">Recurring Events</a>
-    <a href="/archives">Archives</a>
-    <a href="/sections"><b>Sections</b></a>
+    <a href="/archives"><b>Archives</b></a>
+    <a href="/sections">Sections</a>
     <a href="/operators">Operators</a>
   </div>
   <div class="main">
-    <div><hr/></div>
+    <div class="line"><hr/></div>
     <div style="margin:20px;">
-    <h1>Section Details - {{section.name}}</h1>
-    <p>View properties of a section, including its members.
-    <div class="line" style="margin:0px"><hr/></div>
+      <h1>Confirm generating monthly data export</h1>
     </div>
-    <div class="table-container" style="margin:20px;">
-      <div>
-        <p><b>Name</b>:
-        {{section.name}}
-      </div>
-      <div>
-        <p><b>Description</b>:
-        {{section.description}}
-      </div>
+    <div class="line"><hr/></div>
+
+    <div style="margin:20px;">
+      <form action="/archivedEvents-monthlyexport-action" method="post">
+        <div>
+          <p>Select the section, month and year of the data export to generate.</p>
+        </div>
+        <div>
+            <label for="sectionId" class="form-label">Section:</label>
+            <select name="sectionId" id="sectionId">
+            {{#each sections}}
+              <option value="{{id}}">{{name}}</option>
+            {{/each}}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="month" class="form-label">Month:</label>
+            <select name="month" id="month"  class="form-control">
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="year" class="form-label">Year:</label>
+            <select name="year" id="year"  class="form-control">
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+              <option value="2031">2031</option>
+              <option value="2032">2032</option>
+            </select>
+        </div>
+        <div class="line" style="margin:0px"><hr/></div>
+        <div>
+          <input type="submit" value="Generate Monthly Data Export" class="btn btn-primary block"/>
+          <a class="block" href="/archives">Close</a>
+        </div>
+      </form>
     </div>
-    <div class="table-container" style="margin:20px;">
-      <b>Operators ({{operatorCount}} total)</b>
-      <table id="members-list">
-        <thead>
-          <tr>
-            <th>Callsign</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>NTS?</th>
-            <th>Skywarn?</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each operators}}
-            <tr id="{{id}}">
-              <td>{{callsign}}</td>
-              <td>{{name}}</td>
-              <td>{{membershipType}}</td>
-              <td>{{isNTS}}</td>
-              <td>{{isSkywarn}}</td>
-            </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    </div>
-    <div style="margin:20px">
-      <div class="line" style="margin:0px;"><hr/></div>
-      <a class="block" href="/section-monthlyreport/{{section.id}}">Generate monthly summary report</a>&nbsp;
-      <a class="block" href="/section-monthlyparticipationreport/{{section.id}}">Generate monthly participation report</a>&nbsp;
-      <a class="block" href="/section-monthlynonparticipationreport/{{section.id}}">Generate monthly non-participation report</a>&nbsp;
-      <p>
-      <a class="block" href="/section-quarterlyreport/{{section.id}}">Generate quarterly summary report</a>&nbsp;
-      <a class="block" href="/section-quarterlyparticipationreport/{{section.id}}">Generate quarterly participation report</a>&nbsp;
-      <a class="block" href="/section-quarterlynonparticipationreport/{{section.id}}">Generate quarterly non-participation report</a>&nbsp;
-      <p>
-      <a class="block" href="/section-memberreport/{{section.id}}">Generate member report</a>&nbsp;
-      <a class="block" href="/section-leadershipreport/{{section.id}}">Generate leadership report</a>&nbsp;
-      <a class="block" href="/section-ntsreport/{{section.id}}">Generate NTS member report</a>&nbsp;
-      <a class="block" href="/section-racesreport/{{section.id}}">Generate RACES member report</a>&nbsp;
-      <a class="block" href="/section-skywarnreport/{{section.id}}">Generate Skywarn member report</a>&nbsp;
-      <p>
-      <a class="block" href="/section-monthlyexport/{{section.id}}">Export monthly data</a>&nbsp;
-      <p>
-      <a class="block" href="/section-edit/{{section.id}}">Edit details</a>&nbsp;
-      <a class="block" href="/section-delete/{{section.id}}">Delete</a>
-    </div>
+
   </div>
   </div>
 </div>
