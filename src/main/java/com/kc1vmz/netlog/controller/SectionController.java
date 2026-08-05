@@ -27,6 +27,7 @@ import com.kc1vmz.netlog.accessor.OperatorAccessor;
 import com.kc1vmz.netlog.accessor.RecurringEventAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.enums.MembershipType;
+import com.kc1vmz.netlog.object.District;
 import com.kc1vmz.netlog.object.Event;
 import com.kc1vmz.netlog.object.Operator;
 import com.kc1vmz.netlog.object.RecurringEvent;
@@ -118,4 +119,22 @@ public class SectionController {
         Section section = sectionAccessor.get(id);
         return eventAccessor.listBySection(section, false, true);
     }
+
+    @Delete("/{id}/districts/{districtId}")
+    public void removeDistrict(@PathVariable String id, @PathVariable String districtId) {
+        District district = sectionAccessor.getDistrict(districtId);
+        sectionAccessor.removeDistrict(district);
+    }
+
+    @Post("/{id}/districts")
+    public HttpResponse<District> createDistrict(@PathVariable String id, @Body District district) {
+        Section section = sectionAccessor.get(id);
+        District districtNew = sectionAccessor.addDistrict(section, district);
+        if (districtNew == null) {
+            return HttpResponse.badRequest();
+        }
+
+        return HttpResponse.created(districtNew);
+    }
+
 }

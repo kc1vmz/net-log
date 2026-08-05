@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Export Monthly Non-Participation Data</title>
+</head>
+<body>
+<style>
+
+body {
+    margin: 0px;
+    background: #2559a7;
+    color: #ddd;
+  }
+
+.navbar {
+  overflow: hidden;
+  background-color: #2559a7;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+  background-color: #2559a7;
+  color: #ddd;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Change background on mouse-over */
+.navbar a:hover {
+  background: #ddd;
+  color: black;
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.grid-item {
+}
+
+.line {
+  margin : 20px;
+}
+
+    .main a {
+        color: #ddd;
+    }
+
+
+
+
+
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    thead, tbody {
+    }
+    thead {
+    }
+    tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        color: #ddd;
+        background-color: #2559a7
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        background-color: #ddd;
+        color: #2559a7
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+    background: #033684;
+    color: white;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .block:hover {
+    background: #ddd;
+    color: black;
+  }
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents">Active Events</a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections"><b>Sections</b></a>
+    <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
+  </div>
+  <div class="main">
+    <div class="line"><hr/></div>
+    <div style="margin:20px;">
+      <h1>Confirm exporting monthly non-participation data for section {{section.name}}</h1>
+    </div>
+    <div class="line"><hr/></div>
+
+    <div style="margin:20px;">
+      <form action="/section-monthlynonparticipationexport-action" method="post">
+        <div>
+          <p>Select the month and year of the data to export.</p>
+        </div>
+        <input type="hidden" name="sectionId" value="{{section.id}}" id="sectionId" class="form-control" required="required"/>
+        <div class="mb-3">
+            <label for="month" class="form-label">Month:</label>
+            <select name="month" id="month"  class="form-control">
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="year" class="form-label">Year:</label>
+            <select name="year" id="year"  class="form-control">
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+              <option value="2031">2031</option>
+              <option value="2032">2032</option>
+            </select>
+        </div>
+        <div class="line" style="margin:0px"><hr/></div>
+        <div>
+          <input type="submit" value="Export Monthly Non-Participation Data" class="btn btn-primary block"/>
+          <a class="block" href="/section/{{section.id}}">Close</a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

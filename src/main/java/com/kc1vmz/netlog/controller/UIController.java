@@ -9,12 +9,15 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netlog.accessor.EventAccessor;
+import com.kc1vmz.netlog.accessor.LocationAccessor;
+import com.kc1vmz.netlog.accessor.NonParticipationExportAccessor;
 import com.kc1vmz.netlog.accessor.NonParticipationReportAccessor;
 import com.kc1vmz.netlog.accessor.OperatorAccessor;
 import com.kc1vmz.netlog.accessor.OperatorAffiliationReportAccessor;
@@ -31,7 +34,12 @@ import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
 import com.kc1vmz.netlog.enums.MembershipType;
 import com.kc1vmz.netlog.enums.OperatorAffiliationReportType;
+import com.kc1vmz.netlog.object.District;
 import com.kc1vmz.netlog.object.Event;
+import com.kc1vmz.netlog.object.Location;
+import com.kc1vmz.netlog.object.LocationCountry;
+import com.kc1vmz.netlog.object.LocationCounty;
+import com.kc1vmz.netlog.object.LocationState;
 import com.kc1vmz.netlog.object.Operator;
 import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.object.RecurringEvent;
@@ -42,9 +50,16 @@ import com.kc1vmz.netlog.request.ActiveEventEditRequest;
 import com.kc1vmz.netlog.request.ActiveEventScheduleRequest;
 import com.kc1vmz.netlog.request.ParticipantStartEndRequest;
 import com.kc1vmz.netlog.request.BlankRequest;
+import com.kc1vmz.netlog.request.DistrictCreateRequest;
+import com.kc1vmz.netlog.request.DistrictLocationEditRequest;
+import com.kc1vmz.netlog.request.DistrictMunicipalityBulkCreateRequest;
+import com.kc1vmz.netlog.request.LocationCountryCreateRequest;
+import com.kc1vmz.netlog.request.LocationCountyChangeRequest;
+import com.kc1vmz.netlog.request.LocationStateCreateRequest;
 import com.kc1vmz.netlog.request.MonthlyReportRequest;
 import com.kc1vmz.netlog.request.OperatorBulkCreateRequest;
 import com.kc1vmz.netlog.request.OperatorCreateRequest;
+import com.kc1vmz.netlog.request.OperatorLocationEditRequest;
 import com.kc1vmz.netlog.request.QuarterlyReportRequest;
 import com.kc1vmz.netlog.request.RecurringEventCreateRequest;
 import com.kc1vmz.netlog.request.RecurringEventReportRequest;
@@ -61,6 +76,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.views.View;
 
@@ -115,6 +131,10 @@ public class UIController {
     private RecurringEventReportAccessor recurringEventReportAccessor;
     @Inject
     private NonParticipationReportAccessor nonParticipationReportAccessor;
+    @Inject
+    private NonParticipationExportAccessor nonParticipationExportAccessor;
+    @Inject
+    private LocationAccessor locationAccessor;
 
     private static final Logger logger = LogManager.getLogger(UIController.class);
 
@@ -216,7 +236,8 @@ public class UIController {
     HttpResponse<?> archivedEventsMonthlyReportAction(HttpRequest<?> request, @Valid @Body MonthlyReportRequest actionData) {
 
         Section section = sectionAccessor.get(actionData.sectionId());
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year(), members);
         String dateStr = actionData.month()+"-"+actionData.year();
 
         String filename = summaryReportAccessor.generateReport(section, eventParticipants, dateStr, "MONTHLY SUMMARY");
@@ -267,7 +288,7 @@ public class UIController {
 
         Section section = sectionAccessor.get(actionData.sectionId());
         List<SectionOperator> members = operatorAccessor.listOperators(section);
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year(), members);
         String dateStr = actionData.month()+"-"+actionData.year();
 
         String filename = participationReportAccessor.generateReport(section, eventParticipants, members, dateStr, "MONTHLY PARTICIPATION");
@@ -317,7 +338,8 @@ public class UIController {
     HttpResponse<?> archivedEventsMonthlyReportAction(HttpRequest<?> request, @Valid @Body QuarterlyReportRequest actionData) {
 
         Section section = sectionAccessor.get(actionData.sectionId());
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year(), members);
         String dateStr = actionData.quarter()+"-"+actionData.year();
 
         String filename = summaryReportAccessor.generateReport(section, eventParticipants, dateStr, "QUARTERLY SUMMARY");
@@ -568,7 +590,7 @@ public class UIController {
 
         Section section = sectionAccessor.get(actionData.sectionId());
         List<SectionOperator> members = operatorAccessor.listOperators(section);
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year());
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year(), members);
         String dateStr = actionData.quarter()+"-"+actionData.year();
 
         String filename = participationReportAccessor.generateReport(section, eventParticipants, members, dateStr, "QUARTERLY PARTICIPATION");
@@ -673,7 +695,9 @@ public class UIController {
     public HttpResponse<?> sectionDetails(HttpRequest<?> request, @PathVariable String id) {
         Section section = sectionAccessor.get(id);
         List<SectionOperator> operators = operatorAccessor.listOperators(section);
-        return HttpResponse.ok(CollectionUtils.mapOf("section", section, "operators", operators, "operatorCount", operators.size()));
+        List<District> districts = sectionAccessor.listDistricts(section);
+        return HttpResponse.ok(CollectionUtils.mapOf("section", section, "operators", operators, "operatorCount", operators.size(),
+                                                                "districts", districts, "districtsCount", districts.size()));
     }
 
     @SuppressWarnings("unchecked")
@@ -792,9 +816,9 @@ public class UIController {
     HttpResponse<?> sectionMonthlyNonParticipationReportAction(HttpRequest<?> request, @Valid @Body MonthlyReportRequest actionData) {
 
         Section section = sectionAccessor.get(actionData.sectionId());
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
-        String dateStr = actionData.month()+"-"+actionData.year();
         List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year(), members);
+        String dateStr = actionData.month()+"-"+actionData.year();
 
         String filename = nonParticipationReportAccessor.generateReport(section, members, eventParticipants, dateStr, "MONTHLY NON-PARTICIPATION");
         if (filename == null) {
@@ -832,9 +856,9 @@ public class UIController {
     @Post("/section-quarterlynonparticipationreport-action")
     HttpResponse<?> sectionQuarterlyNonParticipationReportAction(HttpRequest<?> request, @Valid @Body QuarterlyReportRequest actionData) {
         Section section = sectionAccessor.get(actionData.sectionId());
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year());
-        String dateStr = actionData.quarter()+"-"+actionData.year();
         List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year(), members);
+        String dateStr = actionData.quarter()+"-"+actionData.year();
 
         String filename = nonParticipationReportAccessor.generateReport(section, members, eventParticipants, dateStr, "MONTHLY NON-PARTICIPATION");
         if (filename == null) {
@@ -1837,9 +1861,9 @@ public class UIController {
         }
     }
 
-    private Map<Event, List<Participant>> getEvents(Section section, String monthStr, String yearStr) {
+    private Map<Event, List<Participant>> getEvents(Section section, String monthStr, String yearStr, List<SectionOperator> members) {
         if (monthStr.startsWith("Q")) {
-            return getEventsQuarterly(section, monthStr, yearStr);
+            return getEventsQuarterly(section, monthStr, yearStr, members);
         }
         Map<Event, List<Participant>> eventParticipants = new TreeMap<>();
         List<Event> events = eventAccessor.listSecured(section);
@@ -1850,6 +1874,23 @@ public class UIController {
         for (Event event : events) {
             if ((event.getStartTime().getMonthValue() == month) && (event.getStartTime().getYear() == year)) {
                 List<Participant> participants = participantAccessor.listParticipants(event, false);
+                if (members != null) {
+                    if (participants != null) {
+                        for (Participant participant : participants) {
+                            boolean found = false;
+                            for (SectionOperator member : members) {
+                                if (participant.getOperator().getCallsign().equals(member.getCallsign())) {
+                                    participant.setMembershipType(member.getMembershipType());
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                participant.setMembershipType(MembershipType.NON_MEMBER);
+                            }
+                        }
+                    }
+                }
                 Collections.sort(participants, new Comparator<Participant>() {
                     @Override
                     public int compare(Participant obj1, Participant obj2) {
@@ -1862,7 +1903,7 @@ public class UIController {
         return eventParticipants;
     }
 
-    private Map<Event, List<Participant>> getEventsQuarterly(Section section, String monthStr, String yearStr) {
+    private Map<Event, List<Participant>> getEventsQuarterly(Section section, String monthStr, String yearStr, List<SectionOperator> members) {
         Map<Event, List<Participant>> eventParticipants = new TreeMap<>();
         List<Event> events = eventAccessor.listSecured(section);
 
@@ -1882,11 +1923,31 @@ public class UIController {
         } else if (monthStr.equals("Q4")) {
             startMonth = 10;
             endMonth = 12;
+        } else if (monthStr.equals("QALL")) {
+            startMonth = 1;
+            endMonth = 12;
         }
 
         for (Event event : events) {
             if ((event.getStartTime().getMonthValue() >= startMonth) && (event.getStartTime().getMonthValue() <= endMonth) && (event.getStartTime().getYear() == year)) {
                 List<Participant> participants = participantAccessor.listParticipants(event, false);
+                if (members != null) {
+                    if (participants != null) {
+                        for (Participant participant : participants) {
+                            boolean found = false;
+                            for (SectionOperator member : members) {
+                                if (participant.getOperator().getCallsign().equals(member.getCallsign())) {
+                                    participant.setMembershipType(member.getMembershipType());
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                participant.setMembershipType(MembershipType.NON_MEMBER);
+                            }
+                        }
+                    }
+                }
                 Collections.sort(participants, new Comparator<Participant>() {
                     @Override
                     public int compare(Participant obj1, Participant obj2) {
@@ -1960,10 +2021,11 @@ public class UIController {
 
         Section section = sectionAccessor.get(actionData.sectionId());
         List<SectionOperator> members = operatorAccessor.listOperators(section);
-        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year());
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year(), members);
+        Map<String, String> locationDistricts = getLocationDistricts(section);
         String dateStr = actionData.month()+"-"+actionData.year();
 
-        String filename = summaryExportAccessor.generateReport(section, eventParticipants, members, dateStr, "MONTHLY SUMMARY");
+        String filename = summaryExportAccessor.generateReport(section, eventParticipants, members, locationDistricts, dateStr, "MONTHLY SUMMARY");
         if (filename == null) {
             return HttpResponse.serverError("Could not create export");
         }
@@ -1986,4 +2048,1051 @@ public class UIController {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @View("section-monthlynonparticipationexport")
+    @Get("/section-monthlynonparticipationexport/{id}")
+    public Map<String, Object> sectionMonthlyNonParticipationExport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-monthlynonparticipationexport-action", MonthlyReportRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-monthlynonparticipationexport-action")
+    HttpResponse<?> sectionMonthlyNonParticipationExportAction(HttpRequest<?> request, @Valid @Body MonthlyReportRequest actionData) {
+
+        Section section = sectionAccessor.get(actionData.sectionId());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.month(), actionData.year(), members);
+        Map<String, String> locationDistricts = getLocationDistricts(section);
+        String dateStr = actionData.month()+"-"+actionData.year();
+
+        String filename = nonParticipationExportAccessor.generateReport(section, members, eventParticipants, locationDistricts, dateStr, "MONTHLY NON-PARTICIPATION");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-monthlynonparticipationexport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-monthlynonparticipationexport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.TEXT_CSV)
+    public HttpResponse<byte[]> downloadSectionMonthlyNonParticipationExport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = nonParticipationExportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-MonthlyNonParticipationExport-%s-%s.csv", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("section-quarterlynonparticipationexport")
+    @Get("/section-quarterlynonparticipationexport/{id}")
+    public Map<String, Object> sectionQuarterlyNonParticipationExport(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/section-quarterlynonparticipationexport-action", QuarterlyReportRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/section-quarterlynonparticipationexport-action")
+    HttpResponse<?> sectionQuarterlyNonParticipationExportAction(HttpRequest<?> request, @Valid @Body QuarterlyReportRequest actionData) {
+
+        Section section = sectionAccessor.get(actionData.sectionId());
+        List<SectionOperator> members = operatorAccessor.listOperators(section);
+        Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year(), members);
+        Map<String, String> locationDistricts = getLocationDistricts(section);
+        String dateStr = actionData.quarter()+"-"+actionData.year();
+
+        String filename = nonParticipationExportAccessor.generateReport(section, members, eventParticipants, locationDistricts, dateStr, "QUARTERLY NON-PARTICIPATION");
+        if (filename == null) {
+            return HttpResponse.serverError("Could not create report");
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section-quarterlynonparticipationexport-pdf/"+section.getId()+"/"+dateStr+"/"+filename).build());
+    } 
+
+    @Get(uri = "/section-quarterlynonparticipationexport-pdf/{sectionId}/{dateStr}/{filename}", produces = MediaType.TEXT_CSV)
+    public HttpResponse<byte[]> downloadSectionQuarterlyNonParticipationExport(HttpRequest<?> request, @PathVariable String sectionId, @PathVariable String dateStr, @PathVariable String filename) {
+
+        try {
+            Section section = sectionAccessor.get(sectionId);
+            filename = nonParticipationExportAccessor.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetLog-QuarterlyNonParticipationExport-%s-%s.csv", section.getName(), dateStr);
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("operator-edit-changelocation")
+    @Get("/operator-edit-changelocation/{id}")
+    public Map<String, Object> operatorEditLocation(HttpRequest<?> request,  @PathVariable String id, @QueryValue Optional<String> countryId, @QueryValue Optional<String> stateId, @QueryValue Optional<String> locationId) {
+        Operator operator = operatorAccessor.get(id);
+        List<LocationCountry> countries = null;
+        LocationCountry country = null;
+        List<LocationState> states = null;
+        LocationState state = null;
+        List<Location> locations = null;
+        Location location = null;
+        boolean done = false;
+        LocationCountry existingCountry = (operator.getLocation() != null && operator.getLocation().getCountry() != null) ? operator.getLocation().getCountry() : null;
+        LocationState existingState = (operator.getLocation() != null && operator.getLocation().getState() != null) ? operator.getLocation().getState() : null;
+        Location existingLocation = (operator.getLocation() != null) ? operator.getLocation() : null;
+
+        if (!countryId.isPresent()) {
+            countries = locationAccessor.listCountries();
+            if (existingCountry != null) {
+                for (LocationCountry countryIter : countries) {
+                    if (countryIter.getId().equals(existingCountry.getId())) {
+                        countries.remove(countryIter);
+                        break;
+                    }
+                }
+            }
+        } else {
+            country = locationAccessor.getCountry(countryId.get());
+        }
+        if (!stateId.isPresent()) {
+            if (country != null) {
+                states = locationAccessor.listStates(country);
+                if (existingState != null) {
+                    for (LocationState stateIter : states) {
+                        if (stateIter.getId().equals(existingState.getId())) {
+                            states.remove(stateIter);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            state = locationAccessor.getState(stateId.get());
+        }
+        if (!locationId.isPresent()) {
+            if (state != null) {
+                locations = locationAccessor.listLocations(state);
+                if (existingLocation != null) {
+                    for (Location locationIter : locations) {
+                        if (locationIter.getId().equals(existingLocation.getId())) {
+                            locations.remove(locationIter);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            location = locationAccessor.getLocation(locationId.get());
+            done = true;
+        }
+        return CollectionUtils.mapOf("operator", operator, 
+                                     "countryId", (countryId.isPresent() ? countryId.get() : null), 
+                                     "country", country,
+                                     "countries", countries,
+                                     "stateId", (stateId.isPresent() ? stateId.get() : null), 
+                                     "state", state,
+                                     "states", states,
+                                     "locationId", (locationId.isPresent() ? locationId.get() : null), 
+                                     "locations", locations,
+                                     "location", location,
+                                     "done", done,
+                                     "existingCountry", existingCountry,
+                                     "existingState", existingState,
+                                     "existingLocation", existingLocation,
+                                     "form", formGenerator.generate("/operator-edit-location-action/"+id, OperatorLocationEditRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/operator-edit-changelocation-action/{id}")
+    HttpResponse<?> operatorEditLocationAction(HttpRequest<?> request, @Valid @Body OperatorLocationEditRequest actionData,  @PathVariable String id) {
+        Operator operator = operatorAccessor.get(id);
+        String countryId = actionData.countryId();
+        String stateId = actionData.stateId();
+        String locationId = actionData.locationId();
+
+        if ((locationId != null) && (stateId == null)) {
+            Location location = locationAccessor.getLocation(locationId);
+            stateId = (location.getState() != null) ? location.getState().getId() : null;
+            countryId = (location.getCountry() != null) ? location.getCountry().getId() : null;
+        } else if ((stateId != null) && (countryId == null)) {
+            LocationState state = locationAccessor.getState(stateId);
+            countryId = (state.getCountry() != null) ? state.getCountry().getId() : null;
+        }
+
+        String nextPath = "/operator-edit-changelocation/"+id;
+        if ((countryId != null) && (stateId == null)) {
+            nextPath += ("?countryId="+countryId);
+        } else if ((countryId != null) && (stateId != null) && (locationId == null)) {
+            nextPath += ("?countryId="+countryId+"&stateId="+stateId);
+        } else if ((countryId != null) && (stateId != null) && (locationId != null)) {
+            Location location = locationAccessor.getLocation(locationId);
+            operator.setLocation(location);
+            operatorAccessor.update(id, operator);
+            nextPath = "/operator-edit/"+id;
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path(nextPath).build());
+    } 
+
+    @View("locations")
+    @Get("/locations")
+    public HttpResponse<?> locations(HttpRequest<?> request) {
+       List<LocationCountry> countries = locationAccessor.listCountries();
+       return HttpResponse.ok(CollectionUtils.mapOf("countries", countries));
+    }
+
+    @View("location-country")
+    @Get("/location-country/{id}")
+    public HttpResponse<?> countryDetails(HttpRequest<?> request, @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+        List<LocationState> states = locationAccessor.listStates(country);
+        return HttpResponse.ok(CollectionUtils.mapOf("country", country, "states", states, "statesCount", states.size()));
+    }
+
+    @View("location-state")
+    @Get("/location-state/{id}")
+    public HttpResponse<?> stateDetails(HttpRequest<?> request, @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        List<Location> locations = locationAccessor.listLocations(state);
+        List<LocationCounty> counties = locationAccessor.listCounties(state);
+        return HttpResponse.ok(CollectionUtils.mapOf("country", state.getCountry(), "state", state, "counties", counties, "locations", locations, "locationsCount", locations.size(),
+                                                            "countiesCount", counties.size()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("location-country-delete")
+    @Get("/location-country-delete/{id}")
+    public Map<String, Object> countryDelete(HttpRequest<?> request,  @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+        return CollectionUtils.mapOf("country", country, 
+                                     "form", formGenerator.generate("/location-country-delete-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-country-delete-action/{id}")
+    HttpResponse<?> countryDeleteAction(HttpRequest<?> request,  @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+
+        List<LocationState> states = locationAccessor.listStates(country);
+        for (LocationState state : states) {
+            List<Location> locations = locationAccessor.listLocations(state);
+            for (Location location : locations) {
+                List<Operator> operators = operatorAccessor.listOperators(location);
+                for (Operator operator : operators) {
+                    operator.setLocation(null);
+                    operatorAccessor.update(operator.getId(), operator);
+                }
+                // delete the location
+                locationAccessor.deleteLocation(location.getId());
+            }
+
+            // delete the counties
+            List<LocationCounty> counties = locationAccessor.listCounties(state);
+            for (LocationCounty county : counties) {
+                locationAccessor.deleteCounty(county.getId());
+            }
+
+            // delete the state
+            locationAccessor.deleteState(state.getId());
+        }
+
+        // delete the country
+        locationAccessor.deleteCountry(country.getId());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/locations").build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-country-add")
+    @Get("/location-country-add")
+    public Map<String, Object> countryAdd(HttpRequest<?> request) {
+        return CollectionUtils.mapOf("form", formGenerator.generate("/location-country-add-action", LocationCountryCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-country-add-action")
+    HttpResponse<?> countryAddAction(HttpRequest<?> request, @Valid @Body LocationCountryCreateRequest actionData) {
+        LocationCountry country = new LocationCountry();
+        country.setName(actionData.name());
+        country.setAbbreviation(actionData.abbreviation());
+
+        LocationCountry countryNew = locationAccessor.createCountry(country);
+        if (countryNew != null) {
+            return HttpResponse.seeOther(UriBuilder.of("/").path("/location-country/"+countryNew.getId()).build());
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/locations").build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-country-edit")
+    @Get("/location-country-edit/{id}")
+    public Map<String, Object> countryEdit(HttpRequest<?> request,  @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+
+        return CollectionUtils.mapOf("country", country, "form", formGenerator.generate("/location-country-edit-action/"+id, LocationCountryCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-country-edit-action/{id}")
+    HttpResponse<?> countryEditAction(HttpRequest<?> request, @Valid @Body LocationCountryCreateRequest actionData,  @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+        country.setName(actionData.name());
+        country.setAbbreviation(actionData.abbreviation());
+
+        locationAccessor.updateCountry(country);
+
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-country/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-state-add")
+    @Get("/location-state-add/{id}")
+    public Map<String, Object> stateAdd(HttpRequest<?> request, @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+        return CollectionUtils.mapOf("country", country, "form", formGenerator.generate("/location-state-add-action", LocationStateCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-state-add-action/{id}")
+    HttpResponse<?> stateAddAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body LocationStateCreateRequest actionData) {
+        LocationCountry country = locationAccessor.getCountry(id);
+        LocationState state = new LocationState();
+        state.setName(actionData.name());
+        state.setAbbreviation(actionData.abbreviation());
+        state.setCountry(country);
+
+        LocationState stateNew = locationAccessor.createState(id, state);
+        if (stateNew != null) {
+            return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+stateNew.getId()).build());
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-country/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-state-edit")
+    @Get("/location-state-edit/{id}")
+    public Map<String, Object> stateEdit(HttpRequest<?> request,  @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+
+        return CollectionUtils.mapOf("state", state, "form", formGenerator.generate("/location-state-edit-action/"+id, LocationStateCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-state-edit-action/{id}")
+    HttpResponse<?> stateEditAction(HttpRequest<?> request, @Valid @Body LocationStateCreateRequest actionData,  @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        state.setName(actionData.name());
+        state.setAbbreviation(actionData.abbreviation());
+
+        locationAccessor.updateState(state);
+
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-state-delete")
+    @Get("/location-state-delete/{id}")
+    public Map<String, Object> stateDelete(HttpRequest<?> request,  @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        return CollectionUtils.mapOf("state", state, 
+                                     "form", formGenerator.generate("/location-state-delete-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-state-delete-action/{id}")
+    HttpResponse<?> stateDeleteAction(HttpRequest<?> request, @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+
+        List<Location> locations = locationAccessor.listLocations(state);
+        for (Location location : locations) {
+            List<Operator> operators = operatorAccessor.listOperators(location);
+            for (Operator operator : operators) {
+                operator.setLocation(null);
+                operatorAccessor.update(operator.getId(), operator);
+            }
+            // delete the location
+            locationAccessor.deleteLocation(location.getId());
+        }
+
+        // delete the counties
+        List<LocationCounty> counties = locationAccessor.listCounties(state);
+        for (LocationCounty county : counties) {
+            locationAccessor.deleteCounty(county.getId());
+        }
+
+        // delete the state
+        locationAccessor.deleteState(state.getId());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-country/"+state.getCountry().getId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-state-addbulk")
+    @Get("/location-state-addbulk/{id}")
+    public Map<String, Object> stateAddBulk(HttpRequest<?> request, @PathVariable String id) {
+        LocationCountry country = locationAccessor.getCountry(id);
+        return CollectionUtils.mapOf("country", country, "form", formGenerator.generate("/location-state-addbulk-action", OperatorBulkCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-state-addbulk-action/{id}")
+    HttpResponse<?> stateAddBulkAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body OperatorBulkCreateRequest actionData) {
+
+        addAllStates(id, actionData.bulkList());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-country/"+id).build());
+    } 
+
+    private void addAllStates(String countryId, String bulkList) {
+        String [] lines = bulkList.lines().toArray(String[]::new);
+        for (String line : lines) {
+            if (line.length() == 0) {
+                continue;
+            }
+            String [] fields = line.split(",");
+            LocationState state = new LocationState();
+            try {
+                if (fields.length == 1) {
+                    state.setName(line.replace("\"", ""));
+                } else if (fields.length == 2) {
+                    String name = fields[0].replace("\"", "");
+                    String abbreviation = fields[1].replace("\"", "");
+                    state.setName(name);
+                    state.setAbbreviation(abbreviation);
+                } else if (fields.length > 2) {
+                    int index = line.indexOf(",");
+                    String name = line.substring(0, index).replace("\"", "");
+                    String abbreviation = line.substring(index+1).replace("\"", "");
+                    state.setName(name);
+                    state.setAbbreviation(abbreviation);
+                }
+                locationAccessor.createState(countryId, state);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    @View("location-county")
+    @Get("/location-county/{id}")
+    public HttpResponse<?> countyDetails(HttpRequest<?> request, @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+        List<Location> locations = locationAccessor.listLocations(county);
+        return HttpResponse.ok(CollectionUtils.mapOf("county", county,  "locations", locations, "locationsCount", locations.size()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-edit")
+    @Get("/location-county-edit/{id}")
+    public Map<String, Object> countyEdit(HttpRequest<?> request, @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+
+        return CollectionUtils.mapOf("county", county, "form", formGenerator.generate("/location-county-edit-action/"+id, LocationCountryCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-edit-action/{id}")
+    HttpResponse<?> countyEditAction(HttpRequest<?> request, @Valid @Body LocationCountryCreateRequest actionData,  @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+        county.setName(actionData.name());
+
+        locationAccessor.updateCounty(county);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-county/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-add")
+    @Get("/location-county-add/{id}")
+    public Map<String, Object> countyAdd(HttpRequest<?> request, @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        return CollectionUtils.mapOf("state", state, "form", formGenerator.generate("/location-county-add-action", LocationCountryCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-add-action/{id}")
+    HttpResponse<?> countyAddAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body LocationCountryCreateRequest actionData) {
+        LocationState state = locationAccessor.getState(id);
+        LocationCounty county = new LocationCounty();
+        county.setName(actionData.name());
+
+        LocationCounty countyNew = locationAccessor.createCounty(state, county);
+        if (countyNew != null) {
+            return HttpResponse.seeOther(UriBuilder.of("/").path("/location-county/"+countyNew.getId()).build());
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+state.getId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-delete")
+    @Get("/location-county-delete/{id}")
+    public Map<String, Object> countyDelete(HttpRequest<?> request, @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+        return CollectionUtils.mapOf("county", county, 
+                                     "form", formGenerator.generate("/location-county-delete-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-delete-action/{id}")
+    HttpResponse<?> countyDeleteAction(HttpRequest<?> request,  @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+
+        List<Location> locations = locationAccessor.listLocations(county);
+        for (Location location : locations) {
+            location.setCounty(county);
+            locationAccessor.updateLocation(location);
+        }
+
+        locationAccessor.deleteCounty(county.getId());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+county.getState().getId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-addbulk")
+    @Get("/location-county-addbulk/{id}")
+    public Map<String, Object> countyAddBulk(HttpRequest<?> request, @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        return CollectionUtils.mapOf("state", state, "form", formGenerator.generate("/location-county-addbulk-action", OperatorBulkCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-addbulk-action/{id}")
+    HttpResponse<?> countyAddBulkAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body OperatorBulkCreateRequest actionData) {
+        LocationState state = locationAccessor.getState(id);
+
+        addAllCounties(state, actionData.bulkList());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+id).build());
+    } 
+
+    private void addAllCounties(LocationState state, String bulkList) {
+        String [] lines = bulkList.lines().toArray(String[]::new);
+        for (String line : lines) {
+            if (line.length() == 0) {
+                continue;
+            }
+
+            try {
+                LocationCounty county = new LocationCounty();
+                county.setName(line.replace("\"", ""));
+                county.setState(state);
+                county.setCountry(state.getCountry());
+
+                locationAccessor.createCounty(state, county);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    @View("location-location")
+    @Get("/location-location/{id}")
+    public HttpResponse<?> locationDetails(HttpRequest<?> request, @PathVariable String id) {
+        Location location = locationAccessor.getLocation(id);
+        return HttpResponse.ok(CollectionUtils.mapOf("location", location));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("location-location-delete")
+    @Get("/location-location-delete/{id}")
+    public Map<String, Object> locationDelete(HttpRequest<?> request, @PathVariable String id) {
+        Location location = locationAccessor.getLocation(id);
+        return CollectionUtils.mapOf("location", location, 
+                                     "form", formGenerator.generate("/location-location-delete-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-location-delete-action/{id}")
+    HttpResponse<?> locationDeleteAction(HttpRequest<?> request,  @PathVariable String id) {
+        Location location = locationAccessor.getLocation(id);
+
+        locationAccessor.deleteLocation(location.getId());
+
+        List<Operator> operators = operatorAccessor.listOperators(location);
+        for (Operator operator : operators) {
+            operator.setLocation(null);
+            operatorAccessor.update(operator.getId(), operator);
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+location.getState().getId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-location-edit")
+    @Get("/location-location-edit/{id}")
+    public Map<String, Object> locationEdit(HttpRequest<?> request, @PathVariable String id) {
+        Location location = locationAccessor.getLocation(id);
+
+        return CollectionUtils.mapOf("location", location, "form", formGenerator.generate("/location-location-edit-action/"+id, LocationCountryCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-location-edit-action/{id}")
+    HttpResponse<?> locationEditAction(HttpRequest<?> request, @Valid @Body LocationCountryCreateRequest actionData,  @PathVariable String id) {
+        Location location = locationAccessor.getLocation(id);
+        location.setName(actionData.name());
+
+        locationAccessor.updateLocation(location);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-location/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-location-add")
+    @Get("/location-location-add/{id}")
+    public Map<String, Object> locationAdd(HttpRequest<?> request, @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        return CollectionUtils.mapOf("state", state, "form", formGenerator.generate("/location-location-add-action", LocationCountryCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-location-add-action/{id}")
+    HttpResponse<?> locationAddAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body LocationCountryCreateRequest actionData) {
+        LocationState state = locationAccessor.getState(id);
+        Location location = new Location();
+        location.setName(actionData.name());
+        location.setState(state);
+        location.setCountry(state.getCountry());
+
+        Location locationNew = locationAccessor.createLocation(state, location);
+        if (locationNew != null) {
+            return HttpResponse.seeOther(UriBuilder.of("/").path("/location-location/"+locationNew.getId()).build());
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+state.getId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-location-addbulk")
+    @Get("/location-location-addbulk/{id}")
+    public Map<String, Object> locationAddBulk(HttpRequest<?> request, @PathVariable String id) {
+        LocationState state = locationAccessor.getState(id);
+        return CollectionUtils.mapOf("state", state, "form", formGenerator.generate("/location-location-addbulk-action", OperatorBulkCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-location-addbulk-action/{id}")
+    HttpResponse<?> locationAddBulkAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body OperatorBulkCreateRequest actionData) {
+        LocationState state = locationAccessor.getState(id);
+
+        addAllMunicipalities(state, actionData.bulkList());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-state/"+id).build());
+    } 
+
+    private void addAllMunicipalities(LocationState state, String bulkList) {
+        String [] lines = bulkList.lines().toArray(String[]::new);
+        for (String line : lines) {
+            if (line.length() == 0) {
+                continue;
+            }
+
+            try {
+                Location location = new Location();
+                location.setName(line.replace("\"", ""));
+                location.setState(state);
+                location.setCountry(state.getCountry());
+
+                locationAccessor.createLocation(state, location);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-municipality-add")
+    @Get("/location-county-municipality-add/{id}")
+    public Map<String, Object> locationMunicipalityAdd(HttpRequest<?> request, @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+        List<Location> locationsExisting = locationAccessor.listLocations(county);
+        List<Location> locations = locationAccessor.listLocations(county.getState());
+
+        // remove existing from list
+        for (Location locationExisting : locationsExisting) {
+            for (Location location: locations) {
+                if (location.getId().equals(locationExisting.getId())) {
+                    locations.remove(location);
+                    break;
+                }
+            }
+        }
+
+        return CollectionUtils.mapOf("county", county, "locations", locations, "form", formGenerator.generate("/location-county-municipality-add-action", LocationCountyChangeRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-municipality-add-action/{id}")
+    HttpResponse<?> locationMunicipalityAddAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body LocationCountyChangeRequest actionData) {
+        LocationCounty county = locationAccessor.getCounty(id);
+        Location locationSelected = locationAccessor.getLocation(actionData.locationId());
+
+        if (locationSelected != null) {
+            locationSelected.setCounty(county);
+            locationAccessor.updateLocation(locationSelected);
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-county/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-municipality-remove")
+    @Get("/location-county-municipality-remove/{countyId}/{locationId}")
+    public Map<String, Object> locationMunicipalityRemove(HttpRequest<?> request, @PathVariable String countyId, @PathVariable String locationId) {
+        LocationCounty county = locationAccessor.getCounty(countyId);
+        Location location = locationAccessor.getLocation(locationId);
+
+        return CollectionUtils.mapOf("county", county, "location", location, "form", formGenerator.generate("/location-county-municipality-remove-action", BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-municipality-remove-action/{countyId}/{locationId}")
+    HttpResponse<?> locationMunicipalityRemoveAction(HttpRequest<?> request, @PathVariable String countyId, @PathVariable String locationId) {
+        Location location = locationAccessor.getLocation(locationId);
+
+        if (location != null) {
+            location.setCounty(null);
+            locationAccessor.updateLocation(location);
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-county/"+countyId).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("location-county-municipality-addbulk")
+    @Get("/location-county-municipality-addbulk/{id}")
+    public Map<String, Object> locationMunicipalityAddBulk(HttpRequest<?> request, @PathVariable String id) {
+        LocationCounty county = locationAccessor.getCounty(id);
+        return CollectionUtils.mapOf("county", county, "form", formGenerator.generate("/location-county-municipality-addbulk-action", OperatorBulkCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/location-county-municipality-addbulk-action/{id}")
+    HttpResponse<?> locationMunicipalityAddBulkAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body OperatorBulkCreateRequest actionData) {
+        LocationCounty county = locationAccessor.getCounty(id);
+
+        addAllMunicipalitiesToCounty(county, actionData.bulkList());
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/location-county/"+id).build());
+    } 
+
+    private void addAllMunicipalitiesToCounty(LocationCounty county, String bulkList) {
+        LocationState state = locationAccessor.getState(county.getState().getId());
+        List<Location> locations = locationAccessor.listLocations(state);
+
+        if ((locations == null) || (locations.isEmpty())) {
+            return;
+        }
+
+        String [] lines = bulkList.lines().toArray(String[]::new);
+        for (String line : lines) {
+            if (line.length() == 0) {
+                continue;
+            }
+
+            try {
+                String name = line.replace("\"", "");
+
+                for (Location location : locations) {
+                    if (location.getName().equalsIgnoreCase(name)) {
+                        location.setCounty(county);
+                        locationAccessor.updateLocation(location);
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    @View("district")
+    @Get("/district/{id}")
+    public HttpResponse<?> districtDetails(HttpRequest<?> request, @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+        List<Location> locationsDistrict = sectionAccessor.listLocations(district);
+        List<Location> locations = locationAccessor.listLocations(locationsDistrict);
+
+        List<SectionOperator> operators = operatorAccessor.listOperators(section, district, locations);
+        return HttpResponse.ok(CollectionUtils.mapOf("section", section, "operators", operators, "operatorCount", operators.size(), "locationCount", locations.size(), "locations", locations,
+                                                                "district", district));
+    }
+
+    @SuppressWarnings("unchecked")
+    @View("district-add")
+    @Get("/district-add/{id}")
+    public Map<String, Object> districtAdd(HttpRequest<?> request, @PathVariable String id) {
+        Section section = sectionAccessor.get(id);
+
+        return CollectionUtils.mapOf("section", section, "form", formGenerator.generate("/district-add/"+id, DistrictCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/district-add-action/{id}")
+    HttpResponse<?> districtAddAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body DistrictCreateRequest actionData) {
+        Section section = sectionAccessor.get(id);
+
+        District district = new District();
+        district.setName(actionData.name());
+        district.setDescription(actionData.description());
+        district.setLeaderName(actionData.leaderName());
+        district.setLeaderContact(actionData.leaderContact());
+        district.setSectionId(section.getId());
+        sectionAccessor.addDistrict(section, district);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section/"+id).build());
+    } 
+
+
+    @SuppressWarnings("unchecked")
+    @View("district-remove")
+    @Get("/district-remove/{id}")
+    public Map<String, Object> districtRemove(HttpRequest<?> request, @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+
+        return CollectionUtils.mapOf("district", district, "section", section,
+                                     "form", formGenerator.generate("/district-remove-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/district-remove-action/{id}")
+    HttpResponse<?> districtRemoveAction(HttpRequest<?> request,  @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+
+        sectionAccessor.removeDistrict(district);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section/"+section.getId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("district-edit")
+    @Get("/district-edit/{id}")
+    public Map<String, Object> districtEdit(HttpRequest<?> request, @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+
+        return CollectionUtils.mapOf("district", district, "section", section, "form", formGenerator.generate("/district-edit-action/"+id, DistrictCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/district-edit-action/{id}")
+    HttpResponse<?> districtEditAction(HttpRequest<?> request, @Valid @Body DistrictCreateRequest actionData,  @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+
+        district.setName(actionData.name());
+        district.setDescription(actionData.description());
+        district.setLeaderName(actionData.leaderName());
+        district.setLeaderContact(actionData.leaderContact());
+        sectionAccessor.updateDistrict(district);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/section/"+district.getSectionId()).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("district-municipality-add")
+    @Get("/district-municipality-add/{id}")
+    public Map<String, Object> districtMunicipalityAdd(HttpRequest<?> request,  @PathVariable String id, @QueryValue Optional<String> countryId, @QueryValue Optional<String> stateId, @QueryValue Optional<String> locationId) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+        List<LocationCountry> countries = null;
+        LocationCountry country = null;
+        List<LocationState> states = null;
+        LocationState state = null;
+        List<Location> locations = null;
+        Location location = null;
+        boolean done = false;
+
+        if (!countryId.isPresent()) {
+            countries = locationAccessor.listCountries();
+        } else {
+            country = locationAccessor.getCountry(countryId.get());
+        }
+        if (!stateId.isPresent()) {
+            if (country != null) {
+                states = locationAccessor.listStates(country);
+            }
+        } else {
+            state = locationAccessor.getState(stateId.get());
+        }
+        if (!locationId.isPresent()) {
+            if (state != null) {
+                locations = locationAccessor.listLocations(state);
+            }
+        } else {
+            location = locationAccessor.getLocation(locationId.get());
+            done = true;
+        }
+        return CollectionUtils.mapOf("district", district, 
+                                     "countryId", (countryId.isPresent() ? countryId.get() : null), 
+                                     "country", country,
+                                     "countries", countries,
+                                     "stateId", (stateId.isPresent() ? stateId.get() : null), 
+                                     "state", state,
+                                     "states", states,
+                                     "locationId", (locationId.isPresent() ? locationId.get() : null), 
+                                     "locations", locations,
+                                     "location", location,
+                                     "done", done,
+                                     "section", section,
+                                     "form", formGenerator.generate("/district-municipality-add-action/"+id, DistrictLocationEditRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/district-municipality-add-action/{id}")
+    HttpResponse<?> districtMunicipalityAddAction(HttpRequest<?> request, @Valid @Body DistrictLocationEditRequest actionData,  @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+        String countryId = actionData.countryId();
+        String stateId = actionData.stateId();
+        String locationId = actionData.locationId();
+
+        if ((locationId != null) && (stateId == null)) {
+            Location location = locationAccessor.getLocation(locationId);
+            stateId = (location.getState() != null) ? location.getState().getId() : null;
+            countryId = (location.getCountry() != null) ? location.getCountry().getId() : null;
+        } else if ((stateId != null) && (countryId == null)) {
+            LocationState state = locationAccessor.getState(stateId);
+            countryId = (state.getCountry() != null) ? state.getCountry().getId() : null;
+        }
+
+        String nextPath = "/district-municipality-add/"+id;
+        if ((countryId != null) && (stateId == null)) {
+            nextPath += ("?countryId="+countryId);
+        } else if ((countryId != null) && (stateId != null) && (locationId == null)) {
+            nextPath += ("?countryId="+countryId+"&stateId="+stateId);
+        } else if ((countryId != null) && (stateId != null) && (locationId != null)) {
+            Location location = locationAccessor.getLocation(locationId);
+            sectionAccessor.addLocationToDistrict(district, location);
+            nextPath = "/district/"+id;
+        }
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path(nextPath).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("district-municipality-remove")
+    @Get("/district-municipality-remove/{id}/municipality/{locationId}")
+    public Map<String, Object> districtMunicipalityRemove(HttpRequest<?> request, @PathVariable String id, @PathVariable String locationId) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+        Location location = locationAccessor.getLocation(locationId);
+
+        return CollectionUtils.mapOf("district", district, "section", section, "location", location,
+                                     "form", formGenerator.generate("/district-municipality-remove-action/"+id, BlankRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/district-municipality-remove-action/{id}/municipality/{locationId}")
+    HttpResponse<?> districtMunicipalityRemoveAction(HttpRequest<?> request, @PathVariable String id, @PathVariable String locationId) {
+        District district = sectionAccessor.getDistrict(id);
+        Location location = locationAccessor.getLocation(locationId);
+
+        sectionAccessor.removeMunicipalityFromDistrict(district, location);
+
+        return HttpResponse.seeOther(UriBuilder.of("/").path("/district/"+id).build());
+    } 
+
+    @SuppressWarnings("unchecked")
+    @View("district-municipality-addbulk")
+    @Get("/district-municipality-addbulk/{id}")
+    public Map<String, Object> districtMunicipalityAddBulk(HttpRequest<?> request, @PathVariable String id) {
+        District district = sectionAccessor.getDistrict(id);
+        Section section = sectionAccessor.get(district.getSectionId());
+        return CollectionUtils.mapOf("district", district, "section", section, "form", formGenerator.generate("location-county-municipality-addbulk-action/"+id, DistrictMunicipalityBulkCreateRequest.class));
+    }
+
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Post("/district-municipality-addbulk-action/{id}")
+    HttpResponse<?> districtMunicipalityAddBulkAction(HttpRequest<?> request, @PathVariable String id, @Valid @Body DistrictMunicipalityBulkCreateRequest actionData) {
+        District district = sectionAccessor.getDistrict(id);
+
+        if (addAllMunicipalitiesToDistrict(district, actionData)) {
+            return HttpResponse.seeOther(UriBuilder.of("/").path("/district/"+id).build());
+        }
+
+        return HttpResponse.serverError("Error with provided information. Check all fields for validity.");
+    } 
+
+    private boolean addAllMunicipalitiesToDistrict(District district, DistrictMunicipalityBulkCreateRequest actionData) {
+        LocationCountry country = locationAccessor.getCountryByName(actionData.country());
+        if (country == null) {
+            // no such country
+            return false;
+        }
+        LocationState state = locationAccessor.getStateByName(country, actionData.state());
+        if (state == null) {
+            // no such state
+            return false;
+        }
+
+        boolean found = false;
+        String [] lines = actionData.bulkList().lines().toArray(String[]::new);
+        for (String line : lines) {
+            if (line.length() == 0) {
+                continue;
+            }
+
+            try {
+                String name = line.replace("\"", "");
+
+                Location location = locationAccessor.getLocationByName(country, state, name);
+                if (location != null) {
+                    sectionAccessor.addLocationToDistrict(district, location);
+                    found = true;
+                }
+
+            } catch (Exception e) {
+            }
+        }
+        return found;
+    }
+
+    private Map<String, String> getLocationDistricts(Section section) {
+        Map<String, String> ret = new HashMap<String, String>();
+
+        List<District> districts = sectionAccessor.listDistricts(section);
+        for (District district : districts) {
+            List<Location> locations = sectionAccessor.listLocations(district);
+            for (Location location : locations) {
+                ret.put(location.getId(), district.getName());
+            }
+        }
+        return ret;
+    }
 }

@@ -10,4 +10,7 @@
   <include file="changelog/04-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/05-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/06-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/07-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/08-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/09-schema.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

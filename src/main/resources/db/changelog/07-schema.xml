@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="07" author="kc1vmz">
+    <createTable tableName="location_country">
+      <column name="id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="abbreviation" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="location_state">
+      <column name="id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="country_id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="abbreviation" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="location_county">
+      <column name="id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="country_id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="state_id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="location_municipality">
+      <column name="id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true" primaryKey="true"/>
+      </column>
+      <column name="country_id" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="state_id" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="county_id" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

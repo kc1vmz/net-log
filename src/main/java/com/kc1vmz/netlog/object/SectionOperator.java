@@ -36,6 +36,7 @@ public class SectionOperator {
     private boolean isRACES;
     private MembershipType membershipType;
     private Section section;
+    private Location location;
 
     public SectionOperator() {
     }
@@ -48,6 +49,7 @@ public class SectionOperator {
         this.setSkywarn(operator.isSkywarn());
         this.setRACES(operator.isRACES());
         this.setSection(section);
+        this.setLocation(operator.getLocation());
     }
     public String getId() {
         return id;
@@ -96,5 +98,11 @@ public class SectionOperator {
     }
     public void setRACES(boolean isRACES) {
         this.isRACES = isRACES;
+    }
+    public Location getLocation() {
+        return location;
+    }
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

@@ -31,6 +31,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netlog.enums.MembershipType;
+import com.kc1vmz.netlog.object.District;
+import com.kc1vmz.netlog.object.Location;
 import com.kc1vmz.netlog.object.Operator;
 import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.object.SectionOperator;
@@ -48,6 +50,8 @@ public class OperatorAccessor {
     private OperatorRepository operatorRepository;
     @Inject
     private OperatorSectionRepository operatorsSectionRepository;
+    @Inject
+    private LocationAccessor locationAccessor;
     private static final Logger logger = LogManager.getLogger(OperatorAccessor.class);
 
     public List<Operator> list() {
@@ -64,6 +68,10 @@ public class OperatorAccessor {
                     operator.setNTS(record.isNTS());
                     operator.setSkywarn(record.isSkywarn());
                     operator.setRACES(record.isRACES());
+                    if (record.location_municipality_id() != null) {
+                        Location location = locationAccessor.getLocation(record.location_municipality_id());
+                        operator.setLocation(location);
+                    }
                     ret.add(operator);
                 }
             }
@@ -93,7 +101,8 @@ public class OperatorAccessor {
         }
 
         try {
-            OperatorRecord rec = new OperatorRecord(UUID.randomUUID().toString(), operator.getCallsign(), operator.getName(), operator.isNTS(), operator.isSkywarn(), operator.isRACES());
+            OperatorRecord rec = new OperatorRecord(UUID.randomUUID().toString(), operator.getCallsign(), operator.getName(), operator.isNTS(), operator.isSkywarn(), operator.isRACES(), 
+                                                        (operator.getLocation() != null) ? operator.getLocation().getId() : null);
             OperatorRecord recNew = operatorRepository.save(rec);
             operator.setId(recNew.id());
             return operator;
@@ -117,6 +126,10 @@ public class OperatorAccessor {
                 ret.setNTS(record.isNTS());
                 ret.setSkywarn(record.isSkywarn());
                 ret.setRACES(record.isRACES());
+                if (record.location_municipality_id() != null) {
+                    Location location = locationAccessor.getLocation(record.location_municipality_id());
+                    ret.setLocation(location);
+                }
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -137,6 +150,10 @@ public class OperatorAccessor {
                 ret.setNTS(record.isNTS());
                 ret.setSkywarn(record.isSkywarn());
                 ret.setRACES(record.isRACES());
+                if (record.location_municipality_id() != null) {
+                    Location location = locationAccessor.getLocation(record.location_municipality_id());
+                    ret.setLocation(location);
+                }
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -156,7 +173,8 @@ public class OperatorAccessor {
             }
 
             OperatorRecord rec = recordOpt.get();
-            OperatorRecord recNew = new OperatorRecord(rec.id(), obj.getCallsign(), obj.getName(), obj.isNTS(), obj.isSkywarn(), obj.isRACES());
+            OperatorRecord recNew = new OperatorRecord(rec.id(), obj.getCallsign(), obj.getName(), obj.isNTS(), obj.isSkywarn(), obj.isRACES(),
+                                            (obj.getLocation() != null) ? obj.getLocation().getId() : null);
             OperatorRecord recSaved = operatorRepository.update(recNew);
             obj.setId(recSaved.id());
             return obj;
@@ -189,6 +207,78 @@ public class OperatorAccessor {
         Collections.sort(ret, new Comparator<SectionOperator>() {
             @Override
             public int compare(SectionOperator obj1, SectionOperator obj2) {
+                return obj1.getCallsign().compareTo(obj2.getCallsign());
+            }
+        });
+
+        return ret;
+    }
+
+    public List<SectionOperator> listOperators(Section section, District district, List<Location> locations) {
+        List<SectionOperator> ret = new ArrayList<>();
+
+        if ((district == null) || (district.getId() == null)) {
+            return ret;
+        }
+
+        try {
+            List<OperatorSectionRecord> records = operatorsSectionRepository.findBysectionId(district.getSectionId());
+            if (records != null) {
+                for (OperatorSectionRecord record : records) {
+                    Operator operator = get(record.operatorId());
+                    for (Location location : locations) {
+                        if ((operator.getLocation() != null) &&  (location.getId().equals(operator.getLocation().getId()))) {
+                            // operator is in district
+                            SectionOperator sectionOperator = new SectionOperator(operator, record.membershipType(), section);
+                            ret.add(sectionOperator);
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught", e);
+        }
+
+        Collections.sort(ret, new Comparator<SectionOperator>() {
+            @Override
+            public int compare(SectionOperator obj1, SectionOperator obj2) {
+                return obj1.getCallsign().compareTo(obj2.getCallsign());
+            }
+        });
+
+        return ret;
+    }
+
+    public List<Operator> listOperators(Location location) {
+        List<Operator> ret = new ArrayList<>();
+
+        if ((location == null) || (location.getId() == null)) {
+            return ret;
+        }
+
+        try {
+            List<OperatorRecord> records = operatorRepository.findBylocation_municipality_id(location.getId());
+            if (records != null) {
+                for (OperatorRecord record : records) {
+                    Operator operator = get(record.id());
+                    operator.setId(record.id());
+                    operator.setName(record.name());
+                    operator.setCallsign(record.callsign());
+                    operator.setNTS(record.isNTS());
+                    operator.setSkywarn(record.isSkywarn());
+                    operator.setRACES(record.isRACES());
+                    operator.setLocation(location);
+                    ret.add(operator);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught", e);
+        }
+
+        Collections.sort(ret, new Comparator<Operator>() {
+            @Override
+            public int compare(Operator obj1, Operator obj2) {
                 return obj1.getCallsign().compareTo(obj2.getCallsign());
             }
         });

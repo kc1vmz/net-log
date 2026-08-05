@@ -164,6 +164,7 @@ body {
     <a href="/archives">Archives</a>
     <a href="/sections">Sections</a>
     <a href="/operators"><b>Operators</b></a>
+    <a href="/locations">Locations</a>
   </div>
   <div class="main">
     <div><hr/></div>
@@ -183,6 +184,7 @@ body {
               <th>NTS?</th>
               <th>Skywarn?</th>
               <th>RACES?</th>
+              <th>Location</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -194,6 +196,14 @@ body {
                 <td>{{isNTS}}</td>
                 <td>{{isSkywarn}}</td>
                 <td>{{isRACES}}</td>
+                <td>
+                  {{location.name}}
+                  {{#if location.county.name}}
+                  ({{location.county.name}} County)
+                  {{else}}
+                  {{/if}}
+                  {{location.state.abbreviation}} {{location.country.abbreviation}}
+                </td>
                 <td><a href="/operator/{{id}}">Details</a>&nbsp;<a href="/operator-delete/{{id}}">Delete</a></td>
               </tr>
             {{/each}}

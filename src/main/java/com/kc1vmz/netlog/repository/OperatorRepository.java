@@ -1,5 +1,7 @@
 package com.kc1vmz.netlog.repository;
 
+import java.util.List;
+
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -31,4 +33,5 @@ import io.micronaut.transaction.annotation.Transactional;
 @Transactional(readOnly = false)
 public interface OperatorRepository extends CrudRepository<OperatorRecord, String> {
     OperatorRecord findBycallsign(String callsign);
+    List<OperatorRecord> findBylocation_municipality_id(String location_municipality_id);
 }

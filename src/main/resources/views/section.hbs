@@ -101,9 +101,14 @@ body {
         color: #ddd;
     }
 
-
-
-
+    .grid-membership-container {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      margin: 0px;
+      gap: 20px;
+    }
+    .grid-membership-item {
+    }
 
     .table-container {
         max-height: 500px;
@@ -185,6 +190,7 @@ body {
     <a href="/archives">Archives</a>
     <a href="/sections"><b>Sections</b></a>
     <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
   </div>
   <div class="main">
     <div><hr/></div>
@@ -203,31 +209,73 @@ body {
         {{section.description}}
       </div>
     </div>
-    <div class="table-container" style="margin:20px;">
-      <b>Operators ({{operatorCount}} total)</b>
-      <table id="members-list">
-        <thead>
-          <tr>
-            <th>Callsign</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>NTS?</th>
-            <th>Skywarn?</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each operators}}
-            <tr id="{{id}}">
-              <td>{{callsign}}</td>
-              <td>{{name}}</td>
-              <td>{{membershipType}}</td>
-              <td>{{isNTS}}</td>
-              <td>{{isSkywarn}}</td>
-            </tr>
-          {{/each}}
-        </tbody>
-      </table>
+
+    <div class="grid-membership-container"  style="margin:20px;">
+      <div class="grid-membership-item">
+        <b>Districts ({{districtsCount}} total)</b> <a href='/district-add/{{section.id}}'><b>Add</b></a>
+        <div class="table-container">
+          <table id="members-list">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Leader name</th>
+                <th>Leader Contact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each districts}}
+                <tr id="{{id}}">
+                  <td>{{name}}</td>
+                  <td>{{description}}</td>
+                  <td>{{leaderName}}</td>
+                  <td>{{leaderContact}}</td>
+                  <td><a href="/district/{{id}}">Details</a>&nbsp;<a href="/district-remove/{{id}}">Delete</a></td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid-membership-item">
+        <b>Operators ({{operatorCount}} total)</b>
+        <div class="table-container">
+          <table id="members-list">
+            <thead>
+              <tr>
+                <th>Callsign</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>NTS?</th>
+                <th>Skywarn?</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each operators}}
+                <tr id="{{id}}">
+                  <td>{{callsign}}</td>
+                  <td>{{name}}</td>
+                  <td>{{membershipType}}</td>
+                  <td>{{isNTS}}</td>
+                  <td>{{isSkywarn}}</td>
+                  <td>
+                    {{location.name}}
+                    {{#if location.county.name}}
+                    ({{location.county.name}} County)
+                    {{else}}
+                    {{/if}}
+                    {{location.state.abbreviation}} {{location.country.abbreviation}}
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
     <div style="margin:20px">
       <div class="line" style="margin:0px;"><hr/></div>
       <a class="block" href="/section-monthlyreport/{{section.id}}">Generate monthly summary report</a>&nbsp;
@@ -245,9 +293,12 @@ body {
       <a class="block" href="/section-skywarnreport/{{section.id}}">Generate Skywarn member report</a>&nbsp;
       <p>
       <a class="block" href="/section-monthlyexport/{{section.id}}">Export monthly data</a>&nbsp;
+      <a class="block" href="/section-monthlynonparticipationexport/{{section.id}}">Export monthly non-participation data</a>&nbsp;
+      <a class="block" href="/section-quarterlynonparticipationexport/{{section.id}}">Export quarterly non-participation data</a>&nbsp;
       <p>
       <a class="block" href="/section-edit/{{section.id}}">Edit details</a>&nbsp;
       <a class="block" href="/section-delete/{{section.id}}">Delete</a>
+      <a class="block" href="/sections">Close</a>
     </div>
   </div>
   </div>

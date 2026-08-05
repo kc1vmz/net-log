@@ -47,9 +47,9 @@ public class SummaryExportAccessor {
         return Paths.get(directory, fileName).toString();
     }
 
-    public String generateReport(Section section, Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members, String dateStr, String title) {
+    public String generateReport(Section section, Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members, Map<String, String> locationDistricts, String dateStr, String title) {
         try {
-            return createReport(section, eventParticipants, members, dateStr, title);
+            return createReport(section, eventParticipants, members, locationDistricts, dateStr, title);
         } catch (Exception e) {
             logger.error("Exception caught generating report", e);
         }
@@ -60,11 +60,11 @@ public class SummaryExportAccessor {
         return System.getProperty("java.io.tmpdir");
     }
 
-    public String createReport(Section section, Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members, String dateStr, String title) throws FileNotFoundException {
+    public String createReport(Section section, Map<Event,List<Participant>> eventParticipants, List<SectionOperator> members, Map<String, String> locationDistricts, String dateStr, String title) throws FileNotFoundException {
         String filename = getUniqueFileName(getTempReportDir(), "csv");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            addEventRows(writer, eventParticipants);
+            addEventRows(writer, eventParticipants, locationDistricts);
             return filename.substring(getTempReportDir().length());
         } catch (Exception e) {
             logger.error("Exception caught generating report", e);
@@ -77,18 +77,20 @@ public class SummaryExportAccessor {
      * add event data rows
      *
      */
-    private void addEventRows(BufferedWriter writer, Map<Event,List<Participant>> eventParticipants) {
+    private void addEventRows(BufferedWriter writer, Map<Event, List<Participant>> eventParticipants, Map<String, String> locationDistricts) {
 
-        String header = String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"", 
+        String header = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
                                             "EventId", "EventType", "EventName", "EventDescription", "EventNCS", "EventState", "EventStartTime", "EventEndTime", "EventParticipantsTotal",
-                                                    "OperatorId", "OperatorCallsign", "OperatorName");
+                                                    "OperatorId", "OperatorCallsign", "OperatorName", "OperatorCountry", "OperatorState", "OperatorCounty", "OperatorMunicipality", "OperatorDistrict", 
+                                                    "OperatorIsNTS", "OperatorIsRACES", "OperatorIsSkywarn", "OperatorMembershipType", "OperatorCheckInTime", "OperatorCheckOutTime",
+                                                    "OperatorPrimaryPower", "OperatorBackupPower", "OperatorTransmit Power");
         try {
             writer.write(header);
             writer.newLine();
         } catch (Exception e) {
             logger.error("Exception caught writing export header", e);
         }
-            
+
         if ((eventParticipants == null) || (eventParticipants.isEmpty()) ) {
             return;
         }
@@ -97,9 +99,9 @@ public class SummaryExportAccessor {
             Event entry = mapEntry.getKey();
             List<Participant> participants = mapEntry.getValue();
             if ((participants == null) || participants.isEmpty()) {
-                String line = String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%d\", \"%s\", \"%s\", \"%s\"", 
+                String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
                                                 entry.getId(), entry.getType().name(), entry.getName(), entry.getDescription(), entry.getNetControlCallsign(), entry.getState().name(), 
-                                                entry.getPrettyStartTime(), entry.getPrettyEndTime(), 0, "", "", "");
+                                                entry.getPrettyStartTime(), entry.getPrettyEndTime(), 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
                 try {
                     writer.write(line);
                     writer.newLine();
@@ -109,10 +111,33 @@ public class SummaryExportAccessor {
             } else {
 
                 for (Participant participant : participants) {
-                    String line = String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%d\", \"%s\", \"%s\", \"%s\"", 
+                    String district = "";
+                    try {
+                        if (participant.getOperator().getLocation() != null) {
+                            district = locationDistricts.get(participant.getOperator().getLocation().getId());
+                            if (district == null) {
+                                district = "";
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("Exception caught looking up district", e);
+                    }
+                    String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d", 
                                                     entry.getId(), entry.getType().name(), entry.getName(), entry.getDescription(), entry.getNetControlCallsign(), entry.getState().name(), 
                                                     entry.getPrettyStartTime(), entry.getPrettyEndTime(), participants.size(), participant.getOperator().getId(), participant.getOperator().getCallsign(), 
-                                                    (participant.getOperator().getName() == null) ? "" : participant.getOperator().getName());
+                                                    (participant.getOperator().getName() == null) ? "" : participant.getOperator().getName(),
+                                                    ((participant.getOperator().getLocation() != null) && (participant.getOperator().getLocation().getCountry() != null)) ? participant.getOperator().getLocation().getCountry().getName() : "",
+                                                    ((participant.getOperator().getLocation() != null) && (participant.getOperator().getLocation().getState() != null)) ? participant.getOperator().getLocation().getState().getName() : "",
+                                                    ((participant.getOperator().getLocation() != null) && (participant.getOperator().getLocation().getCounty() != null)) ? participant.getOperator().getLocation().getCounty().getName() : "",
+                                                    ((participant.getOperator().getLocation() != null) && (participant.getOperator().getLocation().getName() != null)) ? participant.getOperator().getLocation().getName() : "",
+                                                    district,
+                                                    participant.getOperator().isNTS() ? "Yes" : "No",
+                                                    participant.getOperator().isRACES() ? "Yes" : "No",
+                                                    participant.getOperator().isSkywarn() ? "Yes" : "No",
+                                                    (participant.getMembershipType() != null) ?  participant.getMembershipType().name() : "UNKNOWN",
+                                                    participant.getPrettyStartTime(), participant.getPrettyEndTime(),
+                                                    participant.getPrimaryPower(), participant.getBackupPower(), participant.getTransmitPower()
+                                                );
                     try {
                         writer.write(line);
                         writer.newLine();

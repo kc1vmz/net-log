@@ -32,6 +32,7 @@ public class Operator {
     private boolean isNTS;
     private boolean isSkywarn;
     private boolean isRACES;
+    private Location location;
 
     public String getId() {
         return id;
@@ -68,5 +69,11 @@ public class Operator {
     }
     public void setRACES(boolean isRACES) {
         this.isRACES = isRACES;
+    }
+    public Location getLocation() {
+        return location;
+    }
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

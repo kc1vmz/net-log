@@ -184,6 +184,7 @@ body {
     <a href="/archives">Archives</a>
     <a href="/sections">Sections</a>
     <a href="/operators"><b>Operators</b></a>
+    <a href="/locations">Locations</a>
   </div>
   <div class="main">
     <div><hr/></div>
@@ -202,6 +203,15 @@ body {
         <div class="mb-3">
             <label for="name" class="form-label">Name:</label>
             <input type="text" name="name" value="{{operator.name}}" id="name" min="1" maxlength="30" class="form-control"/>
+        </div>
+        <div>
+          <p><b>Location</b>:
+          {{operator.location.name}}
+          {{#if operator.location.county.name}}
+          ({{operator.location.county.name}} County)
+          {{else}}
+          {{/if}}
+          {{operator.location.state.name}} {{operator.location.country.name}} <a class="block" href="/operator-edit-changelocation/{{operator.id}}">Change Location</a>
         </div>
         <div>
             <label for="isNTS">NTS affiliated?</label>

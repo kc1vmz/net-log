@@ -185,6 +185,7 @@ body {
     <a href="/archives">Archives</a>
     <a href="/sections">Sections</a>
     <a href="/operators"><b>Operators</b></a>
+    <a href="/locations">Locations</a>
   </div>
   <div class="main">
     <div><hr/></div>
@@ -202,6 +203,16 @@ body {
         <p><b>Name</b>:
         {{operator.name}}
       </div>
+      <div>
+        <p><b>Location</b>:
+        {{operator.location.name}}
+        {{#if operator.location.county.name}}
+        ({{operator.location.county.name}} County)
+        {{else}}
+        {{/if}}
+        {{operator.location.state.name}} {{operator.location.country.name}}
+      </div>
+      <h3>Affiliations</h3>
       <div>
         {{#if operator.isNTS}}
         NTS affiliated
