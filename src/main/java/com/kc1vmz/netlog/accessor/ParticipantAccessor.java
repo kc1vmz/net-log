@@ -30,6 +30,8 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netlog.enums.CommunicationBand;
+import com.kc1vmz.netlog.enums.CommunicationPlatform;
 import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.object.Event;
 import com.kc1vmz.netlog.object.Operator;
@@ -70,6 +72,8 @@ public class ParticipantAccessor {
                 ret.setPrimaryPower(record.primaryPower());
                 ret.setStartTime(record.startTime());
                 ret.setTransmitPower(record.transmitPower());
+                ret.setCommunicationBand(record.communicationBand());
+                ret.setCommunicationPlatform(record.communicationPlatform());
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -87,7 +91,7 @@ public class ParticipantAccessor {
 
             ParticipantRecord rec = recordOpt.get();
             ParticipantRecord recNew = new ParticipantRecord(rec.id(), rec.eventId(), rec.operatorId(), obj.getStartTime(), obj.getEndTime(), 
-                                    obj.getPrimaryPower(), obj.getBackupPower(), obj.getTransmitPower());
+                                    obj.getPrimaryPower(), obj.getBackupPower(), obj.getTransmitPower(), obj.getCommunicationPlatform(), obj.getCommunicationBand());
             participantRepository.update(recNew);
             obj.setId(recNew.id());
             return obj;
@@ -120,6 +124,8 @@ public class ParticipantAccessor {
                     participant.setPrimaryPower(record.primaryPower());
                     participant.setStartTime(record.startTime());
                     participant.setTransmitPower(record.transmitPower());
+                    participant.setCommunicationBand(record.communicationBand());
+                    participant.setCommunicationPlatform(record.communicationPlatform());
                     ret.add(participant);
                 }
             }
@@ -159,7 +165,7 @@ public class ParticipantAccessor {
             // add if not present
             try {
                 ParticipantRecord record = new ParticipantRecord(UUID.randomUUID().toString(), event.getId(), operator.getId(), checkInTime, null, 
-                                        ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 0);
+                                        ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 0, CommunicationPlatform.UNKNOWN, CommunicationBand.UNKNOWN);
                 participantRepository.save(record);
             } catch (Exception e) {
                 logger.error("Exception caught", e);
@@ -185,7 +191,8 @@ public class ParticipantAccessor {
                     if (record.operatorId().equals(operator.getId()) && (record.endTime() == null)) {
                         // add if not present
                         ParticipantRecord recordUpdated = new ParticipantRecord(record.id(),record.eventId(), record.operatorId(), record.startTime(), checkOutTime, 
-                                                record.primaryPower(), record.backupPower(), record.transmitPower());
+                                                record.primaryPower(), record.backupPower(), record.transmitPower(),
+                                                record.communicationPlatform(), record.communicationBand());
                         participantRepository.update(recordUpdated);
                         break;
                     }

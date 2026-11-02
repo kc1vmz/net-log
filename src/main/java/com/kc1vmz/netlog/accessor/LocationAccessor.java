@@ -280,7 +280,9 @@ public class LocationAccessor {
 
     public LocationCounty getCounty(String id) {
         LocationCounty ret = null;
-
+        if (id == null) {
+            return ret;
+        }
         try {
             Optional<LocationCountyRecord> recordOpt =  locationCountyRepository.findById(id);
             if (recordOpt.isPresent()) {

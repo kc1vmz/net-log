@@ -1,5 +1,7 @@
 package com.kc1vmz.netlog.object;
 
+import java.util.Objects;
+
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -75,5 +77,22 @@ public class Operator {
     }
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Operator operator = (Operator) obj;
+        return Objects.equals(id, operator.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

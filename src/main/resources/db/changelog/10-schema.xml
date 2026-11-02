@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="10" author="kc1vmz">
+    <addColumn tableName="participant">
+      <column name="communication_platform" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="communication_band" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </addColumn> 
+    <update tableName="participant">
+        <column name="communication_platform" value="UNKNOWN"/>
+        <where>1 = 1</where>
+    </update>
+    <update tableName="participant">
+        <column name="communication_band" value="UNKNOWN"/>
+        <where>1 = 1</where>
+    </update>
+  </changeSet>
+</databaseChangeLog>

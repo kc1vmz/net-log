@@ -295,6 +295,91 @@ body {
               {{/if}}
             </select>
         </div>
+        <div>
+            <label for="communicationPlatform" class="form-label">Communication platform:</label>
+            <select name="communicationPlatform" id="communicationPlatform">
+              {{#if communicationPlatform0}}
+              <option value="0" selected>Unknown</option>
+              {{else}}
+              <option value="0">Unknown</option>
+              {{/if}}
+              {{#if communicationPlatform1}}
+              <option value="1" selected>Radio (Phone)</option>
+              {{else}}
+              <option value="1">Radio (Phone)</option>
+              {{/if}}
+              {{#if communicationPlatform2}}
+              <option value="2" selected>EchoLink</option>
+              {{else}}
+              <option value="2">EchoLink</option>
+              {{/if}}
+              {{#if communicationPlatform3}}
+              <option value="3" selected>Radio (Packet)</option>
+              {{else}}
+              <option value="3">Radio (Packet)</option>
+              {{/if}}
+              {{#if communicationPlatform4}}
+              <option value="4" selected>Internet (Packet)</option>
+              {{else}}
+              <option value="4">Internet (Packet)</option>
+              {{/if}}
+            </select>
+        </div>
+        <div>
+            <label for="communicationBand" class="form-label">Communication band:</label>
+            <select name="communicationBand" id="communicationBand">
+              {{#if communicationBand0}}
+              <option value="0" selected>Unknown</option>
+              {{else}}
+              <option value="0">Unknown</option>
+              {{/if}}
+              {{#if communicationBand1}}
+              <option value="1" selected>Internet</option>
+              {{else}}
+              <option value="1">Internet</option>
+              {{/if}}
+              {{#if communicationBand2}}
+              <option value="2" selected>70cm</option>
+              {{else}}
+              <option value="2">70cm</option>
+              {{/if}}
+              {{#if communicationBand9}}
+              <option value="9" selected>1.25m</option>
+              {{else}}
+              <option value="9">1.25m</option>
+              {{/if}}
+              {{#if communicationBand3}}
+              <option value="3" selected>2m</option>
+              {{else}}
+              <option value="3">2m</option>
+              {{/if}}
+              {{#if communicationBand4}}
+              <option value="4" selected>6m</option>
+              {{else}}
+              <option value="4">6m</option>
+              {{/if}}
+              {{#if communicationBand5}}
+              <option value="5" selected>10m</option>
+              {{else}}
+              <option value="5">10m</option>
+              {{/if}}
+              {{#if communicationBand6}}
+              <option value="6" selected>20m</option>
+              {{else}}
+              <option value="6">20m</option>
+              {{/if}}
+              {{#if communicationBand7}}
+              <option value="7" selected>40m</option>
+              {{else}}
+              <option value="7">40m</option>
+              {{/if}}
+              {{#if communicationBand8}}
+              <option value="8" selected>80m</option>
+              {{else}}
+              <option value="8">80m</option>
+              {{/if}}
+            </select>
+        </div>
         <div class="line" style="margin:0px"><hr/></div>
         <div>
           <input type="submit" value="Update" class="btn btn-primary block"/>

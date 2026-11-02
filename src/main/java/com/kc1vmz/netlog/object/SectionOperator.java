@@ -1,5 +1,7 @@
 package com.kc1vmz.netlog.object;
 
+import java.util.Objects;
+
 import com.kc1vmz.netlog.enums.MembershipType;
 
 /*
@@ -104,5 +106,22 @@ public class SectionOperator {
     }
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        SectionOperator operator = (SectionOperator) obj;
+        return Objects.equals(id, operator.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

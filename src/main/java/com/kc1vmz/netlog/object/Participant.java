@@ -22,6 +22,8 @@ package com.kc1vmz.netlog.object;
 
 import java.time.LocalDateTime;
 
+import com.kc1vmz.netlog.enums.CommunicationPlatform;
+import com.kc1vmz.netlog.enums.CommunicationBand;
 import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.enums.MembershipType;
 import com.kc1vmz.netlog.utils.PrettyZonedDateTimeFormatter;
@@ -43,6 +45,8 @@ public class Participant {
     private int transmitPower;
     private String prettyStartTime;
     private String prettyEndTime;
+    private CommunicationPlatform communicationPlatform;
+    private CommunicationBand communicationBand;
 
     public String getId() {
         return id;
@@ -111,5 +115,17 @@ public class Participant {
     }
     public void setPrettyEndTime(String prettyEndTime) {
         this.prettyEndTime = prettyEndTime;
+    }
+    public CommunicationPlatform getCommunicationPlatform() {
+        return communicationPlatform;
+    }
+    public void setCommunicationPlatform(CommunicationPlatform communicationPlatform) {
+        this.communicationPlatform = communicationPlatform;
+    }
+    public CommunicationBand getCommunicationBand() {
+        return communicationBand;
+    }
+    public void setCommunicationBand(CommunicationBand communicationBand) {
+        this.communicationBand = communicationBand;
     }
 }

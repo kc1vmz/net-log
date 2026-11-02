@@ -29,6 +29,8 @@ import com.kc1vmz.netlog.accessor.ReportAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.accessor.SummaryReportAccessor;
 import com.kc1vmz.netlog.accessor.SummaryExportAccessor;
+import com.kc1vmz.netlog.enums.CommunicationBand;
+import com.kc1vmz.netlog.enums.CommunicationPlatform;
 import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
@@ -860,7 +862,7 @@ public class UIController {
         Map<Event, List<Participant>> eventParticipants = getEvents(section, actionData.quarter(), actionData.year(), members);
         String dateStr = actionData.quarter()+"-"+actionData.year();
 
-        String filename = nonParticipationReportAccessor.generateReport(section, members, eventParticipants, dateStr, "MONTHLY NON-PARTICIPATION");
+        String filename = nonParticipationReportAccessor.generateReport(section, members, eventParticipants, dateStr, "QUARTERLY NON-PARTICIPATION");
         if (filename == null) {
             return HttpResponse.serverError("Could not create report");
         }
@@ -1468,6 +1470,8 @@ public class UIController {
         return CollectionUtils.mapOf("participant", participant, "showEndTime" , (participant.getEndTime() == null) ? null : "true",
                                         "primaryPowerSource"+participant.getPrimaryPower().ordinal(), "yes",
                                         "secondaryPowerSource"+participant.getBackupPower().ordinal(), "yes",
+                                        "communicationPlatform"+participant.getCommunicationPlatform().ordinal(), "yes",
+                                        "communicationBand"+participant.getCommunicationBand().ordinal(), "yes",
                                         "form", formGenerator.generate("/participant-edittimes-action/"+id, ParticipantStartEndRequest.class));
     }
 
@@ -1482,6 +1486,8 @@ public class UIController {
         }
         participant.setPrimaryPower(ElectricalPowerType.values()[actionData.primaryPowerSource()]);
         participant.setBackupPower(ElectricalPowerType.values()[actionData.secondaryPowerSource()]);
+        participant.setCommunicationPlatform(CommunicationPlatform.values()[actionData.communicationPlatform()]);
+        participant.setCommunicationBand(CommunicationBand.values()[actionData.communicationBand()]);
         participant.setTransmitPower(actionData.transmitPower());
 
         participantAccessor.update(id, participant);

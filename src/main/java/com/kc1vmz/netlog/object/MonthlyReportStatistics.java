@@ -35,29 +35,46 @@ public class MonthlyReportStatistics {
     private int sessionsHeldWithNTS;
     private int participations;
     private int uniqueParticipants;
-    List<String> leadershipCallsigns;
-    List<String> racesCallsigns;
-    List<MonthlyReportEventStatistics> eventStatistics;
-    int totalEvents;
-    double totalEventsHours;
-    int totalTrainingEvents;
-    double totalTrainingEventsHours;
-    int totalPublicServiceEvents;
-    double totalPublicServiceEventsHours;
-    int totalCommunityServiceEvents;
-    double totalCommunityServiceEventsHours;
-    int totalEmergencyEvents;
-    double totalEmergencyEventsHours;
-    int totalExerciseEvents;
-    double totalExerciseEventsHours;
-    int totalNetEvents;
-    double totalNetEventsHours;
-    int totalSkywarnEvents;
-    double totalSkywarnEventsHours;
-    int totalMeetingEvents;
-    double totalMeetingEventsHours;
-    int totalUnclassifiedEvents;
-    double totalUnclassifiedEventsHours;
+    private int nonParticipants;
+    private List<String> leadershipCallsigns;
+    private List<String> racesCallsigns;
+    private List<MonthlyReportEventStatistics> eventStatistics;
+    private int totalEvents;
+    private double totalEventsHours;
+    private int totalTrainingEvents;
+    private double totalTrainingEventsHours;
+    private int totalPublicServiceEvents;
+    private double totalPublicServiceEventsHours;
+    private int totalCommunityServiceEvents;
+    private double totalCommunityServiceEventsHours;
+    private int totalEmergencyEvents;
+    private double totalEmergencyEventsHours;
+    private int totalExerciseEvents;
+    private double totalExerciseEventsHours;
+    private int totalNetEvents;
+    private double totalNetEventsHours;
+    private int totalSkywarnEvents;
+    private double totalSkywarnEventsHours;
+    private int totalMeetingEvents;
+    private double totalMeetingEventsHours;
+    private int totalUnclassifiedEvents;
+    private double totalUnclassifiedEventsHours;
+
+    private int communicationPlatformUnknownCount;
+    private int communicationPlatformRadioPhoneCount;
+    private int communicationPlatformEcholinkCount;
+    private int communicationPlatformRadioPacketCount;
+    private int communicationPlatformInternetPacketCount;
+    private int communicationBandUnknownCount;
+    private int communicationBandInternetCount;
+    private int communicationBand70cmCount;
+    private int communicationBand2mCount;
+    private int communicationBand1_25mCount;
+    private int communicationBand6mCount;
+    private int communicationBand10mCount;
+    private int communicationBand20mCount;
+    private int communicationBand40mCount;
+    private int communicationBand80mCount;
 
     public int getSectionMembers() {
         return sectionMembers;
@@ -238,5 +255,101 @@ public class MonthlyReportStatistics {
     }
     public void setRacesCallsigns(List<String> racesCallsigns) {
         this.racesCallsigns = racesCallsigns;
+    }
+    public int getCommunicationPlatformUnknownCount() {
+        return communicationPlatformUnknownCount;
+    }
+    public void setCommunicationPlatformUnknownCount(int communicationPlatformUnknownCount) {
+        this.communicationPlatformUnknownCount = communicationPlatformUnknownCount;
+    }
+    public int getCommunicationPlatformRadioPhoneCount() {
+        return communicationPlatformRadioPhoneCount;
+    }
+    public void setCommunicationPlatformRadioPhoneCount(int communicationPlatformRadioPhoneCount) {
+        this.communicationPlatformRadioPhoneCount = communicationPlatformRadioPhoneCount;
+    }
+    public int getCommunicationPlatformEcholinkCount() {
+        return communicationPlatformEcholinkCount;
+    }
+    public void setCommunicationPlatformEcholinkCount(int communicationPlatformEcholinkCount) {
+        this.communicationPlatformEcholinkCount = communicationPlatformEcholinkCount;
+    }
+    public int getCommunicationPlatformRadioPacketCount() {
+        return communicationPlatformRadioPacketCount;
+    }
+    public void setCommunicationPlatformRadioPacketCount(int communicationPlatformRadioPacketCount) {
+        this.communicationPlatformRadioPacketCount = communicationPlatformRadioPacketCount;
+    }
+    public int getCommunicationPlatformInternetPacketCount() {
+        return communicationPlatformInternetPacketCount;
+    }
+    public void setCommunicationPlatformInternetPacketCount(int communicationPlatformInternetPacketCount) {
+        this.communicationPlatformInternetPacketCount = communicationPlatformInternetPacketCount;
+    }
+    public int getCommunicationBandUnknownCount() {
+        return communicationBandUnknownCount;
+    }
+    public void setCommunicationBandUnknownCount(int communicationBandUnknownCount) {
+        this.communicationBandUnknownCount = communicationBandUnknownCount;
+    }
+    public int getCommunicationBandInternetCount() {
+        return communicationBandInternetCount;
+    }
+    public void setCommunicationBandInternetCount(int communicationBandInternetCount) {
+        this.communicationBandInternetCount = communicationBandInternetCount;
+    }
+    public int getCommunicationBand70cmCount() {
+        return communicationBand70cmCount;
+    }
+    public void setCommunicationBand70cmCount(int communicationBand70cmCount) {
+        this.communicationBand70cmCount = communicationBand70cmCount;
+    }
+    public int getCommunicationBand2mCount() {
+        return communicationBand2mCount;
+    }
+    public void setCommunicationBand2mCount(int communicationBand2mCount) {
+        this.communicationBand2mCount = communicationBand2mCount;
+    }
+    public int getCommunicationBand6mCount() {
+        return communicationBand6mCount;
+    }
+    public void setCommunicationBand6mCount(int communicationBand6mCount) {
+        this.communicationBand6mCount = communicationBand6mCount;
+    }
+    public int getCommunicationBand10mCount() {
+        return communicationBand10mCount;
+    }
+    public void setCommunicationBand10mCount(int communicationBand10mCount) {
+        this.communicationBand10mCount = communicationBand10mCount;
+    }
+    public int getCommunicationBand20mCount() {
+        return communicationBand20mCount;
+    }
+    public void setCommunicationBand20mCount(int communicationBand20mCount) {
+        this.communicationBand20mCount = communicationBand20mCount;
+    }
+    public int getCommunicationBand40mCount() {
+        return communicationBand40mCount;
+    }
+    public void setCommunicationBand40mCount(int communicationBand40mCount) {
+        this.communicationBand40mCount = communicationBand40mCount;
+    }
+    public int getCommunicationBand80mCount() {
+        return communicationBand80mCount;
+    }
+    public void setCommunicationBand80mCount(int communicationBand80mCount) {
+        this.communicationBand80mCount = communicationBand80mCount;
+    }
+    public int getNonParticipants() {
+        return nonParticipants;
+    }
+    public void setNonParticipants(int nonParticipants) {
+        this.nonParticipants = nonParticipants;
+    }
+    public int getCommunicationBand1_25mCount() {
+        return communicationBand1_25mCount;
+    }
+    public void setCommunicationBand1_25mCount(int communicationBand1_25mCount) {
+        this.communicationBand1_25mCount = communicationBand1_25mCount;
     }
 }
