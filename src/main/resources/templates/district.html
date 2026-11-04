@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - District - [[${district?.name}]] </title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/district-details.css">
+  <link rel="stylesheet" href="/css/action-dialog.css">
+  <script src="/js/action-dialog.js" defer></script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body class="district-page">
+<style>
+
+body {
+    margin: 0px;
+
+  }
+
+.navbar {
+  overflow: hidden;
+
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.line {
+  margin : 20px;
+}
+
+.grid-membership-container {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      margin: 0px;
+      gap: 20px;
+    }
+.table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents">Active Events</a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections"><b>Sections</b></a>
+    <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
+    <button th:replace="~{fragments/theme :: toggle}"></button>
+  </div>
+  <div class="main">
+    <header class="district-heading">
+      <h1>District Details - [[${district.name}]]</h1>
+      <p>View district properties, municipalities, and operators.</p>
+    </header>
+    <section class="district-properties" aria-label="District properties">
+      <dl>
+        <div>
+          <dt>Name</dt>
+          <dd>[[${district.name}]]</dd>
+        </div>
+        <div>
+          <dt>Description</dt>
+          <dd>[[${district.description}]]</dd>
+        </div>
+        <div>
+          <dt>Section</dt>
+          <dd>[[${section.name}]]</dd>
+        </div>
+        <div>
+          <dt>Leader name</dt>
+          <dd>[[${district.leaderName}]]</dd>
+        </div>
+        <div>
+          <dt>Leader contact</dt>
+          <dd>[[${district.leaderContact}]]</dd>
+        </div>
+      </dl>
+      <div class="district-properties-actions" aria-label="District editing actions">
+      <a class="block" th:href="|/district-edit/${district?.id}|"
+         data-action-dialog="add" data-dialog-title="Edit district details"
+         th:data-dialog-subject="${district.name}">Edit details</a>
+      <a class="block" th:href="|/district-remove/${district?.id}|"
+         data-action-dialog="delete" data-dialog-title="Delete district"
+         th:data-dialog-subject="${district.name}">Delete</a>
+      </div>
+    </section>
+
+    <div class="district-lists">
+      <div class="district-list-section">
+        <div class="district-list-heading">
+          <h2>Municipalities ([[${locationCount}]] total)</h2>
+        <a th:href="|/district-municipality-add/${district?.id}|" data-action-dialog="steps"
+           data-dialog-title="Add municipality" th:data-dialog-subject="${district.name}"><b>Add</b></a> or <a th:href="|/district-municipality-addbulk/${district?.id}|"
+           data-action-dialog="edit" data-dialog-title="Add municipalities in bulk"
+           th:data-dialog-subject="${district.name}"><b>Add many</b></a>
+        </div>
+        <div class="district-list-scroll">
+          <table id="district-municipalities-list">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>State</th>
+                <th>Country</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <th:block th:each="item0 : ${locations}">
+                <tr th:id="|${item0?.id}|">
+                  <td>[[${item0?.name}]]</td>
+                  <td>[[${item0?.state?.abbreviation}]]</td>
+                  <td>[[${item0?.state?.country?.abbreviation}]]</td>
+                  <td><a th:href="|/district-municipality-remove/${district?.id}/municipality/${item0?.id}|"
+                     data-action-dialog="delete" data-dialog-title="Remove municipality from district"
+                     data-dialog-submit="Remove"><b>Remove</b></a></td>
+                </tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="district-list-section">
+        <div class="district-list-heading">
+          <h2>Operators ([[${operatorCount}]] total)</h2>
+        </div>
+        <div class="district-list-scroll">
+          <table id="district-operators-list">
+            <thead>
+              <tr>
+                <th>Callsign</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>NTS</th>
+                <th>RACES</th>
+                <th>SKYWARN</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              <th:block th:each="item1 : ${operators}">
+                <tr th:id="|${item1?.id}|">
+                  <td>[[${item1?.callsign}]]</td>
+                  <td>[[${item1?.name}]]</td>
+                  <td th:text="${item1.membershipType.name() == 'LEADERSHIP'} ? 'Leadership' : (${item1.membershipType.name() == 'MEMBER'} ? 'Member' : 'Non-member')"></td>
+                  <td th:text="${item1.isNTS()} ? 'Yes' : 'No'"></td>
+                  <td th:text="${item1.isRACES()} ? 'Yes' : 'No'"></td>
+                  <td th:text="${item1.isSkywarn()} ? 'Yes' : 'No'"></td>
+                  <td>
+                    [[${item1?.location?.name}]]
+                    <th:block th:if="${item1?.location?.county?.name}">
+                    ([[${item1?.location?.county?.name}]] County)
+                    </th:block><th:block th:unless="${item1?.location?.county?.name}">
+                    </th:block>
+                    [[${item1?.location?.state?.abbreviation}]] [[${item1?.location?.country?.abbreviation}]]
+                  </td>
+                </tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <section class="district-actions" aria-label="District navigation">
+      <a class="block" th:href="|/section/${section?.id}|">Return to section</a>
+    </section>
+  </div>
+  </div>
+</div>
+
+  <dialog th:replace="~{fragments/action-dialog :: dialog}"></dialog>
+</body>
+</html>

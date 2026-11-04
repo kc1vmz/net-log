@@ -22,11 +22,7 @@ package com.kc1vmz.netlog.object;
 
 import com.kc1vmz.netlog.enums.EventType;
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
 
-@Serdeable
-@Deserializable
 public class RecurringEvent {
     private String id;
     private String name;

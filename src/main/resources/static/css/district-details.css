@@ -1,0 +1,192 @@
+.district-page {
+    overflow: hidden;
+}
+
+html .district-page .main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 20px 12px;
+}
+
+.district-heading,
+.district-properties,
+.district-actions {
+    flex: none;
+}
+
+.district-heading h1 {
+    margin: 12px 0;
+}
+
+.district-heading p {
+    margin: 0;
+}
+
+.district-properties,
+.district-list-section,
+.district-actions {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.district-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    padding: 20px;
+}
+
+.district-properties dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    gap: 16px 40px;
+    min-width: 0;
+    margin: 0;
+}
+
+.district-properties-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.district-properties-actions .block {
+    border-radius: 5px;
+}
+
+.district-properties dt {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.district-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    max-width: 45ch;
+}
+
+.district-lists {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.district-list-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.district-list-heading {
+    flex: none;
+    padding: 16px 20px;
+}
+
+.district-list-heading h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.district-operators-empty {
+    padding: 0 20px;
+}
+
+.district-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.district-list-scroll table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.district-list-scroll th,
+.district-list-scroll td {
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.district-list-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+.district-list-scroll tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+.district-list-scroll tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+.district-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.district-actions .block {
+    border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+    .district-lists {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .district-heading h1 {
+        font-size: 1.4rem;
+    }
+
+    .district-properties,
+    .district-list-heading {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 760px) {
+    .district-properties dl {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        flex: 1 1 100%;
+        gap: 12px 20px;
+    }
+}
+
+@media print {
+    .district-page {
+        overflow: visible;
+    }
+
+    html .district-page .main {
+        height: auto;
+    }
+
+    .district-lists {
+        display: block;
+    }
+
+    .district-list-section,
+    .district-list-scroll {
+        overflow: visible;
+    }
+}

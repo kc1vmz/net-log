@@ -20,14 +20,79 @@ package com.kc1vmz.netlog.repository;
     http://www.kc1vmz.com
 */
 
+import java.util.List;
+import java.util.Optional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import com.kc1vmz.netlog.record.SectionRecord;
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
-import io.micronaut.transaction.annotation.Transactional;
 
-@JdbcRepository(dialect = Dialect.H2)
+@Repository
 @Transactional(readOnly = false)
-public interface SectionRepository extends CrudRepository<SectionRecord, String> {
+public class SectionRepository {
+
+    private final JdbcTemplate jdbc;
+
+    private final RowMapper<SectionRecord> rowMapper = (rs, rowNumber) -> new SectionRecord(
+                rs.getString("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getBoolean("active"),
+                rs.getString("leader_name"),
+                rs.getString("leader_contact"));
+
+    public SectionRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
+    public List<SectionRecord> findAll() {
+        return jdbc.query("SELECT * FROM section", rowMapper);
+    }
+
+    public Optional<SectionRecord> findById(String id) {
+        return jdbc.query("SELECT * FROM section WHERE id = ?", rowMapper, id)
+                .stream().findFirst();
+    }
+
+    public SectionRecord save(SectionRecord record) {
+        validate(record);
+        jdbc.update("INSERT INTO section (id, name, description, active, leader_name, leader_contact) "
+                + "VALUES (?, ?, ?, ?, ?, ?)",
+                JdbcValues.parameter(record.id()),
+                JdbcValues.parameter(record.name()),
+                JdbcValues.parameter(record.description()),
+                JdbcValues.parameter(record.active()),
+                JdbcValues.parameter(record.leaderName()),
+                JdbcValues.parameter(record.leaderContact()));
+        return record;
+    }
+
+    public SectionRecord update(SectionRecord record) {
+        validate(record);
+        jdbc.update("UPDATE section SET name = ?, description = ?, active = ?, leader_name = ?, leader_contact = ? WHERE id = ?",
+                JdbcValues.parameter(record.name()),
+                JdbcValues.parameter(record.description()),
+                JdbcValues.parameter(record.active()),
+                JdbcValues.parameter(record.leaderName()),
+                JdbcValues.parameter(record.leaderContact()),
+                record.id());
+        return record;
+    }
+
+    public void deleteById(String id) {
+        jdbc.update("DELETE FROM section WHERE id = ?", id);
+    }
+
+    public void delete(SectionRecord record) {
+        deleteById(record.id());
+    }
+
+    // Retain Micronaut Data's implicit non-null contract for unannotated record components.
+    private void validate(SectionRecord record) {
+        java.util.Objects.requireNonNull(record.id(), "id");
+        java.util.Objects.requireNonNull(record.name(), "name");
+        java.util.Objects.requireNonNull(record.description(), "description");
+    }
 }

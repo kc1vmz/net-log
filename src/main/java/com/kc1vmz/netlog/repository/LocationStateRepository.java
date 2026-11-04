@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.repository;
 
-import java.util.List;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,15 +20,77 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
+import java.util.List;
+import java.util.Optional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import com.kc1vmz.netlog.record.LocationStateRecord;
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
-import io.micronaut.transaction.annotation.Transactional;
 
-@JdbcRepository(dialect = Dialect.H2)
+@Repository
 @Transactional(readOnly = false)
-public interface LocationStateRepository extends CrudRepository<LocationStateRecord, String> {
-    List<LocationStateRecord> findBycountry_id(String country_id);
+public class LocationStateRepository {
+
+    private final JdbcTemplate jdbc;
+
+    private final RowMapper<LocationStateRecord> rowMapper = (rs, rowNumber) -> new LocationStateRecord(
+                rs.getString("id"),
+                rs.getString("country_id"),
+                rs.getString("name"),
+                rs.getString("abbreviation"));
+
+    public LocationStateRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
+    public List<LocationStateRecord> findAll() {
+        return jdbc.query("SELECT * FROM location_state", rowMapper);
+    }
+
+    public Optional<LocationStateRecord> findById(String id) {
+        return jdbc.query("SELECT * FROM location_state WHERE id = ?", rowMapper, id)
+                .stream().findFirst();
+    }
+
+    public LocationStateRecord save(LocationStateRecord record) {
+        validate(record);
+        jdbc.update("INSERT INTO location_state (id, country_id, name, abbreviation) "
+                + "VALUES (?, ?, ?, ?)",
+                JdbcValues.parameter(record.id()),
+                JdbcValues.parameter(record.country_id()),
+                JdbcValues.parameter(record.name()),
+                JdbcValues.parameter(record.abbreviation()));
+        return record;
+    }
+
+    public LocationStateRecord update(LocationStateRecord record) {
+        validate(record);
+        jdbc.update("UPDATE location_state SET country_id = ?, name = ?, abbreviation = ? WHERE id = ?",
+                JdbcValues.parameter(record.country_id()),
+                JdbcValues.parameter(record.name()),
+                JdbcValues.parameter(record.abbreviation()),
+                record.id());
+        return record;
+    }
+
+    public void deleteById(String id) {
+        jdbc.update("DELETE FROM location_state WHERE id = ?", id);
+    }
+
+    public void delete(LocationStateRecord record) {
+        deleteById(record.id());
+    }
+
+    public List<LocationStateRecord> findBycountry_id(String country_id) {
+        return jdbc.query("SELECT * FROM location_state WHERE country_id = ?", rowMapper, country_id);
+    }
+
+    // Retain Micronaut Data's implicit non-null contract for unannotated record components.
+    private void validate(LocationStateRecord record) {
+        java.util.Objects.requireNonNull(record.id(), "id");
+        java.util.Objects.requireNonNull(record.country_id(), "country_id");
+        java.util.Objects.requireNonNull(record.name(), "name");
+    }
 }

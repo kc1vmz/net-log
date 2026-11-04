@@ -35,12 +35,12 @@ import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.record.RecurringEventRecord;
 import com.kc1vmz.netlog.repository.RecurringEventRepository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class RecurringEventAccessor {
-    @Inject
+    @Autowired
     private RecurringEventRepository recurringEventRepository;
     private static final Logger logger = LogManager.getLogger(RecurringEventAccessor.class);
 

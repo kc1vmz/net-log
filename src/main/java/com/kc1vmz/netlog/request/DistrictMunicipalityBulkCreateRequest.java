@@ -20,9 +20,10 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
 
-@Serdeable
-public record DistrictMunicipalityBulkCreateRequest(@NotBlank String country, @NotBlank String state, @NotBlank String bulkList) {
+public record DistrictMunicipalityBulkCreateRequest(
+        @NotBlank String country,
+        @NotBlank String state,
+        @NotBlank String bulkList) {
 }

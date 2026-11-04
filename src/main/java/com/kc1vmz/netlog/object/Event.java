@@ -26,11 +26,7 @@ import com.kc1vmz.netlog.enums.EventState;
 import com.kc1vmz.netlog.enums.EventType;
 import com.kc1vmz.netlog.utils.PrettyZonedDateTimeFormatter;
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
 
-@Serdeable
-@Deserializable
 public class Event implements Comparable<Event> {
     private String id;
     private String name;

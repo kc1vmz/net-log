@@ -20,10 +20,11 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
-import io.micronaut.core.annotation.Nullable;
 
-@Serdeable
-public record OperatorLocationEditRequest(@NotBlank String callsign, @Nullable String countryId, @Nullable String stateId, @Nullable String locationId) {
+public record OperatorLocationEditRequest(
+        @NotBlank String callsign,
+        String countryId,
+        String stateId,
+        String locationId) {
 }

@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.accessor;
 
-import java.time.LocalDateTime;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,6 +20,7 @@ import java.time.LocalDateTime;
     http://www.kc1vmz.com
 */
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,14 +38,14 @@ import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.record.ParticipantRecord;
 import com.kc1vmz.netlog.repository.ParticipantRepository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class ParticipantAccessor {
-    @Inject
+    @Autowired
     private ParticipantRepository participantRepository;
-    @Inject
+    @Autowired
     private OperatorAccessor operatorAccessor;
     private static final Logger logger = LogManager.getLogger(ParticipantAccessor.class);
 
@@ -137,6 +136,13 @@ public class ParticipantAccessor {
     }
 
     public List<Participant> checkInParticipant(Event event, Operator operator, LocalDateTime checkInTime) {
+        return checkInParticipant(event, operator, checkInTime, 0, ElectricalPowerType.UNKNOWN,
+                ElectricalPowerType.UNKNOWN, CommunicationPlatform.UNKNOWN, CommunicationBand.UNKNOWN);
+    }
+
+    public List<Participant> checkInParticipant(Event event, Operator operator, LocalDateTime checkInTime,
+            int transmitPower, ElectricalPowerType primaryPower, ElectricalPowerType secondaryPower,
+            CommunicationPlatform platform, CommunicationBand band) {
         if ((event == null) || (event.getId() == null)) {
             return new ArrayList<>();
         }
@@ -165,7 +171,7 @@ public class ParticipantAccessor {
             // add if not present
             try {
                 ParticipantRecord record = new ParticipantRecord(UUID.randomUUID().toString(), event.getId(), operator.getId(), checkInTime, null, 
-                                        ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 0, CommunicationPlatform.UNKNOWN, CommunicationBand.UNKNOWN);
+                                        primaryPower, secondaryPower, transmitPower, platform, band);
                 participantRepository.save(record);
             } catch (Exception e) {
                 logger.error("Exception caught", e);

@@ -20,6 +20,8 @@ package com.kc1vmz.netlog.controller;
     http://www.kc1vmz.com
 */
 
+import org.springframework.web.bind.annotation.*;
+
 import com.kc1vmz.netlog.accessor.EventAccessor;
 import com.kc1vmz.netlog.accessor.OperatorAccessor;
 import com.kc1vmz.netlog.accessor.ParticipantAccessor;
@@ -27,24 +29,24 @@ import com.kc1vmz.netlog.accessor.RecurringEventAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.object.Participant;
 
-import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller("/api/v1/participants")
+@RestController
+@RequestMapping("/api/v1/participants")
 public class ParticipantController {
 
-    @Inject
+    @Autowired
     private EventAccessor eventAccessor;
-    @Inject
+    @Autowired
     private OperatorAccessor operatorAccessor;
-    @Inject
+    @Autowired
     private SectionAccessor sectionAccessor;    
-    @Inject
+    @Autowired
     private RecurringEventAccessor recurringEventAccessor;    
-    @Inject
+    @Autowired
     private ParticipantAccessor participantAccessor;
 
-    @Get("/{id}")
+    @GetMapping("/{id}")
     public Participant get(@PathVariable String id) {
         return get(id, true);
     }
@@ -71,8 +73,8 @@ public class ParticipantController {
         return participant;
     }
 
-    @Put("/{id}")
-    public Participant update(@PathVariable String id, @Body Participant obj) {
+    @PutMapping("/{id}")
+    public Participant update(@PathVariable String id, @RequestBody Participant obj) {
         return participantAccessor.update(id, obj);
     }
 }

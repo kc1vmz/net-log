@@ -20,6 +20,10 @@ package com.kc1vmz.netlog.controller;
     http://www.kc1vmz.com
 */
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 import com.kc1vmz.netlog.accessor.EventAccessor;
@@ -34,66 +38,65 @@ import com.kc1vmz.netlog.object.RecurringEvent;
 import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.object.SectionOperator;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller("/api/v1/sections")
+@RestController
+@RequestMapping("/api/v1/sections")
 public class SectionController {
 
-    @Inject
+    @Autowired
     private SectionAccessor sectionAccessor;
-    @Inject
+    @Autowired
     private OperatorAccessor operatorAccessor;
-    @Inject
+    @Autowired
     private RecurringEventAccessor recurringEventAccessor;
-    @Inject
+    @Autowired
     private EventAccessor eventAccessor;
 
-    @Get
+    @GetMapping
     public List<Section> list() {
         return sectionAccessor.list(false);
     }
 
-    @Get("/{id}")
+    @GetMapping("/{id}")
     public Section get(@PathVariable String id) {
         return sectionAccessor.get(id);
     }
 
-    @Put("/{id}")
-    public Section update(@PathVariable String id, @Body Section obj) {
+    @PutMapping("/{id}")
+    public Section update(@PathVariable String id, @Valid @RequestBody Section obj) {
         return sectionAccessor.update(id, obj);
     }
 
-    @Delete("/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         sectionAccessor.delete(id, false);
     }
 
-    @Post
-    public HttpResponse<Section> create(@Body Section section) {
+    @PostMapping
+    public ResponseEntity<Section> create(@Valid @RequestBody Section section) {
         Section sectionNew = sectionAccessor.create(section);
         if (sectionNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(sectionNew);
+        return ResponseEntity.status(201).body(sectionNew);
     }
 
-    @Get("/{id}/operators")
+    @GetMapping("/{id}/operators")
     public List<SectionOperator> listOperators(@PathVariable String id) {
         Section section = sectionAccessor.get(id);
         return operatorAccessor.listOperators(section);
     }
 
-    @Put("/{id}/operators/{operatorId}")
-    public List<SectionOperator> addOperator(@PathVariable String id, @PathVariable String operatorId, @QueryValue MembershipType membershipType) {
+    @PutMapping("/{id}/operators/{operatorId}")
+    public List<SectionOperator> addOperator(@PathVariable String id, @PathVariable String operatorId, @RequestParam MembershipType membershipType) {
         Section section = sectionAccessor.get(id);
         Operator operator = operatorAccessor.get(operatorId);
         return operatorAccessor.addOperator(section, operator, membershipType);
     }
 
-    @Delete("/{id}/operators/{operatorId}")
+    @DeleteMapping("/{id}/operators/{operatorId}")
     public List<SectionOperator> removeOperator(@PathVariable String id, @PathVariable String operatorId) {
         Section section = sectionAccessor.get(id);
         Operator operator = operatorAccessor.get(operatorId);
@@ -101,40 +104,40 @@ public class SectionController {
         return operatorAccessor.removeOperator(section, sectionOperator);
     }
 
-    @Get("/{id}/recurringEvents")
+    @GetMapping("/{id}/recurringEvents")
     public List<RecurringEvent> listRecurringEvents(@PathVariable String id) {
         Section section = sectionAccessor.get(id);
         return recurringEventAccessor.listBySection(section, false);
     }
 
-    @Post("/{id}/recurringEvents")
-    public HttpResponse<RecurringEvent> createRecurringEvent(@PathVariable String id, @Body RecurringEvent recurringEvent) {
+    @PostMapping("/{id}/recurringEvents")
+    public ResponseEntity<RecurringEvent> createRecurringEvent(@PathVariable String id, @RequestBody RecurringEvent recurringEvent) {
         Section section = sectionAccessor.get(id);
         RecurringEvent ret = recurringEventAccessor.createBySection(section, recurringEvent);
-        return HttpResponse.created(ret);
+        return ResponseEntity.status(201).body(ret);
     }
 
-    @Get("/{id}/events")
+    @GetMapping("/{id}/events")
     public List<Event> listEvents(@PathVariable String id) {
         Section section = sectionAccessor.get(id);
         return eventAccessor.listBySection(section, false, true);
     }
 
-    @Delete("/{id}/districts/{districtId}")
+    @DeleteMapping("/{id}/districts/{districtId}")
     public void removeDistrict(@PathVariable String id, @PathVariable String districtId) {
         District district = sectionAccessor.getDistrict(districtId);
         sectionAccessor.removeDistrict(district);
     }
 
-    @Post("/{id}/districts")
-    public HttpResponse<District> createDistrict(@PathVariable String id, @Body District district) {
+    @PostMapping("/{id}/districts")
+    public ResponseEntity<District> createDistrict(@PathVariable String id, @RequestBody District district) {
         Section section = sectionAccessor.get(id);
         District districtNew = sectionAccessor.addDistrict(section, district);
         if (districtNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(districtNew);
+        return ResponseEntity.status(201).body(districtNew);
     }
 
 }

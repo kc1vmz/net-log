@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.object;
 
-import java.util.List;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,11 +20,8 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
+import java.util.List;
 
-@Serdeable
-@Deserializable
 public class MonthlyReportStatistics {
     private int sectionMembers;
     private int leadershipMembers;

@@ -20,11 +20,7 @@ package com.kc1vmz.netlog.object;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
 
-@Serdeable
-@Deserializable
 public class LocationState {
     private String id;
     private String name;

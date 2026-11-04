@@ -40,7 +40,7 @@ import com.kc1vmz.netlog.utils.DateStrUtils;
 import com.kc1vmz.netlog.utils.PdfUtils;
 import com.kc1vmz.netlog.utils.SoftwareIdentity;
 
-import jakarta.inject.Singleton;
+import org.springframework.stereotype.Service;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -53,7 +53,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
 
-@Singleton
+@Service
 public class OperatorAffiliationReportAccessor {
     private final static int MAX_ROWS = 28;
     private static final Logger logger = LogManager.getLogger(OperatorAffiliationReportAccessor.class);

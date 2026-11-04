@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.object;
 
-import com.kc1vmz.netlog.utils.DateStrUtils;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -21,6 +19,8 @@ import com.kc1vmz.netlog.utils.DateStrUtils;
     
     http://www.kc1vmz.com
 */
+
+import com.kc1vmz.netlog.utils.DateStrUtils;
 
 public class Report309Entry {
 

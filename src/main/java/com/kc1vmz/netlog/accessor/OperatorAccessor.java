@@ -24,6 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,16 +45,16 @@ import com.kc1vmz.netlog.record.OperatorSectionRecord;
 import com.kc1vmz.netlog.repository.OperatorRepository;
 import com.kc1vmz.netlog.repository.OperatorSectionRepository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class OperatorAccessor {
-    @Inject
+    @Autowired
     private OperatorRepository operatorRepository;
-    @Inject
+    @Autowired
     private OperatorSectionRepository operatorsSectionRepository;
-    @Inject
+    @Autowired
     private LocationAccessor locationAccessor;
     private static final Logger logger = LogManager.getLogger(OperatorAccessor.class);
 
@@ -215,39 +219,47 @@ public class OperatorAccessor {
     }
 
     public List<SectionOperator> listOperators(Section section, District district, List<Location> locations) {
-        List<SectionOperator> ret = new ArrayList<>();
+        if (district == null || district.getId() == null) {
+            return new ArrayList<>();
+        }
+        return listOperatorsInLocations(section, locations);
+    }
 
-        if ((district == null) || (district.getId() == null)) {
-            return ret;
+    public List<SectionOperator> listOperatorsInLocations(Section section, List<Location> locations) {
+        List<SectionOperator> operators = new ArrayList<>();
+        if (section == null || section.getId() == null || locations == null) {
+            return operators;
         }
 
-        try {
-            List<OperatorSectionRecord> records = operatorsSectionRepository.findBysectionId(district.getSectionId());
-            if (records != null) {
-                for (OperatorSectionRecord record : records) {
-                    Operator operator = get(record.operatorId());
-                    for (Location location : locations) {
-                        if ((operator.getLocation() != null) &&  (location.getId().equals(operator.getLocation().getId()))) {
-                            // operator is in district
-                            SectionOperator sectionOperator = new SectionOperator(operator, record.membershipType(), section);
-                            ret.add(sectionOperator);
-                            break;
-                        }
-                    }
+        Set<String> municipalityIds = new HashSet<>();
+        for (Location location : locations) {
+            if (location != null && location.getId() != null) {
+                municipalityIds.add(location.getId());
+            }
+        }
+        if (municipalityIds.isEmpty()) {
+            return operators;
+        }
+
+        Map<String, MembershipType> membershipTypes = new HashMap<>();
+        for (OperatorSectionRecord membership : operatorsSectionRepository.findBysectionId(section.getId())) {
+            MembershipType type = membership.membershipType();
+            if (type == MembershipType.LEADERSHIP || type == MembershipType.MEMBER) {
+                membershipTypes.put(membership.operatorId(), type);
+            }
+        }
+        // Residence determines inclusion. Section membership only supplies the label.
+        for (OperatorRecord record : operatorRepository.findAll()) {
+            if (municipalityIds.contains(record.location_municipality_id())) {
+                Operator operator = get(record.id());
+                if (operator != null) {
+                    MembershipType type = membershipTypes.getOrDefault(record.id(), MembershipType.NON_MEMBER);
+                    operators.add(new SectionOperator(operator, type, section));
                 }
             }
-        } catch (Exception e) {
-            logger.error("Exception caught", e);
         }
-
-        Collections.sort(ret, new Comparator<SectionOperator>() {
-            @Override
-            public int compare(SectionOperator obj1, SectionOperator obj2) {
-                return obj1.getCallsign().compareTo(obj2.getCallsign());
-            }
-        });
-
-        return ret;
+        operators.sort(Comparator.comparing(SectionOperator::getCallsign));
+        return operators;
     }
 
     public List<Operator> listOperators(Location location) {

@@ -45,18 +45,18 @@ import com.kc1vmz.netlog.repository.LocationCountyRepository;
 import com.kc1vmz.netlog.repository.LocationMunicipalityRepository;
 import com.kc1vmz.netlog.repository.LocationStateRepository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class LocationAccessor {
-    @Inject
+    @Autowired
     private LocationCountryRepository locationCountryRepository;
-    @Inject
+    @Autowired
     private LocationStateRepository locationStateRepository;
-    @Inject
+    @Autowired
     private LocationCountyRepository locationCountyRepository;
-    @Inject
+    @Autowired
     private LocationMunicipalityRepository locationMunicipalityRepository;
     private static final Logger logger = LogManager.getLogger(LocationAccessor.class);
 

@@ -40,16 +40,16 @@ import com.kc1vmz.netlog.repository.DistrictLocationRepository;
 import com.kc1vmz.netlog.repository.DistrictRepository;
 import com.kc1vmz.netlog.repository.SectionRepository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class SectionAccessor {
-    @Inject
+    @Autowired
     private SectionRepository sectionRepository;
-    @Inject
+    @Autowired
     private DistrictRepository districtRepository;
-    @Inject
+    @Autowired
     private DistrictLocationRepository districtLocationRepository;
     private static final Logger logger = LogManager.getLogger(SectionAccessor.class);
 
@@ -74,6 +74,8 @@ public class SectionAccessor {
                     section.setName(record.name());
                     section.setDescription(record.description());
                     section.setActive(record.active());
+                    section.setLeaderName(record.leaderName());
+                    section.setLeaderContact(record.leaderContact());
                     ret.add(section);
                 }
             }
@@ -93,7 +95,8 @@ public class SectionAccessor {
 
     public Section create(Section section) {
         try {
-            SectionRecord rec = new SectionRecord(UUID.randomUUID().toString(), section.getName(), section.getDescription(), true);
+            SectionRecord rec = new SectionRecord(UUID.randomUUID().toString(), section.getName(), section.getDescription(), true,
+                    section.getLeaderName(), section.getLeaderContact());
             SectionRecord recNew = sectionRepository.save(rec);
             section.setId(recNew.id());
             return get(recNew.id());
@@ -115,6 +118,8 @@ public class SectionAccessor {
                 ret.setName(record.name());
                 ret.setDescription(record.description());
                 ret.setActive(record.active());
+                ret.setLeaderName(record.leaderName());
+                ret.setLeaderContact(record.leaderContact());
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -147,7 +152,15 @@ public class SectionAccessor {
             }
 
             SectionRecord rec = recordOpt.get();
-            SectionRecord recUpdate = new SectionRecord(rec.id(), obj.getName(), obj.getDescription(), obj.isActive());
+            // Older callers omit leadership fields. Empty strings explicitly clear them.
+            if (obj.getLeaderName() == null) {
+                obj.setLeaderName(rec.leaderName());
+            }
+            if (obj.getLeaderContact() == null) {
+                obj.setLeaderContact(rec.leaderContact());
+            }
+            SectionRecord recUpdate = new SectionRecord(rec.id(), obj.getName(), obj.getDescription(), obj.isActive(),
+                    obj.getLeaderName(), obj.getLeaderContact());
             sectionRepository.update(recUpdate);
             obj.setId(id);
             return obj;

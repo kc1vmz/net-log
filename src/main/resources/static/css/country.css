@@ -1,0 +1,168 @@
+.country-page {
+    overflow: hidden;
+}
+
+html .country-page .main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 20px 12px;
+}
+
+.country-heading,
+.country-properties,
+.country-actions {
+    flex: none;
+}
+
+.country-heading h1 {
+    margin: 12px 0;
+}
+
+.country-heading p {
+    margin: 0;
+}
+
+.country-properties,
+.country-states,
+.country-actions {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.country-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    padding: 20px;
+}
+
+.country-properties dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 16px 40px;
+    min-width: 0;
+    margin: 0;
+}
+
+.country-properties-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.country-properties-actions .block {
+    border-radius: 5px;
+}
+
+.country-properties dt {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.country-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.country-states {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.country-states-header {
+    flex: none;
+    padding: 16px 20px;
+}
+
+.country-states-header h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.country-states-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.country-states table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.country-states th,
+.country-states td {
+    padding: 10px 16px;
+    text-align: left;
+}
+
+.country-states thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+.country-states tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+.country-states tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+.country-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.country-actions .block {
+    border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+    .country-heading h1 {
+        font-size: 1.4rem;
+    }
+
+    .country-properties {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 760px) {
+    .country-properties dl {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        flex: 1 1 100%;
+        gap: 12px 20px;
+    }
+}
+
+@media print {
+    .country-page {
+        overflow: visible;
+    }
+
+    html .country-page .main {
+        height: auto;
+    }
+
+    .country-states,
+    .country-states-scroll {
+        overflow: visible;
+    }
+}

@@ -1,9 +1,5 @@
 package com.kc1vmz.netlog.object;
 
-import java.util.Objects;
-
-import com.kc1vmz.netlog.enums.MembershipType;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -24,11 +20,10 @@ import com.kc1vmz.netlog.enums.MembershipType;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
+import java.util.Objects;
+import com.kc1vmz.netlog.enums.MembershipType;
 
-@Serdeable
-@Deserializable
+
 public class SectionOperator {
     private String id;
     private String callsign;

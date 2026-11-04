@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.record;
 
-import io.micronaut.core.annotation.Nullable;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,13 +20,12 @@ import io.micronaut.core.annotation.Nullable;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
+import org.springframework.lang.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-@Serdeable
-@MappedEntity("location_country")
-public record LocationCountryRecord(@Id @NotBlank @NotEmpty String id, @NotBlank @NotEmpty String name, @Nullable String abbreviation) {
+public record LocationCountryRecord(
+        @NotBlank @NotEmpty String id,
+        @NotBlank @NotEmpty String name,
+        @Nullable String abbreviation) {
 }

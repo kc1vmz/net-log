@@ -1,0 +1,190 @@
+.location-state-page {
+    overflow: hidden;
+}
+
+html .location-state-page .main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 20px 12px;
+}
+
+.state-heading,
+.state-properties,
+.state-actions {
+    flex: none;
+}
+
+.state-heading h1 {
+    margin: 12px 0;
+}
+
+.state-heading p {
+    margin: 0;
+}
+
+.state-properties,
+.state-actions {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.state-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    padding: 20px;
+}
+
+.state-properties dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    gap: 16px 40px;
+    min-width: 0;
+    margin: 0;
+}
+
+.state-properties-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.state-properties-actions .block {
+    border-radius: 5px;
+}
+
+.state-properties dt {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.state-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.state-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.state-actions .block {
+    border-radius: 5px;
+}
+
+.location-state-page .state-lists {
+    display: grid;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.location-state-page .state-list-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.state-list-heading {
+    flex: none;
+    padding: 16px 20px;
+    background: var(--surface-background);
+}
+
+.state-list-heading h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.state-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+@media (max-width: 760px) {
+    .state-heading h1 {
+        font-size: 1.4rem;
+    }
+
+    .state-properties {
+        padding: 12px;
+    }
+
+    .state-properties dl {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        flex: 1 1 100%;
+        gap: 12px 20px;
+    }
+
+    .location-state-page .state-lists {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .state-list-heading {
+        padding: 12px;
+    }
+}
+
+.state-list-scroll table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.state-list-scroll th,
+.state-list-scroll td {
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.state-list-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+.state-list-scroll tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+.state-list-scroll tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+@media print {
+    .location-state-page {
+        overflow: visible;
+    }
+
+    html .location-state-page .main {
+        display: block;
+        height: auto;
+    }
+
+    .state-list-scroll {
+        max-height: none;
+        overflow: visible;
+    }
+}

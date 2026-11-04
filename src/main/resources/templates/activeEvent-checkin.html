@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Check-ins for Active Event - [[${event?.name}]]</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script src="/js/participant-selection.js" defer></script>
+  <link rel="stylesheet" href="/css/participation-defaults.css">
+</head>
+<body>
+<style>
+
+body {
+    margin: 0px;
+
+  }
+
+.navbar {
+  overflow: hidden;
+
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  margin: 20px;
+  gap: 20px;
+}
+.line {
+  margin : 20px;
+}
+
+.grid-membership-container {
+      display: grid;
+      grid-template-columns: 30% 30% 40%;
+      margin: 0px;
+      gap: 20px;
+    }
+.table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+</style>
+
+
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents"><b>Active Events</b></a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections">Sections</a>
+    <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
+    <button th:replace="~{fragments/theme :: toggle}"></button>
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div style="margin:20px;">
+    <h1>Check-ins for Active Event - [[${event?.name}]]</h1>
+    <p>Check-in operators to this event, including their check-in time.
+    <div class="line" style="margin:0px"><hr/></div>
+    </div>
+
+    <div style="margin:20px;">
+      <form data-participant-selection="checkin" th:action="|/activeEvent-checkin-action/${event?.id}|" method="post">
+        <input type="hidden" name="participantIds" id="participantIds" class="form-control"/>
+        <div data-checkin-payload></div>
+
+        <div class="grid-membership-container"  style="margin:20px;">
+          <div class="grid-membership-item">
+            <div class="table-container" >
+              <h3>Participants to check-in</h3>
+              <table id="participant-list">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Name</th>
+                    <th>Check-in time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <th:block th:each="item0 : ${participants}">
+                    <tr th:id="|${item0?.operator?.id}|">
+                      <td>[[${item0?.operator?.callsign}]]</td>
+                      <td>[[${item0?.operator?.name}]]</td>
+                      <td><input type="datetime-local" id="checkInTimeStr" step="any" required class="form-control"/></td>
+                      <td><button th:data-id="${item0?.operator?.id}" type="button" data-participant-action="remove">Check-out</button></td>
+                    </tr>
+                  </th:block>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid-membership-item">
+            <div class="table-container" >
+              <h3>Previous participants</h3>
+              <table id="previous-list">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Name</th>
+                    <th>Check-in time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <th:block th:each="item1 : ${previousOperators}">
+                    <tr th:id="|${item1?.id}|">
+                      <td>[[${item1?.callsign}]]</td>
+                      <td>[[${item1?.name}]]</td>
+                      <td><input type="datetime-local" id="checkInTimeStr" step="any" required th:value="|${checkInTimeStr}|" class="form-control"/></td>
+                      <td><button th:data-id="${item1?.id}" type="button" data-participant-action="add">Check-in</button></td>
+                    </tr>
+                  </th:block>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid-membership-item">
+            <div class="table-container" >
+              <h3>Potential participants</h3>
+              <table id="operator-list">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Name</th>
+                    <th>Check-in time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <th:block th:each="item2 : ${operators}">
+                    <tr th:id="|${item2?.id}|">
+                      <td>[[${item2?.callsign}]]</td>
+                      <td>[[${item2?.name}]]</td>
+                      <td><input type="datetime-local" id="checkInTimeStr" step="any" required th:value="|${checkInTimeStr}|" class="form-control"/></td>
+                      <td><button th:data-id="${item2?.id}" type="button" data-participant-action="add">Check-in</button></td>
+                    </tr>
+                  </th:block>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <!-- end grid -->
+        </div>
+
+        <fieldset class="participation-defaults" data-participation-defaults>
+          <legend>Participation defaults</legend>
+          <div class="participation-defaults-row">
+            <div>
+              <label for="defaultTransmitPower">Transmit power:</label>
+              <input type="number" id="defaultTransmitPower" min="0" step="1"
+                     data-participation-default="transmitPower">
+            </div>
+            <div>
+              <label for="defaultPrimaryPowerSource">Primary power source:</label>
+              <select id="defaultPrimaryPowerSource" data-participation-default="primaryPowerSource">
+                <option value="UNKNOWN">Unknown</option>
+                <option value="COMMERCIAL">Commercial</option>
+                <option value="GENERATOR">Generator</option>
+                <option value="SOLAR">Solar</option>
+                <option value="BATTERY">Battery</option>
+                <option value="OTHER">Other</option>
+                <option value="NONE">None</option>
+              </select>
+            </div>
+            <div>
+              <label for="defaultSecondaryPowerSource">Secondary power source:</label>
+              <select id="defaultSecondaryPowerSource" data-participation-default="secondaryPowerSource">
+                <option value="UNKNOWN">Unknown</option>
+                <option value="COMMERCIAL">Commercial</option>
+                <option value="GENERATOR">Generator</option>
+                <option value="SOLAR">Solar</option>
+                <option value="BATTERY">Battery</option>
+                <option value="OTHER">Other</option>
+                <option value="NONE">None</option>
+              </select>
+            </div>
+            <div>
+              <label for="defaultCommunicationPlatform">Communication platform:</label>
+              <select id="defaultCommunicationPlatform" data-participation-default="communicationPlatform">
+                <option value="UNKNOWN">Unknown</option>
+                <option value="RADIO_VOICE">Radio voice</option>
+                <option value="ECHOLINK">EchoLink</option>
+                <option value="RADIO_PACKET">Radio packet</option>
+                <option value="INTERNET_PACKET">Internet packet</option>
+              </select>
+            </div>
+            <div>
+              <label for="defaultCommunicationBand">Communication band:</label>
+              <select id="defaultCommunicationBand" data-participation-default="communicationBand">
+                <option value="UNKNOWN">Unknown</option>
+                <option value="INTERNET">Internet</option>
+                <option value="CM_70">70 cm</option>
+                <option value="M_2">2 m</option>
+                <option value="M_6">6 m</option>
+                <option value="M_10">10 m</option>
+                <option value="M_20">20 m</option>
+                <option value="M_40">40 m</option>
+                <option value="M_80">80 m</option>
+                <option value="M_1_25">1.25 m</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+        <div>
+          <input type="submit" value="Update" class="btn btn-primary block"/>
+          <a class="block" th:href="|/activeEvent/${event?.id}|">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

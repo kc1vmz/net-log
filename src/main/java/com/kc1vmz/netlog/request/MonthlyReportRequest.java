@@ -1,6 +1,5 @@
 package com.kc1vmz.netlog.request;
 
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -21,8 +20,9 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 
-@Serdeable
-public record MonthlyReportRequest(String sectionId, String month, String year) {
+public record MonthlyReportRequest(
+        String sectionId,
+        String month,
+        String year) {
 }

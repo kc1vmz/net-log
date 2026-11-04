@@ -21,16 +21,18 @@ package com.kc1vmz.netlog.record;
 */
 
 import com.kc1vmz.netlog.enums.EventType;
-
-import io.micronaut.core.annotation.Nullable;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
+import org.springframework.lang.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-@Serdeable
-@MappedEntity("recurring_event")
-public record RecurringEventRecord(@Id @NotBlank @NotEmpty String id, @NotBlank @NotEmpty String sectionId, @NotBlank @NotEmpty String name, String description, 
-                                            @NotBlank @NotEmpty EventType type, String schedule, String location, @Nullable String netControlCallsign, boolean activeSection) {
+public record RecurringEventRecord(
+        @NotBlank @NotEmpty String id,
+        @NotBlank @NotEmpty String sectionId,
+        @NotBlank @NotEmpty String name,
+        String description,
+        @NotBlank @NotEmpty EventType type,
+        String schedule,
+        String location,
+        @Nullable String netControlCallsign,
+        boolean activeSection) {
 }

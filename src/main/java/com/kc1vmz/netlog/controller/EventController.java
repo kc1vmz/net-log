@@ -1,8 +1,5 @@
 package com.kc1vmz.netlog.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -23,6 +20,11 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.kc1vmz.netlog.accessor.EventAccessor;
 import com.kc1vmz.netlog.accessor.OperatorAccessor;
 import com.kc1vmz.netlog.accessor.ParticipantAccessor;
@@ -34,24 +36,24 @@ import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.object.RecurringEvent;
 import com.kc1vmz.netlog.object.Section;
 
-import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller("/api/v1/events")
+@RestController
+@RequestMapping("/api/v1/events")
 public class EventController {
 
-    @Inject
+    @Autowired
     private EventAccessor eventAccessor;
-    @Inject
+    @Autowired
     private OperatorAccessor operatorAccessor;
-    @Inject
+    @Autowired
     private SectionAccessor sectionAccessor;    
-    @Inject
+    @Autowired
     private RecurringEventAccessor recurringEventAccessor;    
-    @Inject
+    @Autowired
     private ParticipantAccessor participantAccessor;
 
-    @Get("/{id}")
+    @GetMapping("/{id}")
     public Event get(@PathVariable String id) {
         return get(id, true);
     }
@@ -69,17 +71,17 @@ public class EventController {
         return event;
     }
 
-    @Put("/{id}")
-    public Event update(@PathVariable String id, @Body Event obj) {
+    @PutMapping("/{id}")
+    public Event update(@PathVariable String id, @RequestBody Event obj) {
         return eventAccessor.update(id, obj);
     }
 
-    @Delete("/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         eventAccessor.delete(id);
     }
 
-    @Get("/{id}/participants")
+    @GetMapping("/{id}/participants")
     public List<Participant> listParticipants(@PathVariable String id) {
         // given the event, get the operators
         // then fill in the section and recurringEvent
@@ -99,7 +101,7 @@ public class EventController {
         return participants;
     }
 
-    @Put("/{id}/participants/{operatorId}")
+    @PutMapping("/{id}/participants/{operatorId}")
     public List<Participant> checkInParticipant(@PathVariable String id, @PathVariable String operatorId) {
         Event event = eventAccessor.get(id);
         Operator operator = operatorAccessor.get(operatorId);
@@ -110,7 +112,7 @@ public class EventController {
         return participants;
     }
 
-    @Delete("/{id}/participants/{operatorId}")
+    @DeleteMapping("/{id}/participants/{operatorId}")
     public List<Participant> checkOutParticipant(@PathVariable String id, @PathVariable String operatorId) {
         Event event = eventAccessor.get(id);
         Operator operator = operatorAccessor.get(operatorId);

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <section th:fragment="content" th:if="${recurringEvent != null}" class="recurring-event-details event-details">
+    <div class="recurring-event-details-body event-details-body">
+      <header class="event-overview">
+        <h2 th:attr="aria-label=|Recurring Event Details - ${recurringEvent.name}|">[[${recurringEvent.name}]]</h2>
+        <p class="event-description" th:if="${recurringEvent.description != null and !#strings.isEmpty(recurringEvent.description)}"><em>[[${recurringEvent.description}]]</em></p>
+        <div class="event-badges">
+          <span class="event-status event-status-recurring">Recurring</span>
+          <span class="event-type">[[${recurringEvent.type}]]</span>
+        </div>
+        <dl class="event-facts">
+          <div>
+            <dt>Section</dt>
+            <dd>[[${recurringEvent.section?.name}]]</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd th:text="${#strings.isEmpty(recurringEvent.location)} ? 'Not specified' : ${recurringEvent.location}"></dd>
+          </div>
+          <div>
+            <dt>Schedule</dt>
+            <dd th:text="${#strings.isEmpty(recurringEvent.schedule)} ? 'Not specified' : ${recurringEvent.schedule}"></dd>
+          </div>
+          <div>
+            <dt>Net Control callsign</dt>
+            <dd th:text="${#strings.isEmpty(recurringEvent.netControlCallsign)} ? 'Not specified' : ${recurringEvent.netControlCallsign}"></dd>
+          </div>
+        </dl>
+      </header>
+    </div>
+    <div class="recurring-event-actions event-actions" aria-label="Recurring event actions">
+      <a class="block" th:href="|/recurringEvent-edit/${recurringEvent?.id}|"
+         data-action-dialog="edit"
+         data-dialog-title="Edit recurring event"
+         data-dialog-submit="Save"
+         th:data-dialog-subject="${recurringEvent.name}">Edit details</a>
+      <a class="block" th:href="|/recurringEvent-schedule/${recurringEvent?.id}|"
+         data-action-dialog="schedule"
+         data-dialog-title="Schedule recurring event"
+         data-dialog-submit="Schedule"
+         th:data-dialog-subject="${recurringEvent.name}">Schedule</a>
+      <a class="block" th:href="|/recurringEvent-start/${recurringEvent?.id}|"
+         data-action-dialog="start"
+         data-dialog-title="Start recurring event"
+         data-dialog-submit="Start"
+         th:data-dialog-subject="${recurringEvent.name}">Start</a>
+      <a class="block event-delete" th:href="|/recurringEvent-delete/${recurringEvent?.id}|"
+         data-action-dialog="delete"
+        
+         data-dialog-warning="This also deletes its active and scheduled events and their participant records."
+         data-dialog-title="Delete recurring event"
+         data-dialog-submit="Delete"
+         th:data-dialog-subject="${recurringEvent.name}">Delete</a>
+      <a class="block" href="/recurringEvents" th:if="${standaloneRecurringDetails}">Back to recurring events</a>
+    </div>
+  </section>
+</body>
+</html>

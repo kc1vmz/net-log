@@ -1,0 +1,167 @@
+.municipality-page {
+    overflow: hidden;
+}
+
+html .municipality-page .main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 20px 12px;
+}
+
+.municipality-heading,
+.municipality-properties,
+.municipality-actions {
+    flex: none;
+}
+
+.municipality-heading h1 {
+    margin: 12px 0;
+}
+
+.municipality-heading p {
+    margin: 0;
+}
+
+.municipality-properties,
+.municipality-operators,
+.municipality-actions {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.municipality-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    padding: 20px;
+}
+
+.municipality-properties dl {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, max-content));
+    gap: 16px 40px;
+    min-width: 0;
+    margin: 0;
+}
+
+.municipality-properties-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.municipality-properties-actions .block {
+    border-radius: 5px;
+}
+
+.municipality-properties dt {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.municipality-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.municipality-operators {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.municipality-operators h2 {
+    flex: none;
+    margin: 0;
+    padding: 16px 20px;
+    font-size: 1.1rem;
+}
+
+.municipality-operators-empty {
+    padding: 0 20px;
+}
+
+.municipality-operators-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.municipality-operators table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.municipality-operators th,
+.municipality-operators td {
+    padding: 10px 16px;
+    text-align: left;
+}
+
+.municipality-operators thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+.municipality-operators tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+.municipality-operators tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+.municipality-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.municipality-actions .block {
+    border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+    .municipality-heading h1 {
+        font-size: 1.4rem;
+    }
+
+    .municipality-properties {
+        padding: 12px;
+    }
+
+    .municipality-properties dl {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        flex: 1 1 100%;
+        gap: 12px 20px;
+    }
+}
+
+@media print {
+    .municipality-page {
+        overflow: visible;
+    }
+
+    html .municipality-page .main {
+        height: auto;
+    }
+
+    .municipality-operators,
+    .municipality-operators-scroll {
+        overflow: visible;
+    }
+}

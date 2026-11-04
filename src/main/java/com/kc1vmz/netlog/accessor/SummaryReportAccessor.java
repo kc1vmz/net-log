@@ -48,8 +48,8 @@ import com.kc1vmz.netlog.utils.DateStrUtils;
 import com.kc1vmz.netlog.utils.PdfUtils;
 import com.kc1vmz.netlog.utils.SoftwareIdentity;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -61,11 +61,11 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
 
-@Singleton
+@Service
 public class SummaryReportAccessor {
     private static final Logger logger = LogManager.getLogger(SummaryReportAccessor.class);
     private
-    @Inject OperatorAccessor operatorAccessor;
+    @Autowired OperatorAccessor operatorAccessor;
 
     public String getUniqueFileName(String directory, String extension) {
         String fileName = MessageFormat.format("{0}.{1}", UUID.randomUUID(), extension.trim());

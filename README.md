@@ -16,7 +16,7 @@ This can be done in real time when a net is started, or after the fact.
 
 ## Download 
 
-You can either use the pre-built Java JAR file for version 1.0.9 of the application, or download / clone source code from Github.
+You can either use the pre-built Java JAR file for version 2.0.0 of the application, or download / clone source code from Github.
 
 ## Prerequisites 
 
@@ -44,11 +44,13 @@ mvn clean install
 
 
 ```sh
-java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-1.0.9.jar
+java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-2.0.0.jar
 ```
 
 
 ## Versions
+
+2.0.0 - rewrite using Spring and Thymeleaf. Prettier and new features.
 
 1.0.9 - Add communication band and platform for participation, fix summary reporting for leadership
 

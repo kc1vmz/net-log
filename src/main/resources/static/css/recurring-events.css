@@ -1,0 +1,179 @@
+.recurring-events-page {
+    overflow: hidden;
+}
+
+html .recurring-events-page .main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--navigation-height, 48px) - 12px);
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding-bottom: 12px;
+}
+
+.recurring-events-heading {
+    flex: none;
+    margin: 0 20px 12px;
+}
+
+.recurring-events-heading h1 {
+    margin: 12px 0;
+}
+
+.recurring-events-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    margin: 0 20px;
+}
+
+.recurring-events-list-pane,
+.recurring-events-details-pane {
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--surface-background);
+}
+
+.recurring-events-list-pane {
+    overflow: auto;
+}
+
+.recurring-events-details-pane {
+    overflow: hidden;
+}
+
+.recurring-events-details-pane > p {
+    margin: 16px;
+}
+
+.recurring-events-details-pane .recurring-event-details {
+    height: 100%;
+}
+
+.recurring-event-details {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.recurring-event-details-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+}
+
+.recurring-event-details h2 {
+    margin-top: 0;
+}
+
+.recurring-event-details .table-container {
+    max-height: none;
+    overflow: auto;
+}
+
+.recurring-event-actions,
+.recurring-events-report-actions {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface-background);
+}
+
+.recurring-events-report-actions {
+    margin: 12px 20px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    max-height: 30vh;
+    overflow: auto;
+}
+
+.recurring-event-actions .block,
+.recurring-events-report-actions .block {
+    display: inline-block;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.recurring-events-page table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.recurring-events-page th,
+.recurring-events-page td {
+    padding: 8px;
+    text-align: left;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#recurring-event-list thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#recurring-event-list tbody tr {
+    cursor: pointer;
+}
+
+#recurring-event-list tbody tr:hover td,
+#recurring-event-list tbody tr.is-selected td {
+    background: var(--hover-background);
+}
+
+#recurring-event-list tbody tr.is-selected td:first-child {
+    box-shadow: inset 4px 0 var(--accent-color);
+}
+
+.main .recurring-event-selection {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+@media (max-width: 760px) {
+    .recurring-events-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .recurring-events-heading {
+        margin-bottom: 4px;
+    }
+
+    .recurring-events-report-actions {
+        padding: 8px;
+        gap: 6px;
+    }
+}
+
+@media print {
+    html .recurring-events-page .main {
+        height: auto;
+    }
+
+    .recurring-events-page,
+    .recurring-events-list-pane,
+    .recurring-events-details-pane,
+    .recurring-event-details-body {
+        overflow: visible;
+    }
+
+    .recurring-events-layout {
+        display: block;
+    }
+}
+

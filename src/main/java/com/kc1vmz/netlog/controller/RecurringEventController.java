@@ -1,10 +1,5 @@
 package com.kc1vmz.netlog.controller;
 
-import java.util.List;
-
-import com.kc1vmz.netlog.accessor.EventAccessor;
-import com.kc1vmz.netlog.accessor.ParticipantAccessor;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -25,6 +20,14 @@ import com.kc1vmz.netlog.accessor.ParticipantAccessor;
     http://www.kc1vmz.com
 */
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+
+import com.kc1vmz.netlog.accessor.EventAccessor;
+import com.kc1vmz.netlog.accessor.ParticipantAccessor;
+
 import com.kc1vmz.netlog.accessor.RecurringEventAccessor;
 import com.kc1vmz.netlog.accessor.SectionAccessor;
 import com.kc1vmz.netlog.object.Event;
@@ -32,23 +35,22 @@ import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.object.RecurringEvent;
 import com.kc1vmz.netlog.object.Section;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller("/api/v1/recurringEvents")
+@RestController
+@RequestMapping("/api/v1/recurringEvents")
 public class RecurringEventController {
 
-    @Inject
+    @Autowired
     private RecurringEventAccessor recurringEventAccessor;
-    @Inject
+    @Autowired
     private EventAccessor eventAccessor;
-    @Inject
+    @Autowired
     private SectionAccessor sectionAccessor;
-    @Inject
+    @Autowired
     private ParticipantAccessor participantAccessor;
 
-    @Get("/{id}")
+    @GetMapping("/{id}")
     public RecurringEvent get(@PathVariable String id) {
         return get(id, true);
     }
@@ -61,12 +63,12 @@ public class RecurringEventController {
         return recurringEvent;
     }
 
-    @Put("/{id}")
-    public RecurringEvent update(@PathVariable String id, @Body RecurringEvent obj) {
+    @PutMapping("/{id}")
+    public RecurringEvent update(@PathVariable String id, @RequestBody RecurringEvent obj) {
         return recurringEventAccessor.update(id, obj);
     }
 
-    @Delete("/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
 
@@ -81,14 +83,14 @@ public class RecurringEventController {
         recurringEventAccessor.delete(id);
     }
 
-    @Get("/{id}/events")
+    @GetMapping("/{id}/events")
     public List<Event> listEvents(@PathVariable String id) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
         return eventAccessor.listByRecurringEvent(recurringEvent, false, true);
     }
 
-    @Post("/{id}/events")
-    public HttpResponse<Event> create(@PathVariable String id, @Body Event event) {
+    @PostMapping("/{id}/events")
+    public ResponseEntity<Event> create(@PathVariable String id, @RequestBody Event event) {
         RecurringEvent recurringEvent = recurringEventAccessor.get(id);
         Section section = null;
         if ((recurringEvent != null) && (recurringEvent.getSection() != null) && (recurringEvent.getSection().getId() != null)) {
@@ -96,10 +98,10 @@ public class RecurringEventController {
         }
         Event eventNew = eventAccessor.create(section, recurringEvent, event);
         if (eventNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(eventNew);
+        return ResponseEntity.status(201).body(eventNew);
     }
 
 

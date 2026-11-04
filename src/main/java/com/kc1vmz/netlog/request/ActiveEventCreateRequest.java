@@ -1,0 +1,37 @@
+package com.kc1vmz.netlog.request;
+
+/*
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+*/
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public record ActiveEventCreateRequest(
+        @NotBlank String sectionId,
+        @NotBlank String name,
+        String description,
+        @Min(1) @Max(9) int type,
+        String location,
+        String netControlCallsign,
+        @NotBlank @Pattern(regexp = "STARTED|PENDING") String startMode,
+        String startTimeStr) {
+}

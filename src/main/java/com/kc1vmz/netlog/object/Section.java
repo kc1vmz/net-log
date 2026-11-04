@@ -20,16 +20,34 @@ package com.kc1vmz.netlog.object;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
 
-@Serdeable
-@Deserializable
+import jakarta.validation.constraints.Size;
+
 public class Section {
     private String id;
     private String name;
     private String description;
     private boolean active;
+    @Size(max = 100)
+    private String leaderName;
+    @Size(max = 100)
+    private String leaderContact;
+
+    public String getLeaderName() {
+        return leaderName;
+    }
+
+    public void setLeaderName(String leaderName) {
+        this.leaderName = leaderName;
+    }
+
+    public String getLeaderContact() {
+        return leaderContact;
+    }
+
+    public void setLeaderContact(String leaderContact) {
+        this.leaderContact = leaderContact;
+    }
 
     public String getId() {
         return id;

@@ -20,8 +20,6 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 
-@Serdeable
 public record BlankRequest() {
 }

@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.record;
 
-import io.micronaut.core.annotation.Nullable;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,14 +20,15 @@ import io.micronaut.core.annotation.Nullable;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
+import org.springframework.lang.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-@Serdeable
-@MappedEntity("district")
-public record DistrictRecord(@Id @NotBlank @NotEmpty String id, @NotBlank @NotEmpty String section_id, @NotBlank @NotEmpty String name, 
-                             @Nullable String description, @Nullable String leader_name, @Nullable String leader_contact) {
+public record DistrictRecord(
+        @NotBlank @NotEmpty String id,
+        @NotBlank @NotEmpty String section_id,
+        @NotBlank @NotEmpty String name,
+        @Nullable String description,
+        @Nullable String leader_name,
+        @Nullable String leader_contact) {
 }

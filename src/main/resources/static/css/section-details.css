@@ -1,0 +1,246 @@
+.section-page {
+    overflow: hidden;
+}
+
+html .section-page .main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 20px 12px;
+}
+
+.section-heading,
+.section-properties,
+.section-actions {
+    flex: none;
+}
+
+.section-heading h1 {
+    margin: 12px 0;
+}
+
+.section-heading p {
+    margin: 0;
+}
+
+.section-properties,
+.section-list-card,
+.section-actions {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.section-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    padding: 20px;
+}
+
+.section-properties dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 16px 40px;
+    min-width: 0;
+    margin: 0;
+}
+
+.section-properties-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.section-properties-actions .block {
+    border-radius: 5px;
+}
+
+.section-properties dt {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.section-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    max-width: 60ch;
+}
+
+.section-lists {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.section-list-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.section-list-heading {
+    flex: none;
+    padding: 16px 20px;
+}
+
+.section-list-heading h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.section-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.section-list-scroll table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.section-list-scroll th,
+.section-list-scroll td {
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.section-list-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+.section-list-scroll tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+.section-list-scroll tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+.section-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.section-actions .block {
+    border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+    .section-lists {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .section-heading h1 {
+        font-size: 1.4rem;
+    }
+
+    .section-properties,
+    .section-list-heading {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 760px) {
+    .section-properties dl {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        flex: 1 1 100%;
+        gap: 12px 20px;
+    }
+}
+
+@media print {
+    .section-page {
+        overflow: visible;
+    }
+
+    html .section-page .main {
+        height: auto;
+    }
+
+    .section-lists {
+        display: block;
+    }
+
+    .section-list-card,
+    .section-list-scroll {
+        overflow: visible;
+    }
+}
+
+.section-reports {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    flex: none;
+    gap: 16px;
+}
+
+.section-report-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    max-height: 28dvh;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+    overflow: hidden;
+}
+
+.section-report-group h2 {
+    flex: none;
+    margin: 0;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1rem;
+}
+
+.section-report-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    overflow: auto;
+    padding: 12px 16px;
+}
+
+.section-reports .block {
+    border-radius: 5px;
+    font-size: 0.8rem;
+    text-align: left;
+}
+
+@media (max-width: 760px) {
+    .section-reports {
+        grid-template-columns: repeat(3, minmax(240px, 1fr));
+        overflow-x: auto;
+    }
+}
+
+
+@media print {
+    .section-report-group,
+    .section-report-buttons {
+        max-height: none;
+        overflow: visible;
+    }
+}

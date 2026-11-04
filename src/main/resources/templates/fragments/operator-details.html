@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <section th:fragment="content" th:if="${operator != null}"
+           class="operator-details" aria-labelledby="operator-details-heading">
+    <div class="operator-details-body">
+      <header class="operator-overview">
+        <div class="operator-overview-header">
+          <div class="operator-identity">
+            <h2 id="operator-details-heading" th:attr="aria-label=|Operator Details - ${operator.callsign}|">[[${operator.callsign}]]</h2>
+            <p class="operator-description" th:if="${!#strings.isEmpty(operator.name)}"><em>[[${operator.name}]]</em></p>
+          </div>
+          <div class="operator-overview-actions" aria-label="Operator editing actions">
+            <a class="block" th:href="@{/operator-edit/{id}(id=${operator.id})}"
+               data-action-dialog="edit" data-dialog-title="Edit operator details"
+               th:data-dialog-subject="${operator.callsign}">Edit details</a>
+            <a class="block operator-delete" th:href="@{/operator-delete/{id}(id=${operator.id})}"
+               data-action-dialog="delete" data-dialog-title="Delete operator"
+               data-dialog-submit="Delete" th:data-dialog-subject="${operator.callsign}">Delete</a>
+          </div>
+        </div>
+        <dl class="operator-facts">
+          <div>
+            <dt>Municipality</dt>
+            <dd th:text="${operator.location?.name} ?: 'Not specified'"></dd>
+          </div>
+          <div>
+            <dt>County</dt>
+            <dd th:text="${operator.location?.county?.name} ?: 'Not specified'"></dd>
+          </div>
+          <div>
+            <dt>State</dt>
+            <dd th:text="${operator.location?.state?.name} ?: 'Not specified'"></dd>
+          </div>
+          <div>
+            <dt>Country</dt>
+            <dd th:text="${operator.location?.country?.name} ?: 'Not specified'"></dd>
+          </div>
+        </dl>
+        <h3 class="operator-affiliations-heading">Affiliations</h3>
+        <div class="operator-affiliations">
+          <span class="operator-affiliation" th:classappend="${operator.isNTS()} ? 'is-affiliated'"
+                th:text="${operator.isNTS()} ? 'NTS affiliated' : 'Not NTS affiliated'"></span>
+          <span class="operator-affiliation" th:classappend="${operator.isSkywarn()} ? 'is-affiliated'"
+                th:text="${operator.isSkywarn()} ? 'SKYWARN affiliated' : 'Not SKYWARN affiliated'"></span>
+          <span class="operator-affiliation" th:classappend="${operator.isRACES()} ? 'is-affiliated'"
+                th:text="${operator.isRACES()} ? 'RACES affiliated' : 'Not RACES affiliated'"></span>
+        </div>
+      </header>
+      <section class="operator-memberships-card" aria-labelledby="operator-memberships-heading">
+        <h3 id="operator-memberships-heading">Memberships <span class="operator-membership-count">[[${#lists.size(sectionOperators)}]]</span></h3>
+        <p class="operator-memberships-empty" th:if="${#lists.isEmpty(sectionOperators)}">No section memberships.</p>
+        <div class="table-container" th:if="${!#lists.isEmpty(sectionOperators)}" tabindex="0" aria-label="Operator memberships table">
+      <table id="operator-memberships">
+        <thead>
+          <tr>
+            <th>Section name</th>
+            <th>Membership type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="membership : ${sectionOperators}">
+            <td>[[${membership.section?.name}]]</td>
+            <td>[[${membership.membershipType}]]</td>
+          </tr>
+        </tbody>
+      </table>
+        </div>
+      </section>
+    </div>
+    <div class="operator-details-actions" aria-label="Operator navigation" th:if="${standaloneDetails}">
+      <a class="block" href="/operators" th:if="${standaloneDetails}">Back to operators</a>
+    </div>
+  </section>
+</body>
+</html>

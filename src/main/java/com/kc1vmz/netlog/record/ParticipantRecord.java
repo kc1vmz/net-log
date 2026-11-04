@@ -20,21 +20,22 @@ package com.kc1vmz.netlog.record;
     http://www.kc1vmz.com
 */
 
+import org.springframework.lang.Nullable;
 import java.time.LocalDateTime;
-
 import com.kc1vmz.netlog.enums.CommunicationBand;
 import com.kc1vmz.netlog.enums.CommunicationPlatform;
 import com.kc1vmz.netlog.enums.ElectricalPowerType;
 
-import io.micronaut.core.annotation.Nullable;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
 
-@Serdeable
-@MappedEntity("participant")
-public record ParticipantRecord(@Id String id, String eventId, String operatorId, 
-                                    @Nullable LocalDateTime startTime, @Nullable LocalDateTime endTime, 
-                                    ElectricalPowerType primaryPower, ElectricalPowerType backupPower, int transmitPower,
-                                    CommunicationPlatform communicationPlatform, CommunicationBand communicationBand) {
+public record ParticipantRecord(
+        String id,
+        String eventId,
+        String operatorId,
+        @Nullable LocalDateTime startTime,
+        @Nullable LocalDateTime endTime,
+        ElectricalPowerType primaryPower,
+        ElectricalPowerType backupPower,
+        int transmitPower,
+        CommunicationPlatform communicationPlatform,
+        CommunicationBand communicationBand) {
 }

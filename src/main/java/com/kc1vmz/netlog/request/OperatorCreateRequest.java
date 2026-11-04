@@ -20,9 +20,12 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
 
-@Serdeable
-public record OperatorCreateRequest(@NotBlank String callsign, String name, String isNTS, String isSkywarn, String isRACES) {
+public record OperatorCreateRequest(
+        @NotBlank String callsign,
+        String name,
+        String isNTS,
+        String isSkywarn,
+        String isRACES) {
 }

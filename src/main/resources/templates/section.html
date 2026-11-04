@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Section - [[${section?.name}]] </title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/section-details.css">
+  <link rel="stylesheet" href="/css/action-dialog.css">
+  <script src="/js/action-dialog.js" defer></script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body class="section-page">
+<style>
+
+body {
+    margin: 0px;
+
+  }
+
+.navbar {
+  overflow: hidden;
+
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.line {
+  margin : 20px;
+}
+
+.grid-membership-container {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      margin: 0px;
+      gap: 20px;
+    }
+.table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents">Active Events</a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections"><b>Sections</b></a>
+    <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
+    <button th:replace="~{fragments/theme :: toggle}"></button>
+  </div>
+  <div class="main">
+    <header class="section-heading">
+      <h1>Section Details - [[${section.name}]]</h1>
+      <p>View properties of a section, including its members.</p>
+    </header>
+    <section class="section-properties" aria-label="Section properties">
+      <dl>
+        <div>
+          <dt>Name</dt>
+          <dd>[[${section.name}]]</dd>
+        </div>
+        <div>
+          <dt>Description</dt>
+          <dd>[[${section.description}]]</dd>
+        </div>
+        <div>
+          <dt>Leader name</dt>
+          <dd th:text="${#strings.isEmpty(section.leaderName)} ? 'Not specified' : ${section.leaderName}"></dd>
+        </div>
+        <div>
+          <dt>Leader contact</dt>
+          <dd th:text="${#strings.isEmpty(section.leaderContact)} ? 'Not specified' : ${section.leaderContact}"></dd>
+        </div>
+      </dl>
+      <div class="section-properties-actions" aria-label="Section editing actions">
+      <a class="block" th:href="|/section-edit/${section?.id}|">Edit details</a>
+      <a class="block" th:href="|/section-delete/${section?.id}|"
+         data-action-dialog="delete" data-dialog-title="Delete section"
+         th:data-dialog-subject="${section.name}">Delete</a>
+      </div>
+    </section>
+
+    <div class="section-lists">
+      <div class="section-list-card">
+        <div class="section-list-heading">
+          <h2>Districts ([[${districtsCount}]] total)</h2>
+        <a th:href="|/district-add/${section?.id}|" data-action-dialog="add"
+           data-dialog-title="Add district" th:data-dialog-subject="${section.name}"><b>Add</b></a>
+        </div>
+        <div class="section-list-scroll">
+          <table id="section-districts-list">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Leader name</th>
+                <th>Leader Contact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <th:block th:each="item0 : ${districts}">
+                <tr th:id="|${item0?.id}|">
+                  <td>[[${item0?.name}]]</td>
+                  <td>[[${item0?.description}]]</td>
+                  <td>[[${item0?.leaderName}]]</td>
+                  <td>[[${item0?.leaderContact}]]</td>
+                  <td><a th:href="|/district/${item0?.id}|">Details</a>&nbsp;
+                    <a th:href="|/district-remove/${item0?.id}|" data-action-dialog="delete"
+                       data-dialog-title="Delete district" th:data-dialog-subject="${item0.name}">Delete</a>
+                  </td>
+                </tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section-list-card">
+        <div class="section-list-heading">
+          <h2>Operators ([[${operatorCount}]] total)</h2>
+        </div>
+        <div class="section-list-scroll">
+          <table id="section-operators-list">
+            <thead>
+              <tr>
+                <th>Callsign</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>NTS</th>
+                <th>RACES</th>
+                <th>SKYWARN</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              <th:block th:each="item1 : ${operators}">
+                <tr th:id="|${item1?.id}|">
+                  <td>[[${item1?.callsign}]]</td>
+                  <td>[[${item1?.name}]]</td>
+                  <td th:text="${item1.membershipType.name() == 'LEADERSHIP'} ? 'Leadership' : (${item1.membershipType.name() == 'MEMBER'} ? 'Member' : 'Non-member')"></td>
+                  <td th:text="${item1.isNTS()} ? 'Yes' : 'No'"></td>
+                  <td th:text="${item1.isRACES()} ? 'Yes' : 'No'"></td>
+                  <td th:text="${item1.isSkywarn()} ? 'Yes' : 'No'"></td>
+                  <td>
+                    [[${item1?.location?.name}]]
+                    <th:block th:if="${item1?.location?.county?.name}">
+                    ([[${item1?.location?.county?.name}]] County)
+                    </th:block><th:block th:unless="${item1?.location?.county?.name}">
+                    </th:block>
+                    [[${item1?.location?.state?.abbreviation}]] [[${item1?.location?.country?.abbreviation}]]
+                  </td>
+                </tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-reports" role="group" aria-label="Reports and exports">
+      <section class="section-report-group" aria-labelledby="section-reports-monthly">
+        <h2 id="section-reports-monthly">Monthly</h2>
+        <div class="section-report-buttons">
+          <a class="block" th:href="|/section-monthlyreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate monthly summary report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate monthly summary report</a>
+          <a class="block" th:href="|/section-monthlyparticipationreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate monthly participation report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate monthly participation report</a>
+          <a class="block" th:href="|/section-monthlynonparticipationreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate monthly non-participation report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate monthly non-participation report</a>
+          <a class="block" th:href="|/section-monthlyexport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Export monthly data"
+             data-dialog-submit="Export data" th:data-dialog-subject="${section.name}">Export monthly data</a>
+          <a class="block" th:href="|/section-monthlynonparticipationexport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Export monthly non-participation data"
+             data-dialog-submit="Export data" th:data-dialog-subject="${section.name}">Export monthly non-participation data</a>
+        </div>
+      </section>
+      <section class="section-report-group" aria-labelledby="section-reports-quarterly">
+        <h2 id="section-reports-quarterly">Quarterly</h2>
+        <div class="section-report-buttons">
+          <a class="block" th:href="|/section-quarterlyreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate quarterly summary report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate quarterly summary report</a>
+          <a class="block" th:href="|/section-quarterlyparticipationreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate quarterly participation report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate quarterly participation report</a>
+          <a class="block" th:href="|/section-quarterlynonparticipationreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate quarterly non-participation report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate quarterly non-participation report</a>
+          <a class="block" th:href="|/section-quarterlynonparticipationexport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Export quarterly non-participation data"
+             data-dialog-submit="Export data" th:data-dialog-subject="${section.name}">Export quarterly non-participation data</a>
+        </div>
+      </section>
+      <section class="section-report-group" aria-labelledby="section-reports-general">
+        <h2 id="section-reports-general">General</h2>
+        <div class="section-report-buttons">
+          <a class="block" th:href="|/section-memberreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate member report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate member report</a>
+          <a class="block" th:href="|/section-leadershipreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate leadership report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate leadership report</a>
+          <a class="block" th:href="|/section-ntsreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate NTS member report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate NTS member report</a>
+          <a class="block" th:href="|/section-racesreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate RACES member report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate RACES member report</a>
+          <a class="block" th:href="|/section-skywarnreport/${section?.id}|"
+             data-action-dialog="report" data-dialog-title="Generate Skywarn member report"
+             data-dialog-submit="Generate report" th:data-dialog-subject="${section.name}">Generate Skywarn member report</a>
+        </div>
+      </section>
+    </div>
+    <section class="section-actions" aria-label="Section navigation">
+      <a class="block" href="/sections">Return to sections</a>
+    </section>
+  </div>
+  </div>
+</div>
+
+  <dialog th:replace="~{fragments/action-dialog :: dialog}"></dialog>
+</body>
+</html>

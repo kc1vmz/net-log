@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.object;
 
-import java.util.Objects;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,11 +20,8 @@ import java.util.Objects;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
+import java.util.Objects;
 
-@Serdeable
-@Deserializable
 public class Operator {
     private String id;
     private String callsign;

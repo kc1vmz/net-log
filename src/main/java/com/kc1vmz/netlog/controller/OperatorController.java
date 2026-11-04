@@ -20,48 +20,50 @@ package com.kc1vmz.netlog.controller;
     http://www.kc1vmz.com
 */
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 
 import com.kc1vmz.netlog.accessor.OperatorAccessor;
 import com.kc1vmz.netlog.object.Operator;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller("/api/v1/operators")
+@RestController
+@RequestMapping("/api/v1/operators")
 public class OperatorController {
 
-    @Inject
+    @Autowired
     private OperatorAccessor operatorAccessor;
 
-    @Get
+    @GetMapping
     public List<Operator> list() {
         return operatorAccessor.list();
     }
 
-    @Get("/{id}")
+    @GetMapping("/{id}")
     public Operator get(@PathVariable String id) {
         return operatorAccessor.get(id);
     }
 
-    @Put("/{id}")
-    public Operator update(@PathVariable String id, @Body Operator obj) {
+    @PutMapping("/{id}")
+    public Operator update(@PathVariable String id, @RequestBody Operator obj) {
         return operatorAccessor.update(id, obj);
     }
 
-    @Delete("/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         operatorAccessor.delete(id);
     }
 
-    @Post
-    public HttpResponse<Operator> create(@Body Operator operator) {
+    @PostMapping
+    public ResponseEntity<Operator> create(@RequestBody Operator operator) {
         Operator operatorNew = operatorAccessor.create(operator);
         if (operatorNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(operatorNew);
+        return ResponseEntity.status(201).body(operatorNew);
     }
 }

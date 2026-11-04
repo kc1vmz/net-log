@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Location / County - [[${county?.name}]] </title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/county.css">
+  <link rel="stylesheet" href="/css/action-dialog.css">
+  <script src="/js/action-dialog.js" defer></script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body class="county-page">
+<style>
+
+body {
+    margin: 0px;
+
+  }
+
+.navbar {
+  overflow: hidden;
+
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.line {
+  margin : 20px;
+}
+
+.table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents">Active Events</a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections">Sections</a>
+    <a href="/operators">Operators</a>
+    <a href="/locations"><b>Locations</b></a>
+    <button th:replace="~{fragments/theme :: toggle}"></button>
+  </div>
+  <div class="main">
+    <header class="county-heading">
+      <h1>County Details - [[${county.name}]]</h1>
+      <p>View county properties, municipalities, and operators.</p>
+    </header>
+    <section class="county-properties" aria-label="County location">
+      <dl>
+        <div>
+          <dt>Name</dt>
+          <dd>[[${county.name}]]</dd>
+        </div>
+        <div>
+          <dt>State</dt>
+          <dd>[[${county.state?.name}]]</dd>
+        </div>
+        <div>
+          <dt>Country</dt>
+          <dd>[[${county.state?.country?.name}]]</dd>
+        </div>
+      </dl>
+      <div class="county-properties-actions" aria-label="County editing actions">
+      <a class="block" th:href="|/location-county-edit/${county?.id}|"
+         data-action-dialog="add" data-dialog-title="Edit county details"
+         th:data-dialog-subject="${county.name}">Edit details</a>
+      <a class="block" th:href="|/location-county-delete/${county?.id}|"
+         data-action-dialog="delete" data-dialog-title="Delete county"
+         th:data-dialog-subject="${county.name}">Delete</a>
+      </div>
+    </section>
+    <div class="county-lists">
+      <section class="county-list-section" aria-labelledby="county-municipalities-heading">
+        <div class="county-list-heading">
+          <h2 id="county-municipalities-heading">Municipalities ([[${locationsCount}]] total)</h2>
+          <a th:href="|/location-county-municipality-add/${county.id}|"
+             data-action-dialog="add" data-dialog-title="Add municipality"
+             th:data-dialog-subject="${county.name}"><b>Add municipality</b></a> or
+          <a th:href="|/location-county-municipality-addbulk/${county.id}|"
+             data-action-dialog="edit" data-dialog-title="Add municipalities in bulk"
+             th:data-dialog-subject="${county.name}"><b>Add many</b></a>
+        </div>
+        <div class="county-list-scroll" role="region" aria-label="County municipalities list" tabindex="0">
+          <table id="county-municipalities-list">
+            <thead>
+              <tr>
+                <th>Municipality</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="location : ${locations}" th:id="${location.id}">
+                <td>[[${location.name}]]</td>
+                <td>
+                  <a th:href="|/location-location/${location.id}|">Details</a>&nbsp;
+                  <a th:href="|/location-county-municipality-remove/${county.id}/${location.id}|"
+                     data-action-dialog="delete" data-dialog-title="Remove municipality from county"
+                     th:data-dialog-subject="${location.name}">Remove</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section class="county-list-section" aria-labelledby="county-operators-heading">
+        <div class="county-list-heading">
+          <h2 id="county-operators-heading">Operators ([[${operatorCount}]])</h2>
+        </div>
+        <p class="county-operators-empty" th:if="${operatorCount == 0}">No operators from municipalities in this county.</p>
+        <div class="county-list-scroll" th:if="${operatorCount > 0}" role="region" aria-label="County operators list" tabindex="0">
+          <table id="county-operators-list">
+            <thead>
+              <tr>
+                <th>Callsign</th>
+                <th>Location</th>
+                <th>NTS</th>
+                <th>RACES</th>
+                <th>SKYWARN</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="operator : ${operators}">
+                <td><a th:href="@{/operators(selected=${operator.id})}">[[${operator.callsign}]]</a></td>
+                <td><a th:href="@{/location-location/{id}(id=${operator.location.id})}">[[${operator.location.name}]]</a></td>
+                <td th:text="${operator.isNTS()} ? 'Yes' : 'No'"></td>
+                <td th:text="${operator.isRACES()} ? 'Yes' : 'No'"></td>
+                <td th:text="${operator.isSkywarn()} ? 'Yes' : 'No'"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <section class="county-actions" aria-label="County actions">
+      
+      <a class="block" th:href="|/location-state/${county?.state?.id}|">Return to state</a>
+    </section>
+  </div>
+  </div>
+</div>
+
+  <dialog th:replace="~{fragments/action-dialog :: dialog}"></dialog>
+</body>
+</html>

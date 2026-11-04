@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.accessor;
 
-import java.io.BufferedWriter;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,6 +20,7 @@ import java.io.BufferedWriter;
     http://www.kc1vmz.com
 */
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.nio.file.Paths;
@@ -38,9 +37,9 @@ import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.object.SectionOperator;
 
-import jakarta.inject.Singleton;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class NonParticipationExportAccessor {
     private static final Logger logger = LogManager.getLogger(NonParticipationExportAccessor.class);
 

@@ -1,6 +1,5 @@
 package com.kc1vmz.netlog.request;
 
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -21,10 +20,9 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
-import io.micronaut.core.annotation.Nullable;
 
-@Serdeable
-public record LocationStateCreateRequest(@NotBlank String name, @Nullable String abbreviation) {
+public record LocationStateCreateRequest(
+        @NotBlank String name,
+        String abbreviation) {
 }

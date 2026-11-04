@@ -20,13 +20,12 @@ package com.kc1vmz.netlog.record;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-@Serdeable
-@MappedEntity("location_county")
-public record LocationCountyRecord(@Id @NotBlank @NotEmpty String id, @NotBlank @NotEmpty String country_id, @NotBlank @NotEmpty String state_id, @NotBlank @NotEmpty String name) {
+public record LocationCountyRecord(
+        @NotBlank @NotEmpty String id,
+        @NotBlank @NotEmpty String country_id,
+        @NotBlank @NotEmpty String state_id,
+        @NotBlank @NotEmpty String name) {
 }

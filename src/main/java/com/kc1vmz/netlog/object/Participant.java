@@ -28,11 +28,7 @@ import com.kc1vmz.netlog.enums.ElectricalPowerType;
 import com.kc1vmz.netlog.enums.MembershipType;
 import com.kc1vmz.netlog.utils.PrettyZonedDateTimeFormatter;
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.serde.annotation.Serdeable.Deserializable;
 
-@Serdeable
-@Deserializable
 public class Participant {
     private String id;
     private Operator operator;

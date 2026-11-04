@@ -20,6 +20,9 @@ package com.kc1vmz.netlog.controller;
     http://www.kc1vmz.com
 */
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 
 import com.kc1vmz.netlog.accessor.LocationAccessor;
@@ -28,142 +31,141 @@ import com.kc1vmz.netlog.object.LocationCountry;
 import com.kc1vmz.netlog.object.LocationCounty;
 import com.kc1vmz.netlog.object.LocationState;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller("/api/v1/locations")
+@RestController
+@RequestMapping("/api/v1/locations")
 public class LocationController {
 
-    @Inject
+    @Autowired
     private LocationAccessor locationAccessor;
 
-    @Get("/countries")
+    @GetMapping("/countries")
     public List<LocationCountry> listCountries() {
         return locationAccessor.listCountries();
     }
 
-    @Get("/countries/{id}")
+    @GetMapping("/countries/{id}")
     public LocationCountry getCountry(@PathVariable String id) {
         return locationAccessor.getCountry(id);
     }
 
-    @Put("/countries/{id}")
-    public LocationCountry update(@PathVariable String id, @Body LocationCountry obj) {
+    @PutMapping("/countries/{id}")
+    public LocationCountry update(@PathVariable String id, @RequestBody LocationCountry obj) {
         return locationAccessor.updateCountry(obj);
     }
 
-    @Delete("/countries/{id}")
+    @DeleteMapping("/countries/{id}")
     public void delete(@PathVariable String id) {
         locationAccessor.deleteCountry(id);
     }
 
-    @Post("/countries")
-    public HttpResponse<LocationCountry> create(@Body LocationCountry obj) {
+    @PostMapping("/countries")
+    public ResponseEntity<LocationCountry> create(@RequestBody LocationCountry obj) {
         LocationCountry objNew = locationAccessor.createCountry(obj);
         if (objNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(objNew);
+        return ResponseEntity.status(201).body(objNew);
     }
 
-    @Get("/countries/{countryId}/states")
+    @GetMapping("/countries/{countryId}/states")
     public List<LocationState> getStates(@PathVariable String countryId){
         LocationCountry country = locationAccessor.getCountry(countryId);
         return locationAccessor.listStates(country);
     }
 
-    @Get("/countries/{countryId}/states/{id}")
+    @GetMapping("/countries/{countryId}/states/{id}")
     public LocationState getState(@PathVariable String countryId, @PathVariable String id) {
         return locationAccessor.getState(id);
     }
 
-    @Put("/countries/{countryId}/states/{id}")
-    public LocationState updateState(@PathVariable String countryId, @PathVariable String id, @Body LocationState obj) {
+    @PutMapping("/countries/{countryId}/states/{id}")
+    public LocationState updateState(@PathVariable String countryId, @PathVariable String id, @RequestBody LocationState obj) {
         return locationAccessor.updateState(obj);
     }
 
-    @Delete("/countries/{countryId}/states/{id}")
+    @DeleteMapping("/countries/{countryId}/states/{id}")
     public void deleteState(@PathVariable String countryId, @PathVariable String id) {
         locationAccessor.deleteState(id);
     }
 
-    @Post("/countries/{countryId}/states")
-    public HttpResponse<LocationState> createState(@PathVariable String countryId, @Body LocationState obj) {
+    @PostMapping("/countries/{countryId}/states")
+    public ResponseEntity<LocationState> createState(@PathVariable String countryId, @RequestBody LocationState obj) {
         LocationState objNew = locationAccessor.createState(countryId, obj);
         if (objNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(objNew);
+        return ResponseEntity.status(201).body(objNew);
     }
 
-    @Get("/countries/{countryId}/states/{stateId}/municipalities")
+    @GetMapping("/countries/{countryId}/states/{stateId}/municipalities")
     public List<Location> getMunicipalities(@PathVariable String countryId, @PathVariable String stateId){
         LocationState state = locationAccessor.getState(stateId);
         return locationAccessor.listLocations(state);
     }
 
-    @Get("/countries/{countryId}/states/{stateId}/municipalities/{id}")
+    @GetMapping("/countries/{countryId}/states/{stateId}/municipalities/{id}")
     public Location getMunicipality(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id) {
         return locationAccessor.getLocation(id);
     }
 
-    @Put("/countries/{countryId}/states/{stateId}/municipalities/{id}")
-    public Location updateMunicipality(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id, @Body Location obj) {
+    @PutMapping("/countries/{countryId}/states/{stateId}/municipalities/{id}")
+    public Location updateMunicipality(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id, @RequestBody Location obj) {
         return locationAccessor.updateLocation(obj);
     }
 
-    @Delete("/countries/{countryId}/states/{stateId}/municipalities/{id}")
+    @DeleteMapping("/countries/{countryId}/states/{stateId}/municipalities/{id}")
     public void deleteMunicipality(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id) {
         locationAccessor.deleteLocation(id);
     }
 
-    @Post("/countries/{countryId}/states/{stateId}/municipalities")
-    public HttpResponse<Location> createMunicipality(@PathVariable String countryId, @PathVariable String stateId, @Body Location obj) {
+    @PostMapping("/countries/{countryId}/states/{stateId}/municipalities")
+    public ResponseEntity<Location> createMunicipality(@PathVariable String countryId, @PathVariable String stateId, @RequestBody Location obj) {
         LocationState state = locationAccessor.getState(stateId);
         Location objNew = locationAccessor.createLocation(state, obj);
         if (objNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(objNew);
+        return ResponseEntity.status(201).body(objNew);
     }
 
-    @Get("/countries/{countryId}/states/{stateId}/counties")
+    @GetMapping("/countries/{countryId}/states/{stateId}/counties")
     public List<LocationCounty> getCounties(@PathVariable String countryId, @PathVariable String stateId){
         LocationState state = locationAccessor.getState(stateId);
         return locationAccessor.listCounties(state);
     }
 
-    @Get("/countries/{countryId}/states/{stateId}/counties/{id}")
+    @GetMapping("/countries/{countryId}/states/{stateId}/counties/{id}")
     public LocationCounty getCounty(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id) {
         return locationAccessor.getCounty(id);
     }
 
-    @Put("/countries/{countryId}/states/{stateId}/counties/{id}")
-    public LocationCounty updateCounty(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id, @Body LocationCounty obj) {
+    @PutMapping("/countries/{countryId}/states/{stateId}/counties/{id}")
+    public LocationCounty updateCounty(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id, @RequestBody LocationCounty obj) {
         return locationAccessor.updateCounty(obj);
     }
 
-    @Delete("/countries/{countryId}/states/{stateId}/counties/{id}")
+    @DeleteMapping("/countries/{countryId}/states/{stateId}/counties/{id}")
     public void deleteCounty(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String id) {
         locationAccessor.deleteCounty(id);
     }
 
-    @Post("/countries/{countryId}/states/{stateId}/counties")
-    public HttpResponse<LocationCounty> createCounty(@PathVariable String countryId, @PathVariable String stateId, @Body LocationCounty obj) {
+    @PostMapping("/countries/{countryId}/states/{stateId}/counties")
+    public ResponseEntity<LocationCounty> createCounty(@PathVariable String countryId, @PathVariable String stateId, @RequestBody LocationCounty obj) {
         LocationState state = locationAccessor.getState(stateId);
         LocationCounty objNew = locationAccessor.createCounty(state, obj);
         if (objNew == null) {
-            return HttpResponse.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return HttpResponse.created(objNew);
+        return ResponseEntity.status(201).body(objNew);
     }
 
-    @Get("/countries/{countryId}/states/{stateId}/counties/{countyId}/municipalities")
+    @GetMapping("/countries/{countryId}/states/{stateId}/counties/{countyId}/municipalities")
     public List<Location> getCountyMunicipalities(@PathVariable String countryId, @PathVariable String stateId, @PathVariable String countyId) {
         LocationCounty county = locationAccessor.getCounty(countyId);
         return locationAccessor.listLocations(county);

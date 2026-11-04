@@ -1,0 +1,341 @@
+.operators-page {
+    overflow: hidden;
+}
+
+html .operators-page .main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--navigation-height, 48px) - 12px);
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding-bottom: 16px;
+}
+
+.operators-heading {
+    flex: none;
+    margin: 0 20px 12px;
+}
+
+.operators-heading h1 {
+    margin-top: 12px;
+}
+
+.operators-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    margin: 0 20px;
+}
+
+.operators-list-pane,
+.operators-details-pane {
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    background: var(--surface-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.operators-details-pane {
+    overflow: hidden;
+    scroll-margin-top: calc(var(--navigation-height, 48px) + 12px);
+}
+
+.operators-details-pane > p {
+    margin: 16px;
+}
+
+.operators-details-pane > .operator-details {
+    height: 100%;
+}
+
+.operator-details {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.operator-details-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+    background: var(--page-background);
+}
+
+.operator-overview,
+.operator-memberships-card {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--surface-background);
+}
+
+.operator-overview {
+    padding: 16px;
+    border-top: 3px solid var(--accent-color);
+}
+
+.operator-overview-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.operator-identity {
+    min-width: 0;
+}
+
+.operator-overview-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.operator-overview h2 {
+    margin: 0 0 12px;
+    font-size: 1.4rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.operator-description {
+    margin: 0 0 12px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.operator-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 12px 24px;
+    margin: 16px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.operator-details .operator-facts dt {
+    margin: 0 0 5px;
+    color: color-mix(in srgb, var(--text-color) 75%, var(--surface-background));
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.operator-details .operator-facts dd {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.operator-affiliations-heading {
+    margin: 20px 0 10px;
+    font-size: 0.9rem;
+}
+
+.operator-affiliations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.operator-affiliation,
+.operator-membership-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: var(--text-color);
+    background: var(--page-background);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.operator-affiliation.is-affiliated,
+.operator-membership-count {
+    color: var(--accent-color);
+    background: var(--hover-background);
+}
+
+.operator-memberships-card {
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.operator-memberships-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 16px 18px;
+    font-size: 1rem;
+}
+
+.operator-memberships-empty {
+    margin: 0;
+    padding: 0 18px 18px;
+}
+
+.operator-memberships-card .table-container {
+    max-height: 45dvh;
+    overflow: auto;
+}
+
+#operator-memberships {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#operator-memberships thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+#operator-memberships tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+#operator-memberships tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+.operators-page table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.operators-page th,
+.operators-page td {
+    padding: 8px;
+    text-align: left;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#operator-list thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#operator-list tbody tr {
+    cursor: pointer;
+}
+
+#operator-list tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+#operator-list tbody tr.is-selected td {
+    background: var(--hover-background);
+    box-shadow: inset 0 -2px var(--accent-color);
+}
+
+#operator-list tbody tr.is-selected td:first-child {
+    box-shadow: inset 4px 0 var(--accent-color), inset 0 -2px var(--accent-color);
+}
+
+.main .operator-selection {
+    display: inline-block;
+    color: inherit;
+    font-weight: 600;
+    padding: 3px 0;
+    text-decoration: none;
+}
+
+.operator-details h2 {
+    margin-top: 0;
+}
+
+.operator-details dt {
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+.operator-details dd {
+    margin: 4px 0 0;
+    overflow-wrap: anywhere;
+}
+
+.operator-details-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: none;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface-background);
+    justify-content: flex-start;
+}
+
+.operator-details-actions .block,
+.operator-overview-actions .block {
+    display: inline-block;
+    padding: 8px 12px;
+    text-decoration: none;
+    border: 1px solid var(--accent-color);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.operator-overview-actions .operator-delete {
+    color: #B42318;
+    background: transparent;
+    border-color: #B42318;
+}
+
+[data-theme="dark"] .operator-overview-actions .operator-delete {
+    color: #FDA4AF;
+    border-color: #FDA4AF;
+}
+
+@media (max-width: 760px), (max-height: 500px) {
+    .operators-page {
+        overflow: auto;
+    }
+
+    html .operators-page .main {
+        height: auto;
+    }
+
+    .operators-layout {
+        grid-template-columns: minmax(0, 1fr);
+        flex: none;
+    }
+
+    .operators-list-pane {
+        height: 45vh;
+        height: 45dvh;
+        min-height: 220px;
+    }
+
+    .operators-details-pane {
+        min-height: 250px;
+    }
+}
+
+@media print {
+    html .operators-page .main {
+        height: auto;
+    }
+
+    .operators-page,
+    .operators-list-pane,
+    .operators-details-pane {
+        overflow: visible;
+    }
+
+    .operators-layout {
+        display: block;
+    }
+}

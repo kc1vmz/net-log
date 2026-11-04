@@ -1,6 +1,5 @@
 package com.kc1vmz.netlog.request;
 
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -21,10 +20,11 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
-import io.micronaut.core.annotation.Nullable;
 
-@Serdeable
-public record DistrictCreateRequest(@NotBlank String name, String description, @Nullable String leaderName, @Nullable String leaderContact) {
+public record DistrictCreateRequest(
+        @NotBlank String name,
+        String description,
+        String leaderName,
+        String leaderContact) {
 }

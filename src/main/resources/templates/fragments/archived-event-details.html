@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <section th:fragment="content" th:if="${event != null}" class="archived-event-details event-details">
+    <div class="archived-event-details-body event-details-body">
+      <header class="event-overview">
+        <h2 th:attr="aria-label=|Archived Event Details - ${event.name} @ ${event.prettyStartTime}|">[[${event.name}]]</h2>
+        <p class="event-description" th:if="${event.description != null and !#strings.isEmpty(event.description)}"><em>[[${event.description}]]</em></p>
+        <div class="event-badges">
+          <span class="event-status" th:classappend="${event.state.name() == 'NOT_HELD'} ? 'event-status-not-held' : 'event-status-completed'"
+                th:text="${event.state.name() == 'NOT_HELD'} ? 'Not held' : 'Completed'"></span>
+          <span class="event-type">[[${event.type}]]</span>
+        </div>
+        <dl class="event-facts">
+          <div>
+            <dt>Section</dt>
+            <dd>[[${event.section?.name}]]</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd th:text="${#strings.isEmpty(event.location)} ? 'Not specified' : ${event.location}"></dd>
+          </div>
+          <div>
+            <dt>Start time</dt>
+            <dd>[[${event.prettyStartTime}]]</dd>
+          </div>
+          <div>
+            <dt>End time</dt>
+            <dd>[[${event.prettyEndTime}]]</dd>
+          </div>
+          <div>
+            <dt>Net Control callsign</dt>
+            <dd th:text="${#strings.isEmpty(event.netControlCallsign)} ? 'Not specified' : ${event.netControlCallsign}"></dd>
+          </div>
+        </dl>
+      </header>
+      <section class="event-participants" aria-labelledby="archived-event-participants-heading">
+        <div class="event-participants-header">
+          <h3 id="archived-event-participants-heading" th:attr="aria-label=|Participants (${participantCount} total)|">
+            Participants <span class="event-count">[[${participantCount}]]</span>
+          </h3>
+        </div>
+        <p class="event-participants-empty" th:if="${participantCount == 0}">No participants.</p>
+        <div class="table-container" th:if="${participantCount > 0}" tabindex="0" aria-label="Participant details table">
+        <table id="members-list">
+          <thead>
+            <tr>
+              <th>Callsign</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Platform</th>
+              <th>Band</th>
+              <th>Check-in Time</th>
+              <th>Check-out Time</th>
+              <th>Transmit Power</th>
+              <th>Primary Power Source</th>
+              <th>Secondary Power Source</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <th:block th:each="item0 : ${participants}">
+              <tr th:id="|${item0?.id}|">
+                <td>[[${item0?.operator?.callsign}]]</td>
+                <td>[[${item0?.operator?.name}]]</td>
+                <td>[[${item0?.membershipType}]]</td>
+                <td>[[${item0?.communicationPlatform}]]</td>
+                <td>[[${item0?.communicationBand}]]</td>
+                <td>[[${item0?.prettyStartTime}]]</td>
+                <td>[[${item0?.prettyEndTime}]]</td>
+                <td>[[${item0?.transmitPower}]]</td>
+                <td>[[${item0?.primaryPower}]]</td>
+                <td>[[${item0?.backupPower}]]</td>
+                <td><a th:href="|/participant-edittimes/${item0?.id}/|"
+                       data-action-dialog="edit"
+         data-dialog-title="Update participant details"
+                      
+         data-dialog-submit="Save"
+         th:data-dialog-subject="${item0?.operator?.callsign}">Update</a></td>
+              </tr>
+            </th:block>
+          </tbody>
+        </table>
+        </div>
+      </section>
+    </div>
+    <div class="archived-event-actions event-actions" aria-label="Archived event actions">
+      <a class="block" th:href="@{/archivedEvent-report/{id}(id=${event.id})}"
+         data-action-dialog="report"
+         data-dialog-title="Generate archived event report"
+        
+         data-dialog-submit="Generate report"
+         th:data-dialog-subject="${event.name}">Generate report</a>
+      <a class="block event-delete" th:href="@{/archivedEvent-delete/{id}(id=${event.id})}"
+         data-action-dialog="delete"
+         data-dialog-title="Delete archived event"
+        
+         data-dialog-submit="Delete"
+         th:data-dialog-subject="${event.name}"
+        
+         data-dialog-warning="This deletes this archived event and its participant records.">Delete</a>
+      <a class="block" href="/archives" th:if="${standaloneArchivedDetails}">Back to archived events</a>
+    </div>
+  </section>
+</body>
+</html>

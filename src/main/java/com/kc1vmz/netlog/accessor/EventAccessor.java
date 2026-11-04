@@ -37,12 +37,12 @@ import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.record.EventRecord;
 import com.kc1vmz.netlog.repository.EventRepository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class EventAccessor {
-    @Inject
+    @Autowired
     private EventRepository eventRepository;
     private static final Logger logger = LogManager.getLogger(EventAccessor.class);
 
@@ -326,6 +326,14 @@ public class EventAccessor {
         }
 
         return ret;
+    }
+
+    public Event createOneTime(Section section, Event event) {
+        // The preserved schema requires a non-null recurring reference. An empty
+        // reference identifies an event with no recurring template.
+        RecurringEvent noRecurringEvent = new RecurringEvent();
+        noRecurringEvent.setId("");
+        return create(section, noRecurringEvent, event);
     }
 
     public Event create(Section section, RecurringEvent recurringEvent, Event event) {

@@ -20,9 +20,8 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
 
-@Serdeable
-public record OperatorBulkCreateRequest(@NotBlank String bulkList) {
+public record OperatorBulkCreateRequest(
+        @NotBlank String bulkList) {
 }

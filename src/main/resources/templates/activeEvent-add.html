@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Add Event</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script src="/js/active-event-form.js" defer></script>
+</head>
+<body>
+<style>
+
+body {
+    margin: 0px;
+
+  }
+
+.navbar {
+  overflow: hidden;
+
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.line {
+  margin : 20px;
+}
+
+.table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+
+  .block {
+    border: 1px;
+
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents"><b>Active Events</b></a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections">Sections</a>
+    <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
+    <button th:replace="~{fragments/theme :: toggle}"></button>
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div style="margin:20px;">
+    <h1>Add Event</h1>
+    <p>Add a single event.
+    <div class="line" style="margin:0px"><hr/></div>
+    </div>
+
+    <div style="margin:20px;">
+      <form action="/activeEvent-add-action" method="post" data-active-event-create>
+        <div class="mb-3">
+          <label for="sectionId">Section:</label>
+          <select name="sectionId" id="sectionId" required>
+            <option value="">Choose a section</option>
+            <option th:each="section : ${sections}" th:value="${section.id}" th:text="${section.name}"></option>
+          </select>
+          <p th:if="${#lists.isEmpty(sections)}">Add an active section before creating an event.</p>
+        </div>
+        <div class="mb-3">
+          <label for="name">Name:</label>
+          <input type="text" name="name" id="name" required>
+        </div>
+        <div class="mb-3">
+          <label for="description">Description:</label>
+          <input type="text" name="description" id="description">
+        </div>
+        <div class="mb-3">
+          <label for="type">Type:</label>
+          <select name="type" id="type" required>
+            <option value="1">Net</option>
+            <option value="2">Training</option>
+            <option value="3">Community Event</option>
+            <option value="4">Exercise</option>
+            <option value="5">Public Service Event</option>
+            <option value="6">Emergency</option>
+            <option value="7">SKYWARN</option>
+            <option value="8">Meeting</option>
+            <option value="9">Unclassified</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="location">Location:</label>
+          <input type="text" name="location" id="location">
+        </div>
+        <div class="mb-3">
+          <label for="netControlCallsign">Net Control callsign:</label>
+          <input type="text" name="netControlCallsign" id="netControlCallsign">
+        </div>
+        <div class="mb-3">
+          <label for="startMode">Start event:</label>
+          <select name="startMode" id="startMode" required>
+            <option value="STARTED">Start immediately</option>
+            <option value="PENDING">Schedule for a specific time</option>
+          </select>
+        </div>
+        <div class="mb-3" data-scheduled-start hidden>
+          <label for="startTimeStr">Start time:</label>
+          <input type="datetime-local" name="startTimeStr" id="startTimeStr" disabled>
+        </div>
+        <div>
+          <input type="submit" value="Add" class="btn btn-primary block" th:disabled="${#lists.isEmpty(sections)}">
+          <a class="block" href="/activeEvents">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

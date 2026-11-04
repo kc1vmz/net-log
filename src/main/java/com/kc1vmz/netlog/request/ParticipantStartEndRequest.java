@@ -20,10 +20,13 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 
-@Serdeable
-public record ParticipantStartEndRequest(String startTimeStr, String endTimeStr, int transmitPower,
-                                            int primaryPowerSource, int secondaryPowerSource,
-                                            int communicationPlatform, int communicationBand) {
+public record ParticipantStartEndRequest(
+        String startTimeStr,
+        String endTimeStr,
+        int transmitPower,
+        int primaryPowerSource,
+        int secondaryPowerSource,
+        int communicationPlatform,
+        int communicationBand) {
 }

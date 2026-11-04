@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <section th:fragment="content" th:if="${event != null}" class="active-event-details">
+    <div class="active-event-details-body">
+      <header class="active-event-overview">
+        <h2 th:attr="aria-label=|Active Event Details - ${event.name}|">[[${event.name}]]</h2>
+        <p class="active-event-description" th:if="${event.description != null and !#strings.isEmpty(event.description)}"><em>[[${event.description}]]</em></p>
+        <div class="active-event-badges">
+          <span class="event-status" th:classappend="${isStarted} ? 'event-status-started' : 'event-status-scheduled'"
+                th:text="${isStarted} ? 'Started' : 'Scheduled'"></span>
+          <span class="event-type">[[${event.type}]]</span>
+        </div>
+        <dl class="active-event-facts">
+          <div>
+            <dt>Section</dt>
+            <dd>[[${event.section?.name}]]</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd th:text="${#strings.isEmpty(event.location)} ? 'Not specified' : ${event.location}"></dd>
+          </div>
+          <div>
+            <dt th:text="${isStarted} ? 'Started at' : 'Scheduled start'">Start time</dt>
+            <dd>[[${event.prettyStartTime}]]</dd>
+          </div>
+          <div>
+            <dt>Net Control callsign</dt>
+            <dd th:text="${#strings.isEmpty(event.netControlCallsign)} ? 'Not specified' : ${event.netControlCallsign}"></dd>
+          </div>
+        </dl>
+      </header>
+      <section class="active-event-participants" aria-labelledby="active-event-participants-heading">
+        <div class="active-event-participants-header">
+          <h3 id="active-event-participants-heading" th:attr="aria-label=|Participants (${participantCount})|">
+            Participants <span class="event-count">[[${participantCount}]]</span>
+          </h3>
+        </div>
+        <p class="active-event-participants-empty" th:if="${participantCount == 0}">No participants yet.</p>
+        <div class="table-container" th:if="${participantCount > 0}" tabindex="0" aria-label="Participant details table">
+        <table id="members-list">
+          <thead>
+            <tr>
+              <th>Callsign</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Platform</th>
+              <th>Band</th>
+              <th>Check-in Time</th>
+              <th>Check-out Time</th>
+              <th>Transmit Power</th>
+              <th>Primary Power Source</th>
+              <th>Secondary Power Source</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <th:block th:each="item0 : ${participants}">
+              <tr th:id="|${item0?.id}|">
+                <td>[[${item0?.operator?.callsign}]]</td>
+                <td>[[${item0?.operator?.name}]]</td>
+                <td>[[${item0?.membershipType}]]</td>
+                <td>[[${item0?.communicationPlatform}]]</td>
+                <td>[[${item0?.communicationBand}]]</td>
+                <td>[[${item0?.prettyStartTime}]]</td>
+                <td>[[${item0?.prettyEndTime}]]</td>
+                <td>[[${item0?.transmitPower}]]</td>
+                <td>[[${item0?.primaryPower}]]</td>
+                <td>[[${item0?.backupPower}]]</td>
+                <td><a th:href="|/participant-edittimes/${item0?.id}/|" data-action-dialog="edit" data-dialog-title="Update participant details" data-dialog-submit="Save" th:data-dialog-subject="${item0.operator.callsign}">Update</a>&nbsp;<a th:href="|/participant-remove/${item0?.id}|" data-action-dialog="delete" data-dialog-title="Remove participant" data-dialog-submit="Remove" th:data-dialog-subject="${item0.operator.callsign}">Remove</a></td>
+              </tr>
+            </th:block>
+          </tbody>
+        </table>
+        </div>
+      </section>
+    </div>
+    <div class="active-event-actions" aria-label="Active event actions">
+      <a class="block" th:href="|/activeEvent-edit/${event?.id}|" data-action-dialog="edit" data-dialog-title="Edit active event" data-dialog-submit="Save" th:data-dialog-subject="${event.name}">Edit details</a>
+
+      <th:block th:if="${isStarted}">
+        <a class="block" th:href="|/activeEvent-secure/${event?.id}|" data-action-dialog="secure" data-dialog-title="Secure active event" data-dialog-submit="Secure" th:data-dialog-subject="${event.name}">Secure</a>
+        <a class="block" th:href="|/activeEvent-checkin/${event?.id}|" data-action-dialog="participants" data-dialog-title="Check-in operators" data-dialog-submit="Update" th:data-dialog-subject="${event.name}">Check-in operators</a>
+        <a class="block" th:href="|/activeEvent-checkout/${event?.id}|" data-action-dialog="participants" data-dialog-title="Check-out operators" data-dialog-submit="Update" th:data-dialog-subject="${event.name}">Check-out operators</a>
+      </th:block>
+      <th:block th:if="${isScheduled}">
+        <a class="block" th:href="|/activeEvent-start/${event?.id}|" data-action-dialog="start" data-dialog-title="Start active event" data-dialog-submit="Start" th:data-dialog-subject="${event.name}">Start</a>
+      </th:block>
+
+      <a class="block" th:href="|/activeEvent-cancel/${event?.id}|" data-action-dialog="cancel" data-dialog-title="Cancel active event" data-dialog-submit="Cancel Event" th:data-dialog-subject="${event.name}">Cancel Event</a>
+      <a class="block active-event-delete" th:href="|/activeEvent-delete/${event?.id}|" data-action-dialog="delete" data-dialog-title="Delete active event" data-dialog-submit="Delete" th:data-dialog-subject="${event.name}" data-dialog-warning="This deletes this event and its participant records.">Delete</a>
+      <a class="block" href="/activeEvents" th:if="${standaloneActiveDetails}">Back to active events</a>
+    </div>
+  </section>
+</body>
+</html>

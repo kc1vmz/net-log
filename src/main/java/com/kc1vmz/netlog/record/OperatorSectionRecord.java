@@ -22,11 +22,10 @@ package com.kc1vmz.netlog.record;
 
 import com.kc1vmz.netlog.enums.MembershipType;
 
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
 
-@Serdeable
-@MappedEntity("operator_section")
-public record OperatorSectionRecord(@Id String id, String sectionId, String operatorId, MembershipType membershipType) {
+public record OperatorSectionRecord(
+        String id,
+        String sectionId,
+        String operatorId,
+        MembershipType membershipType) {
 }

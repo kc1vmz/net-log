@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!--
+    NetLog
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+-->
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NetLog - Active Events</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/active-events.css">
+  <script src="/js/active-events.js" defer></script>
+  <script src="/js/active-event-form.js" defer></script>
+  <link rel="stylesheet" href="/css/action-dialog.css">
+  <link rel="stylesheet" href="/css/participation-defaults.css">
+  <script src="/js/participant-selection.js" defer></script>
+  <script src="/js/action-dialog.js" defer></script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body class="active-events-page">
+<style>
+
+body {
+    margin: 0px;
+
+  }
+
+.navbar {
+  overflow: hidden;
+
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+</style>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/activeEvents"><b>Active Events</b></a>
+    <a href="/recurringEvents">Recurring Events</a>
+    <a href="/archives">Archives</a>
+    <a href="/sections">Sections</a>
+    <a href="/operators">Operators</a>
+    <a href="/locations">Locations</a>
+    <button th:replace="~{fragments/theme :: toggle}"></button>
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div class="active-events-heading">
+    <h1>Active Events</h1>
+    <p>View the list of active events and take action on them.
+      <a href="/activeEvent-add" data-action-dialog="edit" data-dialog-title="Add event"><b>Add</b></a>
+    <div class="line" style="margin:0px"><hr/></div>
+  </div>
+  <div class="active-events-layout">
+    <div class="active-events-list-pane" role="region" aria-label="Active events list">
+        <table id="active-event-list">
+          <thead>
+            <tr>
+              <th>Section</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th>State</th>
+              <th>Start time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <th:block th:each="item0 : ${activeEvents}">
+              <tr th:data-active-event-id="${item0.id}"
+                  th:classappend="${item0.id == selectedId} ? 'is-selected'">
+                <td>[[${item0?.section?.name}]]</td>
+                <td>
+                  <a class="active-event-selection" th:href="@{/activeEvents(selected=${item0.id})}"
+                     th:attr="aria-current=${item0.id == selectedId} ? 'true' : null"
+                     aria-controls="active-event-details">[[${item0.name}]]</a>
+                </td>
+                <td>[[${item0?.description}]]</td>
+                <td>[[${item0?.type}]]</td>
+                <td>[[${item0?.state}]]</td>
+                <td>[[${item0?.prettyStartTime}]]</td>
+              </tr>
+            </th:block>
+          </tbody>
+        </table>
+    </div>
+    <div id="active-event-details" class="active-events-details-pane" role="region"
+         aria-label="Active event details" aria-live="polite" aria-busy="false">
+      <p th:if="${event == null and selectionUnavailable != true}">Select an active event to view details.</p>
+      <p th:if="${selectionUnavailable == true}">This active event is no longer available. Select another event.</p>
+      <section th:replace="~{fragments/active-event-details :: content}"></section>
+    </div>
+  <!-- end grid -->
+  </div>
+  </div>
+</div>
+
+  <dialog th:replace="~{fragments/action-dialog :: dialog}"></dialog>
+</body>
+</html>

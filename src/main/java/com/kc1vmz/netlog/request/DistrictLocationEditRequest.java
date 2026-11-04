@@ -20,9 +20,9 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import io.micronaut.core.annotation.Nullable;
 
-@Serdeable
-public record DistrictLocationEditRequest(@Nullable String countryId, @Nullable String stateId, @Nullable String locationId) {
+public record DistrictLocationEditRequest(
+        String countryId,
+        String stateId,
+        String locationId) {
 }

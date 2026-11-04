@@ -1,0 +1,191 @@
+.county-page {
+    overflow: hidden;
+}
+
+html .county-page .main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100dvh - var(--navigation-height, 48px) - 12px);
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 20px 12px;
+}
+
+.county-heading,
+.county-properties,
+.county-actions {
+    flex: none;
+}
+
+.county-heading h1 {
+    margin: 12px 0;
+}
+
+.county-heading p {
+    margin: 0;
+}
+
+.county-properties,
+.county-list-section,
+.county-actions {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-background);
+}
+
+.county-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    padding: 20px;
+}
+
+.county-properties dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    gap: 16px 40px;
+    min-width: 0;
+    margin: 0;
+}
+
+.county-properties-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.county-properties-actions .block {
+    border-radius: 5px;
+}
+
+.county-properties dt {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.county-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.county-lists {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.county-list-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.county-list-heading {
+    flex: none;
+    padding: 16px 20px;
+}
+
+.county-list-heading h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.county-operators-empty {
+    padding: 0 20px;
+}
+
+.county-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.county-list-scroll table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.county-list-scroll th,
+.county-list-scroll td {
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.county-list-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--hover-background);
+}
+
+.county-list-scroll tbody tr:nth-child(even) td {
+    background: var(--page-background);
+}
+
+.county-list-scroll tbody tr:hover td {
+    background: var(--hover-background);
+}
+
+.county-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.county-actions .block {
+    border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+    .county-lists {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .county-heading h1 {
+        font-size: 1.4rem;
+    }
+
+    .county-properties,
+    .county-list-heading {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 760px) {
+    .county-properties dl {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        flex: 1 1 100%;
+        gap: 12px 20px;
+    }
+}
+
+@media print {
+    .county-page {
+        overflow: visible;
+    }
+
+    html .county-page .main {
+        height: auto;
+    }
+
+    .county-lists {
+        display: block;
+    }
+
+    .county-list-section,
+    .county-list-scroll {
+        overflow: visible;
+    }
+}

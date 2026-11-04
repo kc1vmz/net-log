@@ -20,17 +20,23 @@ package com.kc1vmz.netlog.record;
     http://www.kc1vmz.com
 */
 
+import org.springframework.lang.Nullable;
 import java.time.LocalDateTime;
-
 import com.kc1vmz.netlog.enums.EventType;
 
-import io.micronaut.core.annotation.Nullable;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Id;
 
-@Serdeable
-@MappedEntity("event")
-public record EventRecord(@Id String id, String name, @Nullable String description, String recurringEventId, String sectionId, EventType type, @Nullable String location, 
-                                    LocalDateTime startTime, @Nullable LocalDateTime endTime, boolean secure, @Nullable String netControlCallsign, boolean activeSection, int state) {
+public record EventRecord(
+        String id,
+        String name,
+        @Nullable String description,
+        String recurringEventId,
+        String sectionId,
+        EventType type,
+        @Nullable String location,
+        LocalDateTime startTime,
+        @Nullable LocalDateTime endTime,
+        boolean secure,
+        @Nullable String netControlCallsign,
+        boolean activeSection,
+        int state) {
 }

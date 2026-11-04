@@ -1,6 +1,5 @@
 package com.kc1vmz.netlog.request;
 
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -21,10 +20,17 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
-import io.micronaut.core.annotation.Nullable;
+import jakarta.validation.constraints.Size;
 
-@Serdeable
-public record SectionCreateRequest(@NotBlank String name, String description, @Nullable String callsignMemberIds) {
+public record SectionCreateRequest(
+        @NotBlank String name,
+        String description,
+        String callsignMemberIds,
+        @Size(max = 100) String leaderName,
+        @Size(max = 100) String leaderContact) {
+
+    public SectionCreateRequest(String name, String description, String callsignMemberIds) {
+        this(name, description, callsignMemberIds, null, null);
+    }
 }

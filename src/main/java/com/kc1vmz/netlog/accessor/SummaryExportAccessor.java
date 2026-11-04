@@ -36,9 +36,9 @@ import com.kc1vmz.netlog.object.Event;
 import com.kc1vmz.netlog.object.Participant;
 import com.kc1vmz.netlog.object.Section;
 import com.kc1vmz.netlog.object.SectionOperator;
-import jakarta.inject.Singleton;
+import org.springframework.stereotype.Service;
 
-@Singleton
+@Service
 public class SummaryExportAccessor {
     private static final Logger logger = LogManager.getLogger(SummaryExportAccessor.class);
 

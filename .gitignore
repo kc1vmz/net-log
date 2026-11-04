@@ -14,3 +14,9 @@ out/
 .classpath
 .factorypath
 .vscode/
+__pycache__/
+*.pyc
+
+# Local Java upgrade tooling
+.github/java-upgrade/
+.github/modernize/

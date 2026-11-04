@@ -20,9 +20,14 @@ package com.kc1vmz.netlog.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
 
-@Serdeable
-public record RecurringEventCreateRequest(@NotBlank String name, String description, int type, String schedule, String location, String sectionId, String netControlCallsign) {
+public record RecurringEventCreateRequest(
+        @NotBlank String name,
+        String description,
+        int type,
+        String schedule,
+        String location,
+        String sectionId,
+        String netControlCallsign) {
 }

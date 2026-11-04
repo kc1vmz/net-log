@@ -1,7 +1,5 @@
 package com.kc1vmz.netlog.request;
 
-import io.micronaut.core.annotation.Nullable;
-
 /*
     NetLog
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -22,8 +20,7 @@ import io.micronaut.core.annotation.Nullable;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
 
-@Serdeable
-public record ActiveEventCheckInOutRequest(@Nullable String participantIds) {
+public record ActiveEventCheckInOutRequest(
+        String participantIds) {
 }

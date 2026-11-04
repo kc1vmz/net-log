@@ -20,15 +20,17 @@ package com.kc1vmz.netlog;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.runtime.Micronaut;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+@SpringBootApplication
 public class Application {
 
     public static void main(String[] args) {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        Micronaut.build(args).banner(false).start();
+        SpringApplication.run(Application.class, args);
     }
 }
