@@ -2068,7 +2068,9 @@ public class UIController {
         for (Event pastEvent : pastEvents) {
             List<Participant> eventParticipants = participantAccessor.listParticipants(pastEvent, false);
             for (Participant eventParticipant : eventParticipants) {
-                mapUniqueOperators.put(eventParticipant.getOperator().getCallsign(), eventParticipant.getOperator());
+                if (eventParticipant.getOperator() != null) {
+                    mapUniqueOperators.put(eventParticipant.getOperator().getCallsign(), eventParticipant.getOperator());
+                }
             }
         }
 
