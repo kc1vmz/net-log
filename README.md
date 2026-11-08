@@ -16,7 +16,7 @@ This can be done in real time when a net is started, or after the fact.
 
 ## Download 
 
-You can either use the pre-built Java JAR file for version 2.0.0 of the application, or download / clone source code from Github.
+You can either use the pre-built Java JAR file for version 2.0.1 of the application, or download / clone source code from Github.
 
 ## Prerequisites 
 
@@ -44,11 +44,13 @@ mvn clean install
 
 
 ```sh
-java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-2.0.0.jar
+java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-2.0.1.jar
 ```
 
 
 ## Versions
+
+2.0.1 - fix bug on check in page (null pointer reference)
 
 2.0.0 - rewrite using Spring and Thymeleaf. Prettier and new features.
 

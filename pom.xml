@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.kc1vmz</groupId>
     <artifactId>netlog</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <name>NETLOG</name>
     <description>Amateur radio event logging with Spring MVC and Thymeleaf</description>
     <properties>
