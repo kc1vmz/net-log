@@ -1,3 +1,14 @@
+.potential-participants-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.potential-participants-heading button {
+    flex: none;
+}
+
 .participation-defaults {
     flex: none;
     min-width: 0;

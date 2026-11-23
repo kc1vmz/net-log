@@ -85,6 +85,11 @@
       </section>
     </div>
     <div class="archived-event-actions event-actions" aria-label="Archived event actions">
+      <a class="block" th:href="@{/archivedEvent-reactivate/{id}(id=${event.id})}"
+         data-action-dialog="confirm"
+         data-dialog-title="Reactivate archived event"
+         data-dialog-submit="Reactivate"
+         th:data-dialog-subject="${event.name}">Reactivate</a>
       <a class="block" th:href="@{/archivedEvent-report/{id}(id=${event.id})}"
          data-action-dialog="report"
          data-dialog-title="Generate archived event report"

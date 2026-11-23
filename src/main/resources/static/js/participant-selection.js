@@ -11,6 +11,56 @@
         const checkIn = form.dataset.participantSelection === "checkin";
         const availableLabel = checkIn ? "Check-in" : "Check-out";
 
+        const refreshButton = form.querySelector("[data-refresh-participants]");
+        if (checkIn && refreshButton) {
+            refreshButton.addEventListener("click", async function () {
+                const status = form.querySelector("[data-refresh-status]");
+                refreshButton.disabled = true;
+                status.textContent = "Refreshing…";
+                try {
+                    const response = await fetch(refreshButton.dataset.refreshUrl, {
+                        cache: "no-store",
+                        headers: { Accept: "text/html" }
+                    });
+                    if (!response.ok) {
+                        throw new Error("Refresh failed");
+                    }
+                    const markup = await response.text();
+                    const table = document.createElement("table");
+                    table.innerHTML = markup;
+                    const refreshed = table.querySelector("tbody[data-potential-participants]");
+                    if (!refreshed) {
+                        throw new Error("Invalid refresh response");
+                    }
+
+                    // Read the live lists after the request, since selections may have changed.
+                    const excluded = new Set(Array.from(form.querySelectorAll(
+                        "#participant-list tbody tr, #previous-list tbody tr"
+                    ), function (row) { return row.id; }));
+                    const currentBody = form.querySelector("#operator-list tbody");
+                    const currentRows = new Map(Array.from(currentBody.rows, function (row) {
+                        return [row.id, row];
+                    }));
+                    const rows = Array.from(refreshed.rows).filter(function (row) {
+                        return !excluded.has(row.id);
+                    });
+                    rows.forEach(function (row) {
+                        const existing = currentRows.get(row.id);
+                        if (existing) {
+                            row.querySelector('input[type="datetime-local"]').value =
+                                existing.querySelector('input[type="datetime-local"]').value;
+                        }
+                    });
+                    currentBody.replaceChildren(...rows);
+                    status.textContent = "Potential participants refreshed (" + rows.length + ").";
+                } catch (error) {
+                    status.textContent = "Unable to refresh potential participants. Please try again.";
+                } finally {
+                    refreshButton.disabled = false;
+                }
+            });
+        }
+
         function updatePayload() {
             if (!checkIn) {
                 ids.value = Array.from(selected, function (entry) {

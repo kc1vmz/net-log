@@ -633,6 +633,46 @@ public class UIController {
         }
     }
 
+    @GetMapping("/archivedEvent-reactivate/{id}")
+    public ModelAndView archivedEventReactivate(@PathVariable String id) {
+        Event event = archivedEventForReactivation(id);
+        Section section = sectionAccessor.get(event.getSection().getId());
+        return new ModelAndView("archivedEvent-reactivate", ViewModels.mapOf("event", event,
+                "reactivationAllowed", section != null && section.isActive()));
+    }
+
+    @PostMapping("/archivedEvent-reactivate-action/{id}")
+    ResponseEntity<?> archivedEventReactivateAction(@PathVariable String id) {
+        Event event = archivedEventForReactivation(id);
+        Section section = sectionAccessor.get(event.getSection().getId());
+        if (section == null || !section.isActive()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "This event cannot be reactivated because its section is inactive or unavailable.");
+        }
+
+        event.setState(EventState.STARTED);
+        event.setEndTime(null);
+        event.setSectionActive(true);
+        if (eventAccessor.update(id, event) == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to reactivate event.");
+        }
+
+        return ResponseEntity.status(303)
+                .location(UriComponentsBuilder.fromPath("/activeEvents")
+                        .queryParam("selected", id).build().encode().toUri()).build();
+    }
+
+    private Event archivedEventForReactivation(String id) {
+        Event event = eventAccessor.get(id);
+        if (event == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (event.getState() != EventState.SECURE && event.getState() != EventState.NOT_HELD) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This event is no longer archived.");
+        }
+        return event;
+    }
+
     @GetMapping("/archivedEvent-delete/{id}")
     public ModelAndView archivedEventDelete(HttpServletRequest request,  @PathVariable String id) {
         Event event = eventAccessor.get(id);
@@ -1478,6 +1518,24 @@ public class UIController {
         return new ModelAndView("activeEvent-checkin", ViewModels.mapOf("event", event, "checkInTimeStr", event.getStartTime().toString(), "operators", operators, "previousOperators", previousOperators));
     }
 
+
+    @GetMapping("/activeEvent-checkin/{id}/potential-participants")
+    public ModelAndView activeEventCheckinPotentialParticipants(@PathVariable String id) {
+        Event event = eventAccessor.get(id);
+        if (event == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        List<Operator> operators = operatorAccessor.list();
+        List<Participant> participants = participantAccessor.listParticipants(event, true);
+        operators.removeIf(operator -> participants.stream().anyMatch(participant ->
+                participant.getOperator() != null
+                        && operator.getId().equals(participant.getOperator().getId())));
+        operators.sort(Comparator.comparing(Operator::getCallsign));
+
+        return new ModelAndView("activeEvent-checkin :: potentialParticipants",
+                ViewModels.mapOf("operators", operators, "checkInTimeStr", event.getStartTime().toString()));
+    }
 
     @PostMapping("/activeEvent-checkin-action/{id}")
     ResponseEntity<?> activeEventCheckinAction(HttpServletRequest request, @Valid @ModelAttribute ActiveEventCheckInRequest actionData,  @PathVariable String id) {

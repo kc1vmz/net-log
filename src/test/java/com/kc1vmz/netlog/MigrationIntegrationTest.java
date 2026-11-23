@@ -430,6 +430,42 @@ class MigrationIntegrationTest {
     }
 
     @Test
+    void checkInRefreshUsesCurrentOperatorsAndExcludesCurrentCheckIns() throws Exception {
+        String page = mvc.perform(get("/activeEvent-checkin/event")).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(page).contains("data-refresh-participants", "type=\"button\"",
+                "data-refresh-url=\"/activeEvent-checkin/event/potential-participants\"");
+
+        operators.save(new OperatorRecord("new-operator", "AA1NEW", "New <operator>", false, false, false, null));
+        String refreshed = mvc.perform(get("/activeEvent-checkin/event/potential-participants"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(refreshed).contains("data-potential-participants", "AA1NEW", "New &lt;operator&gt;", "W1AW")
+                .doesNotContain("KC1VMZ", "<html", "<form");
+        assertThat(refreshed.indexOf("AA1NEW")).isLessThan(refreshed.indexOf("W1AW"));
+
+        mvc.perform(post("/activeEvent-checkin-action/event")
+                        .param("participantIds", "unlocated," + START + ","))
+                .andExpect(status().isSeeOther());
+        refreshed = mvc.perform(get("/activeEvent-checkin/event/potential-participants"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(refreshed).contains("AA1NEW").doesNotContain("W1AW", "KC1VMZ");
+
+        // A stale dialog submission must not create a second open participation.
+        mvc.perform(post("/activeEvent-checkin-action/event")
+                        .param("participants[0].operatorId", "unlocated")
+                        .param("participants[0].checkInTime", START.plusMinutes(5).toString())
+                        .param("participants[0].primaryPowerSource", "UNKNOWN")
+                        .param("participants[0].secondaryPowerSource", "UNKNOWN")
+                        .param("participants[0].communicationPlatform", "UNKNOWN")
+                        .param("participants[0].communicationBand", "UNKNOWN"))
+                .andExpect(status().isSeeOther());
+        assertThat(participants.findByeventId("event").stream()
+                .filter(participant -> participant.operatorId().equals("unlocated"))).hasSize(1);
+        mvc.perform(get("/activeEvent-checkin/missing/potential-participants"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void structuredCheckInSavesEachParticipantsCapturedDefaultsAndValidatesBeforeSaving() throws Exception {
         jdbc.update("DELETE FROM participant");
         String form = mvc.perform(get("/activeEvent-checkin/event")).andExpect(status().isOk())
@@ -632,6 +668,9 @@ class MigrationIntegrationTest {
                 continue;
             }
             String route = mapping.value()[0];
+            if (route.endsWith("/potential-participants") || route.startsWith("/archivedEvent-reactivate/")) {
+                continue; // These routes have dedicated refresh and archived-state integration tests.
+            }
             String url = pageUrl(route);
             tests.add(DynamicTest.dynamicTest(route, () -> {
                 String html = mvc.perform(get(url))
@@ -703,6 +742,68 @@ class MigrationIntegrationTest {
                 .andExpect(status().isSeeOther()).andExpect(header().string("Location", "/activeEvent/event"));
         assertThat(participants.findById("participant")).isEmpty();
         assertThat(operators.findById("operator")).isPresent();
+    }
+
+    @Test
+    void archivedEventsReactivateOnlyAfterConfirmationAndPreserveParticipantHistory() throws Exception {
+        for (EventState archivedState : List.of(EventState.SECURE, EventState.NOT_HELD)) {
+            jdbc.update("UPDATE event SET state = ?, secure = 1, end_time = ?, active_section = 0 WHERE id = 'event'",
+                    archivedState.ordinal(), JdbcValues.parameter(START.plusHours(1)));
+            jdbc.update("UPDATE participant SET end_time = ? WHERE id = 'participant'",
+                    JdbcValues.parameter(START.plusMinutes(45)));
+            EventRecord before = events.findById("event").orElseThrow();
+            List<ParticipantRecord> history = participants.findByeventId("event");
+            for (String url : List.of("/archives?selected=event", "/archivedEvent/event")) {
+                String details = mvc.perform(get(url)).andExpect(status().isOk())
+                        .andReturn().getResponse().getContentAsString();
+                assertThat(details).contains("href=\"/archivedEvent-reactivate/event\"",
+                        "data-dialog-submit=\"Reactivate\"", "data-action-dialog=\"confirm\"");
+            }
+            String confirmation = mvc.perform(get("/archivedEvent-reactivate/event"))
+                    .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+            assertThat(confirmation).contains("method=\"post\"", "/archivedEvent-reactivate-action/event",
+                    "value=\"Reactivate\"", "Cancel", "check-out times", "archived-event reports")
+                    .doesNotContain("disabled=\"disabled\"");
+            assertThat(events.findById("event").orElseThrow()).isEqualTo(before);
+            mvc.perform(post("/archivedEvent-reactivate-action/event"))
+                    .andExpect(status().isSeeOther())
+                    .andExpect(header().string("Location", "/activeEvents?selected=event"));
+            EventRecord after = events.findById("event").orElseThrow();
+            assertThat(after.state()).isEqualTo(EventState.STARTED.ordinal());
+            assertThat(after.secure()).isFalse();
+            assertThat(after.endTime()).isNull();
+            assertThat(after.activeSection()).isTrue();
+            assertThat(after).usingRecursiveComparison()
+                    .ignoringFields("state", "secure", "endTime", "activeSection").isEqualTo(before);
+            assertThat(participants.findByeventId("event")).isEqualTo(history);
+            String active = mvc.perform(get("/activeEvents").param("selected", "event"))
+                    .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+            assertThat(active).contains("data-active-event-id=\"event\"", "is-selected", "KC1VMZ");
+            String archives = mvc.perform(get("/archives")).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+            assertThat(archives).doesNotContain("data-archived-event-id=\"event\"");
+            mvc.perform(post("/archivedEvent-reactivate-action/event")).andExpect(status().isConflict());
+        }
+    }
+
+    @Test
+    void archivedReactivationRejectsInactiveSectionsAndMissingOrActiveEvents() throws Exception {
+        mvc.perform(get("/archivedEvent-reactivate/event")).andExpect(status().isConflict());
+        mvc.perform(post("/archivedEvent-reactivate-action/event")).andExpect(status().isConflict());
+        mvc.perform(get("/archivedEvent-reactivate/missing")).andExpect(status().isNotFound());
+        mvc.perform(post("/archivedEvent-reactivate-action/missing")).andExpect(status().isNotFound());
+        jdbc.update("UPDATE event SET state = ?, secure = 1 WHERE id = 'event'", EventState.SECURE.ordinal());
+        mvc.perform(get("/archivedEvent-reactivate/event")).andExpect(status().isOk());
+        // Recheck section eligibility if the section changes while confirmation is open.
+        jdbc.update("UPDATE section SET active = 0 WHERE id = 'section'");
+        EventRecord before = events.findById("event").orElseThrow();
+        List<ParticipantRecord> history = participants.findByeventId("event");
+        String blocked = mvc.perform(get("/archivedEvent-reactivate/event"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(blocked).contains("section is inactive or unavailable", "disabled=\"disabled\"");
+        mvc.perform(post("/archivedEvent-reactivate-action/event")).andExpect(status().isConflict());
+        assertThat(events.findById("event").orElseThrow()).isEqualTo(before);
+        assertThat(participants.findByeventId("event")).isEqualTo(history);
     }
 
     @Test

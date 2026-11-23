@@ -233,7 +233,12 @@ tbody {
           </div>
           <div class="grid-membership-item">
             <div class="table-container" >
-              <h3>Potential participants</h3>
+              <div class="potential-participants-heading">
+                <h3>Potential participants</h3>
+                <button type="button" data-refresh-participants
+                        th:data-refresh-url="|/activeEvent-checkin/${event?.id}/potential-participants|">Refresh</button>
+              </div>
+              <span data-refresh-status role="status" aria-live="polite"></span>
               <table id="operator-list">
                 <thead>
                   <tr>
@@ -243,7 +248,7 @@ tbody {
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody th:fragment="potentialParticipants" data-potential-participants>
                   <th:block th:each="item2 : ${operators}">
                     <tr th:id="|${item2?.id}|">
                       <td>[[${item2?.callsign}]]</td>
