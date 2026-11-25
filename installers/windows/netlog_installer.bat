@@ -93,7 +93,7 @@ echo @ECHO OFF>> netlog_start.bat
 echo pushd .>> netlog_start.bat
 echo cd %APP_INSTALL_DIR%>> netlog_start.bat
 echo REM Set Environment Variables>> netlog_start.bat
-echo SET NETLOG_DB_DIR=%APP_DB_DIR%>> netlog_start.bat
+echo SET NETLOG_DB_DIR=%APP_DB_DIR%\>> netlog_start.bat
 echo SET NETLOG_TEMP_DIR=%APP_TEMP_DIR%>> netlog_start.bat
 echo SET SERVER_PORT=%APP_PORT%>> netlog_start.bat
 echo SET NETLOGAPP_INSTALL_DIR=%APP_INSTALL_DIR%>> netlog_start.bat

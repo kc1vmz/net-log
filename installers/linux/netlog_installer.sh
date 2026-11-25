@@ -71,7 +71,7 @@ if [ "$APP_OS" = "Linux" ]; then
   NETLOGAPP_INSTALL_DIR=$APP_INSTALL_DIR
   if [[ "$APP_UPGRADE" =~ ^[Nn]$ ]]; then
     echo "NETLOGAPP_INSTALL_DIR=$NETLOGAPP_INSTALL_DIR" | sudo tee -a /etc/environment >  /dev/null
-    echo "NETLOG_DB_DIR=$APP_DB_DIR" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETLOG_DB_DIR=$APP_DB_DIR/" | sudo tee -a /etc/environment >  /dev/null
     echo "NETLOG_TEMP_DIR=$APP_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
     echo "NETLOG_HTTP_PORT=$APP_PORT" | sudo tee -a /etc/environment >  /dev/null
     mkdir $APP_INSTALL_DIR
