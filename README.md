@@ -41,6 +41,22 @@ mvn clean install
 ```
 
 
+## Logging
+
+NETLOG writes INFO, warning, and error messages to the console and to
+`netlog.log` in the directory specified by `NETLOG_TEMP_DIR`. The directory is
+created if needed. If the variable is unset, logs use the `netlog` subdirectory
+of Java's temporary directory.
+
+Logs roll over daily or at 10 MB. Archived logs are dated, numbered, and
+gzip-compressed, with 30 days of history and a 1 GB total archive limit. The
+current log is additional to that limit. Old archives are also cleaned at startup.
+Restarting appends to the current log. File entries include a full timestamp,
+thread, level, logger, and exception details without console color codes.
+
+If file logging fails, a message is written to standard error and console logging
+continues. Temporary-directory cleanup may independently remove these files.
+
 ## Versions
 
 2.0.2 - add Windows and Linux installers, potential participant refresh, reactivate secured net
