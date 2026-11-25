@@ -35,7 +35,7 @@ if [ "$APP_OS" = "Linux" ]; then
   fi
 
   # default environment variables
-  APP_VERSION=2.0.2
+  APP_VERSION=2.0.3
   APP_INSTALL_DIR=~/netlog
   APP_DB_DIR=~/netlog/db
   APP_TEMP_DIR=~/netlog/tmp

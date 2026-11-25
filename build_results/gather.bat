@@ -7,4 +7,4 @@ copy ..\README.md target
 copy ..\installers\linux\netlog_installer.sh target
 copy ..\installers\linux\netlog_uninstaller.sh target
 copy ..\installers\windows\netlog_installer.bat target
-copy ..\target\netlog-2.0.2.jar target
+copy ..\target\netlog-2.0.3.jar target

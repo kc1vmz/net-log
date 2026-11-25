@@ -22,5 +22,5 @@ package com.kc1vmz.netlog.utils;
 
 public class SoftwareIdentity {
     public final static String NAME = "NETLOG";
-    public final static String VERSION = "2.0.2";
+    public final static String VERSION = "2.0.3";
 }

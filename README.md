@@ -16,7 +16,7 @@ This can be done in real time when a net is started, or after the fact.
 
 ## Download 
 
-You can either use the pre-built Java JAR file for version 2.0.2 of the application, or download / clone source code from Github.
+You can either use the pre-built Java JAR file for version 2.0.3 of the application, or download / clone source code from Github.
 
 ## Prerequisites 
 
@@ -58,6 +58,8 @@ If file logging fails, a message is written to standard error and console loggin
 continues. Temporary-directory cleanup may independently remove these files.
 
 ## Versions
+
+2.0.3 - add file logging
 
 2.0.2 - add Windows and Linux installers, potential participant refresh, reactivate secured net
 
