@@ -113,7 +113,7 @@ if [ "$APP_OS" = "Linux" ]; then
       echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
       echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
       echo 'ExecStart=java -jar '$APP_INSTALL_DIR'/netlog-'$APP_VERSION'.jar' | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
-      echo 'Environment=NETLOG_DB_DIR='$NETLOG_DB_DIR | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
+      echo 'Environment=NETLOG_DB_DIR='$NETLOG_DB_DIR/ | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
       echo 'Environment=NETLOG_TEMP_DIR='$NETLOG_TEMP_DIR | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
       echo 'Environment=SERVER_PORT='$NETLOG_HTTP_PORT | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
       echo 'Environment=NETLOGAPP_INSTALL_DIR='$NETLOGAPP_INSTALL_DIR | sudo tee -a /etc/systemd/system/net-log.service >  /dev/null
