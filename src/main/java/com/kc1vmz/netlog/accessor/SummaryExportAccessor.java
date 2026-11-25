@@ -79,10 +79,10 @@ public class SummaryExportAccessor {
      */
     private void addEventRows(BufferedWriter writer, Map<Event, List<Participant>> eventParticipants, Map<String, String> locationDistricts) {
 
-        String header = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
+        String header = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                                             "EventId", "EventType", "EventName", "EventDescription", "EventNCS", "EventState", "EventStartTime", "EventEndTime", "EventParticipantsTotal",
                                                     "OperatorId", "OperatorCallsign", "OperatorName", "OperatorCountry", "OperatorState", "OperatorCounty", "OperatorMunicipality", "OperatorDistrict", 
-                                                    "OperatorIsNTS", "OperatorIsRACES", "OperatorIsSkywarn", "OperatorMembershipType", "OperatorCheckInTime", "OperatorCheckOutTime",
+                                                    "OperatorIsNTS", "OperatorIsRACES", "OperatorIsSkywarn", "OperatorIsCERT", "OperatorMembershipType", "OperatorCheckInTime", "OperatorCheckOutTime",
                                                     "OperatorPrimaryPower", "OperatorBackupPower", "OperatorTransmit Power",
                                                     "OperatorCommunicationPlatform", "OperatorCommunicationBand");
         try {
@@ -100,9 +100,9 @@ public class SummaryExportAccessor {
             Event entry = mapEntry.getKey();
             List<Participant> participants = mapEntry.getValue();
             if ((participants == null) || participants.isEmpty()) {
-                String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
+                String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                                                 entry.getId(), entry.getType().name(), entry.getName(), entry.getDescription(), entry.getNetControlCallsign(), entry.getState().name(), 
-                                                entry.getPrettyStartTime(), entry.getPrettyEndTime(), 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                                                entry.getPrettyStartTime(), entry.getPrettyEndTime(), 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
                 try {
                     writer.write(line);
                     writer.newLine();
@@ -123,7 +123,7 @@ public class SummaryExportAccessor {
                     } catch (Exception e) {
                         logger.error("Exception caught looking up district", e);
                     }
-                    String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s", 
+                    String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s",
                                                     entry.getId(), entry.getType().name(), entry.getName(), entry.getDescription(), entry.getNetControlCallsign(), entry.getState().name(), 
                                                     entry.getPrettyStartTime(), entry.getPrettyEndTime(), participants.size(), participant.getOperator().getId(), participant.getOperator().getCallsign(), 
                                                     (participant.getOperator().getName() == null) ? "" : participant.getOperator().getName(),
@@ -135,6 +135,7 @@ public class SummaryExportAccessor {
                                                     participant.getOperator().isNTS() ? "Yes" : "No",
                                                     participant.getOperator().isRACES() ? "Yes" : "No",
                                                     participant.getOperator().isSkywarn() ? "Yes" : "No",
+                                                    participant.getOperator().isCERT() ? "Yes" : "No",
                                                     (participant.getMembershipType() != null) ?  participant.getMembershipType().name() : "UNKNOWN",
                                                     participant.getPrettyStartTime(), participant.getPrettyEndTime(),
                                                     participant.getPrimaryPower(), participant.getBackupPower(), participant.getTransmitPower(),

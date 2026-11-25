@@ -30,7 +30,7 @@ class SectionLeadershipMigrationTest {
                     .containsEntry("description", "Existing description")
                     .containsEntry("leader_name", null).containsEntry("leader_contact", null);
             assertThat(jdbc.queryForObject("SELECT count(*) FROM section", Integer.class)).isEqualTo(1);
-            assertThat(jdbc.queryForObject("SELECT count(*) FROM DATABASECHANGELOG", Integer.class)).isEqualTo(11);
+            assertThat(jdbc.queryForObject("SELECT count(*) FROM DATABASECHANGELOG", Integer.class)).isEqualTo(12);
 
             jdbc.update("UPDATE section SET leader_name = ?, leader_contact = ? WHERE id = 'legacy-section'",
                     "Section leader", "leader@example.test");
@@ -48,5 +48,34 @@ class SectionLeadershipMigrationTest {
         liquibase.setResourceLoader(new DefaultResourceLoader());
         liquibase.setChangeLog(changelog);
         liquibase.afterPropertiesSet();
+    }
+
+    @Test
+    void existingOperatorsDefaultToNotCertAndMigrationPreservesAffiliations() throws Exception {
+        Path database = Files.createTempFile("netlog-cert-", ".db");
+        try {
+            DriverManagerDataSource dataSource = new DriverManagerDataSource("jdbc:sqlite:" + database);
+            for (int number = 1; number <= 11; number++) {
+                migrate(dataSource, "classpath:db/changelog/%02d-schema.xml".formatted(number));
+            }
+            JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+            jdbc.update("INSERT INTO operator (id, callsign, name, is_nts, is_races, is_skywarn) "
+                    + "VALUES ('legacy', 'W1CERT', 'Legacy operator', 1, 0, 1)");
+            migrate(dataSource, "classpath:db/liquibase-changelog.xml");
+            assertThat(jdbc.queryForMap("SELECT * FROM operator WHERE id = 'legacy'"))
+                    .containsEntry("callsign", "W1CERT").containsEntry("name", "Legacy operator")
+                    .containsEntry("is_nts", 1).containsEntry("is_races", 0)
+                    .containsEntry("is_skywarn", 1).containsEntry("is_cert", 0);
+            jdbc.update("INSERT INTO operator (id, callsign, is_nts, is_races, is_skywarn) "
+                    + "VALUES ('new-default', 'W1NEW', 0, 0, 0)");
+            assertThat(jdbc.queryForObject("SELECT is_cert FROM operator WHERE id = 'new-default'", Integer.class))
+                    .isZero();
+            jdbc.update("UPDATE operator SET is_cert = 1 WHERE id = 'legacy'");
+            migrate(dataSource, "classpath:db/liquibase-changelog.xml");
+            assertThat(jdbc.queryForObject("SELECT is_cert FROM operator WHERE id = 'legacy'", Boolean.class))
+                    .isTrue();
+        } finally {
+            Files.deleteIfExists(database);
+        }
     }
 }

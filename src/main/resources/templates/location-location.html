@@ -208,6 +208,7 @@ tbody {
               <th>SKYWARN</th>
               <th>RACES</th>
               <th>NTS</th>
+              <th>CERT</th>
             </tr>
           </thead>
           <tbody>
@@ -217,6 +218,7 @@ tbody {
               <td th:text="${operator.isSkywarn()} ? 'Yes' : 'No'"></td>
               <td th:text="${operator.isRACES()} ? 'Yes' : 'No'"></td>
               <td th:text="${operator.isNTS()} ? 'Yes' : 'No'"></td>
+              <td th:text="${operator.isCERT()} ? 'Yes' : 'No'"></td>
             </tr>
           </tbody>
         </table>

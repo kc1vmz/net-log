@@ -45,6 +45,8 @@
                 th:text="${operator.isSkywarn()} ? 'SKYWARN affiliated' : 'Not SKYWARN affiliated'"></span>
           <span class="operator-affiliation" th:classappend="${operator.isRACES()} ? 'is-affiliated'"
                 th:text="${operator.isRACES()} ? 'RACES affiliated' : 'Not RACES affiliated'"></span>
+          <span class="operator-affiliation" th:classappend="${operator.isCERT()} ? 'is-affiliated'"
+                th:text="${operator.isCERT()} ? 'CERT affiliated' : 'Not CERT affiliated'"></span>
         </div>
       </header>
       <section class="operator-memberships-card" aria-labelledby="operator-memberships-heading">

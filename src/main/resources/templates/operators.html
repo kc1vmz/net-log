@@ -116,6 +116,7 @@ body {
               <th>NTS</th>
               <th>RACES</th>
               <th>SKYWARN</th>
+              <th>CERT</th>
               <th>Location</th>
             </tr>
           </thead>
@@ -133,6 +134,7 @@ body {
                 <td th:text="${item0.isNTS()} ? 'Yes' : 'No'"></td>
                 <td th:text="${item0.isRACES()} ? 'Yes' : 'No'"></td>
                 <td th:text="${item0.isSkywarn()} ? 'Yes' : 'No'"></td>
+                <td th:text="${item0.isCERT()} ? 'Yes' : 'No'"></td>
                 <td>
                   [[${item0?.location?.name}]]
                   <th:block th:if="${item0?.location?.county?.name}">

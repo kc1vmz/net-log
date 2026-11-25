@@ -16,17 +16,17 @@ This can be done in real time when a net is started, or after the fact.
 
 ## Download 
 
-You can either use the pre-built Java JAR file for version 2.0.1 of the application, or download / clone source code from Github.
+You can either use the pre-built Java JAR file for version 2.0.2 of the application, or download / clone source code from Github.
 
 ## Prerequisites 
 
 You must have Java 21 installed on the system running NETLOG.
 
-## Configuration information
+## Installation
 
-Information is stored in a simple database found at the environment variable NETLOG_DATABASE_FILE.
+On Linux, download and run the netlog_installer.sh file.  Answer the questions and it will download the necessary JAR files and configure the system to run the software properly.
 
-The environment variable NETLOG_HTTP_PORT will determine the HTTP port used for the application.
+On Windows, download and run the netlog_installer.bat file.  Answer the questions and it will download the necessary JAR files and create a .BAT file to run the software properly.
 
 ## Build from Source
 
@@ -40,15 +40,10 @@ The environment variable NETLOG_HTTP_PORT will determine the HTTP port used for 
 mvn clean install
 ```
 
-## Running the software
-
-
-```sh
-java -DNETLOG_HTTP_PORT=8701 -DNETLOG_DATABASE_FILE=D:/ham/netlog.db -jar netlog-2.0.1.jar
-```
-
 
 ## Versions
+
+2.0.2 - add Windows and Linux installers, potential participant refresh, reactivate secured net
 
 2.0.1 - fix bug on check in page (null pointer reference)
 

@@ -222,6 +222,10 @@ tbody {
             <input type="checkbox" id="isRACES" name="isRACES" th:value="${operator.isRACES()}" th:checked="${operator.isRACES()}">
             RACES affiliated
           </label>
+          <label for="isCERT">
+            <input type="checkbox" id="isCERT" name="isCERT" th:checked="${operator.isCERT()}">
+            CERT affiliated
+          </label>
         </div>
       </fieldset>
       <section class="operator-edit-card operator-edit-actions" aria-label="Operator edit actions">

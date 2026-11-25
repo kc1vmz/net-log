@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="12" author="kc1vmz">
+    <!-- Native SQLite ALTER preserves the default and NOT NULL constraint
+         for existing rows and future inserts without rebuilding the table. -->
+    <sql>ALTER TABLE operator ADD COLUMN is_cert BOOLEAN NOT NULL DEFAULT 0</sql>
+  </changeSet>
+</databaseChangeLog>

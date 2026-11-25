@@ -15,4 +15,5 @@
   <include file="changelog/09-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/10-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/11-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/12-schema.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -42,7 +42,8 @@ public class OperatorRepository {
                 rs.getBoolean("is_nts"),
                 rs.getBoolean("is_skywarn"),
                 rs.getBoolean("is_races"),
-                rs.getString("location_municipality_id"));
+                rs.getString("location_municipality_id"),
+                rs.getBoolean("is_cert"));
 
     public OperatorRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -59,27 +60,29 @@ public class OperatorRepository {
 
     public OperatorRecord save(OperatorRecord record) {
         validate(record);
-        jdbc.update("INSERT INTO operator (id, callsign, name, is_nts, is_skywarn, is_races, location_municipality_id) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        jdbc.update("INSERT INTO operator (id, callsign, name, is_nts, is_skywarn, is_races, is_cert, location_municipality_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 JdbcValues.parameter(record.id()),
                 JdbcValues.parameter(record.callsign()),
                 JdbcValues.parameter(record.name()),
                 JdbcValues.parameter(record.isNTS()),
                 JdbcValues.parameter(record.isSkywarn()),
                 JdbcValues.parameter(record.isRACES()),
+                JdbcValues.parameter(record.isCERT()),
                 JdbcValues.parameter(record.location_municipality_id()));
         return record;
     }
 
     public OperatorRecord update(OperatorRecord record) {
         validate(record);
-        jdbc.update("UPDATE operator SET callsign = ?, name = ?, is_nts = ?, is_skywarn = ?, is_races = ?, "
+        jdbc.update("UPDATE operator SET callsign = ?, name = ?, is_nts = ?, is_skywarn = ?, is_races = ?, is_cert = ?, "
                 + "location_municipality_id = ? WHERE id = ?",
                 JdbcValues.parameter(record.callsign()),
                 JdbcValues.parameter(record.name()),
                 JdbcValues.parameter(record.isNTS()),
                 JdbcValues.parameter(record.isSkywarn()),
                 JdbcValues.parameter(record.isRACES()),
+                JdbcValues.parameter(record.isCERT()),
                 JdbcValues.parameter(record.location_municipality_id()),
                 record.id());
         return record;

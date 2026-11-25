@@ -96,9 +96,9 @@ public class NonParticipationExportAccessor {
 
     private void addNonParticipantRows(BufferedWriter writer, List<SectionOperator> members, Map<String, String> locationDistricts) {
 
-        String header = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
+        String header = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                                                     "OperatorId", "OperatorCallsign", "OperatorName", "OperatorCountry", "OperatorState", "OperatorCounty", "OperatorMunicipality", "OperatorDistrict",
-                                                    "OperatorIsNTS", "OperatorIsRACES", "OperatorIsSkywarn");
+                                                    "OperatorIsNTS", "OperatorIsRACES", "OperatorIsSkywarn", "OperatorIsCERT");
         try {
             writer.write(header);
             writer.newLine();
@@ -122,7 +122,7 @@ public class NonParticipationExportAccessor {
             } catch (Exception e) {
                 logger.error("Exception caught looking up district", e);
             }
-            String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
+            String line = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                                             member.getId(), member.getCallsign(), 
                                             (member.getName() == null) ? "" : member.getName(),
                                             ((member.getLocation() != null) && (member.getLocation().getCountry() != null)) ? member.getLocation().getCountry().getName() : "",
@@ -132,7 +132,8 @@ public class NonParticipationExportAccessor {
                                             district,
                                             member.isNTS() ? "Yes" : "No",
                                             member.isRACES() ? "Yes" : "No",
-                                            member.isSkywarn() ? "Yes" : "No"
+                                            member.isSkywarn() ? "Yes" : "No",
+                                            member.isCERT() ? "Yes" : "No"
                                         );
             try {
                 writer.write(line);

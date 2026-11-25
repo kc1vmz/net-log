@@ -31,6 +31,7 @@ public class SectionOperator {
     private boolean isNTS;
     private boolean isSkywarn;
     private boolean isRACES;
+    private boolean isCERT;
     private MembershipType membershipType;
     private Section section;
     private Location location;
@@ -45,6 +46,7 @@ public class SectionOperator {
         this.setName(operator.getName());
         this.setSkywarn(operator.isSkywarn());
         this.setRACES(operator.isRACES());
+        this.setCERT(operator.isCERT());
         this.setSection(section);
         this.setLocation(operator.getLocation());
     }
@@ -96,6 +98,14 @@ public class SectionOperator {
     public void setRACES(boolean isRACES) {
         this.isRACES = isRACES;
     }
+    public boolean isCERT() {
+        return isCERT;
+    }
+
+    public void setCERT(boolean isCERT) {
+        this.isCERT = isCERT;
+    }
+
     public Location getLocation() {
         return location;
     }

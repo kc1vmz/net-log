@@ -29,6 +29,8 @@ public class Operator {
     private boolean isNTS;
     private boolean isSkywarn;
     private boolean isRACES;
+    private boolean isCERT;
+    private boolean certProvided;
     private Location location;
 
     public String getId() {
@@ -67,6 +69,22 @@ public class Operator {
     public void setRACES(boolean isRACES) {
         this.isRACES = isRACES;
     }
+    @com.fasterxml.jackson.annotation.JsonProperty("CERT")
+    public boolean isCERT() {
+        return isCERT;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("CERT")
+    public void setCERT(boolean isCERT) {
+        this.isCERT = isCERT;
+        this.certProvided = true;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isCERTProvided() {
+        return certProvided;
+    }
+
     public Location getLocation() {
         return location;
     }

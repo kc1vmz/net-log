@@ -1004,6 +1004,7 @@ public class UIController {
         operator.setNTS(isNTS);
         operator.setSkywarn(isSkywarn);
         operator.setRACES(isRACES);
+        operator.setCERT(actionData.isCERT() != null);
 
         operatorAccessor.update(id, operator);
 
@@ -1037,6 +1038,7 @@ public class UIController {
         operator.setNTS(isNTS);
         operator.setSkywarn(isSkywarn);
         operator.setRACES(isRACES);
+        operator.setCERT(actionData.isCERT() != null);
 
         Operator operatorNew = operatorAccessor.create(operator);
         if (operatorNew != null) {

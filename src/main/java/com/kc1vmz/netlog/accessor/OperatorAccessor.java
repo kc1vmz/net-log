@@ -72,6 +72,7 @@ public class OperatorAccessor {
                     operator.setNTS(record.isNTS());
                     operator.setSkywarn(record.isSkywarn());
                     operator.setRACES(record.isRACES());
+                    operator.setCERT(record.isCERT());
                     if (record.location_municipality_id() != null) {
                         Location location = locationAccessor.getLocation(record.location_municipality_id());
                         operator.setLocation(location);
@@ -106,7 +107,7 @@ public class OperatorAccessor {
 
         try {
             OperatorRecord rec = new OperatorRecord(UUID.randomUUID().toString(), operator.getCallsign(), operator.getName(), operator.isNTS(), operator.isSkywarn(), operator.isRACES(), 
-                                                        (operator.getLocation() != null) ? operator.getLocation().getId() : null);
+                                                        (operator.getLocation() != null) ? operator.getLocation().getId() : null, operator.isCERT());
             OperatorRecord recNew = operatorRepository.save(rec);
             operator.setId(recNew.id());
             return operator;
@@ -130,6 +131,7 @@ public class OperatorAccessor {
                 ret.setNTS(record.isNTS());
                 ret.setSkywarn(record.isSkywarn());
                 ret.setRACES(record.isRACES());
+                ret.setCERT(record.isCERT());
                 if (record.location_municipality_id() != null) {
                     Location location = locationAccessor.getLocation(record.location_municipality_id());
                     ret.setLocation(location);
@@ -154,6 +156,7 @@ public class OperatorAccessor {
                 ret.setNTS(record.isNTS());
                 ret.setSkywarn(record.isSkywarn());
                 ret.setRACES(record.isRACES());
+                ret.setCERT(record.isCERT());
                 if (record.location_municipality_id() != null) {
                     Location location = locationAccessor.getLocation(record.location_municipality_id());
                     ret.setLocation(location);
@@ -178,9 +181,11 @@ public class OperatorAccessor {
 
             OperatorRecord rec = recordOpt.get();
             OperatorRecord recNew = new OperatorRecord(rec.id(), obj.getCallsign(), obj.getName(), obj.isNTS(), obj.isSkywarn(), obj.isRACES(),
-                                            (obj.getLocation() != null) ? obj.getLocation().getId() : null);
+                                            (obj.getLocation() != null) ? obj.getLocation().getId() : null,
+                                            obj.isCERTProvided() ? obj.isCERT() : rec.isCERT());
             OperatorRecord recSaved = operatorRepository.update(recNew);
             obj.setId(recSaved.id());
+            obj.setCERT(recSaved.isCERT());
             return obj;
         } catch (Exception e) {
             logger.error("Exception caught", e);
@@ -280,6 +285,7 @@ public class OperatorAccessor {
                     operator.setNTS(record.isNTS());
                     operator.setSkywarn(record.isSkywarn());
                     operator.setRACES(record.isRACES());
+                    operator.setCERT(record.isCERT());
                     operator.setLocation(location);
                     ret.add(operator);
                 }

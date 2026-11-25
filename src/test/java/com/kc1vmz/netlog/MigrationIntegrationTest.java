@@ -1144,6 +1144,99 @@ class MigrationIntegrationTest {
     }
 
     @Test
+    void certApiSupportsCreateReadExplicitClearAndOmittedUpdates() throws Exception {
+        mvc.perform(post("/api/v1/operators").contentType("application/json")
+                        .content("{\"callsign\":\"W1CERT\",\"CERT\":true}"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.CERT").value(true));
+        assertThat(operators.findBycallsign("W1CERT").isCERT()).isTrue();
+        mvc.perform(put("/api/v1/operators/operator").contentType("application/json")
+                        .content("{\"callsign\":\"KC1VMZ\",\"CERT\":true}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.CERT").value(true));
+        mvc.perform(put("/api/v1/operators/operator").contentType("application/json")
+                        .content("{\"callsign\":\"KC1VMZ\",\"name\":\"Updated name\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.CERT").value(true))
+                .andExpect(jsonPath("$.certProvided").doesNotExist())
+                .andExpect(jsonPath("$.CERTProvided").doesNotExist());
+        assertThat(operators.findById("operator").orElseThrow().isCERT()).isTrue();
+        mvc.perform(get("/api/v1/operators/operator"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.CERT").value(true));
+        mvc.perform(put("/api/v1/operators/operator").contentType("application/json")
+                        .content("{\"callsign\":\"KC1VMZ\",\"CERT\":false}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.CERT").value(false));
+        assertThat(operators.findById("operator").orElseThrow().isCERT()).isFalse();
+        mvc.perform(post("/api/v1/operators").contentType("application/json")
+                        .content("{\"callsign\":\"W1LEGACY\"}"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.CERT").value(false));
+    }
+
+    @Test
+    void certFormsAndOperatorListsDisplayAndSaveAffiliation() throws Exception {
+        for (String route : List.of("/operator-add", "/operator-edit/operator")) {
+            String form = mvc.perform(get(route)).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+            assertThat(form).contains("name=\"isCERT\"", "CERT affiliated");
+        }
+        mvc.perform(post("/operator-add-action").param("callsign", "W1FORM").param("isCERT", "on"))
+                .andExpect(status().isSeeOther());
+        assertThat(operators.findBycallsign("W1FORM").isCERT()).isTrue();
+        mvc.perform(post("/operator-edit-action/operator").param("callsign", "KC1VMZ").param("isCERT", "on"))
+                .andExpect(status().isSeeOther());
+        assertThat(operators.findById("operator").orElseThrow().isCERT()).isTrue();
+        for (String route : List.of("/operators", "/section/section", "/district/district",
+                "/location-location/location", "/location-county/county")) {
+            String page = mvc.perform(get(route)).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+            assertThat(page).contains("<th>CERT</th>", "KC1VMZ");
+        }
+        for (String route : List.of("/operators?selected=operator", "/operator/operator")) {
+            String page = mvc.perform(get(route)).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+            assertThat(page).contains("CERT affiliated").doesNotContain("Not CERT affiliated");
+        }
+        mvc.perform(post("/operator-edit-action/operator").param("callsign", "KC1VMZ"))
+                .andExpect(status().isSeeOther());
+        assertThat(operators.findById("operator").orElseThrow().isCERT()).isFalse();
+    }
+
+    @Test
+    void certCsvColumnMatchesRowsAndPreservesOtherColumnPositions() throws Exception {
+        jdbc.update("UPDATE operator SET is_cert = 1 WHERE id = 'operator'");
+        jdbc.update("UPDATE event SET state = ?, secure = 1, end_time = ? WHERE id = 'event'",
+                EventState.SECURE.ordinal(), JdbcValues.parameter(START.plusHours(1)));
+        for (String route : List.of("/archivedEvents-monthlyexport-action",
+                "/section-monthlynonparticipationexport-action", "/section-quarterlynonparticipationexport-action")) {
+            if (route.startsWith("/section")) {
+                jdbc.update("DELETE FROM participant");
+            }
+            String location = mvc.perform(post(route).param("sectionId", "section")
+                            .param("month", "11").param("year", "2026").param("quarter", "4").param("type", "ALL"))
+                    .andExpect(status().isSeeOther()).andReturn().getResponse().getHeader("Location");
+            try {
+                String csv = mvc.perform(get(location)).andExpect(status().isOk())
+                        .andReturn().getResponse().getContentAsString();
+                List<String[]> rows = csv.lines().map(line -> line.split(",", -1)).toList();
+                List<String> header = java.util.Arrays.asList(rows.get(0));
+                int cert = header.indexOf("OperatorIsCERT");
+                int callsign = header.indexOf("OperatorCallsign");
+                assertThat(cert).isGreaterThan(header.indexOf("OperatorIsRACES"));
+                assertThat(rows.size()).isGreaterThan(1);
+                for (String[] row : rows.subList(1, rows.size())) {
+                    assertThat(row).hasSize(header.size());
+                    if (row[callsign].equals("KC1VMZ")) {
+                        assertThat(row[cert]).isEqualTo("Yes");
+                        if (header.contains("OperatorTransmit Power")) {
+                            assertThat(row[header.indexOf("OperatorTransmit Power")]).isEqualTo("50");
+                        }
+                    }
+                }
+            } finally {
+                Files.deleteIfExists(Path.of(System.getProperty("java.io.tmpdir"),
+                        location.substring(location.lastIndexOf('/') + 1)));
+            }
+        }
+    }
+
+    @Test
     void jdbcPreservesEpochTimestampsEnumsAndRepositoryMethods() {
         assertThat(events.findById("event").orElseThrow().startTime()).isEqualTo(START);
         assertThat(jdbc.queryForObject("SELECT typeof(start_time) FROM event WHERE id = 'event'", String.class))
@@ -1154,7 +1247,7 @@ class MigrationIntegrationTest {
         assertThat(districtLocations.findBydistrict_id("district")).hasSize(1);
         assertThat(memberships.findBysectionId("section")).hasSize(1);
         assertThat(participants.findByeventId("event")).hasSize(1);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM DATABASECHANGELOG", Integer.class)).isEqualTo(11);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM DATABASECHANGELOG", Integer.class)).isEqualTo(12);
     }
 
     @Test

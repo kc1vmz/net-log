@@ -27,5 +27,6 @@ public record OperatorCreateRequest(
         String name,
         String isNTS,
         String isSkywarn,
-        String isRACES) {
+        String isRACES,
+        String isCERT) {
 }

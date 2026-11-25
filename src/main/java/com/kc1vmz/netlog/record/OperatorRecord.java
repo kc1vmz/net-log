@@ -31,5 +31,11 @@ public record OperatorRecord(
         boolean isNTS,
         boolean isSkywarn,
         boolean isRACES,
-        @Nullable String location_municipality_id) {
+        @Nullable String location_municipality_id,
+        boolean isCERT) {
+
+    public OperatorRecord(String id, String callsign, String name, boolean isNTS,
+            boolean isSkywarn, boolean isRACES, String location_municipality_id) {
+        this(id, callsign, name, isNTS, isSkywarn, isRACES, location_municipality_id, false);
+    }
 }
